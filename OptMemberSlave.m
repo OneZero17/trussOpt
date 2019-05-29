@@ -20,13 +20,13 @@ classdef OptMemberSlave < OptObjectSlave
             sinTheta = (self.optNodeB.master.geoNode.y - self.optNodeA.master.geoNode.y)/self.master.geoMember.length;
             
             if (self.optNodeA.equilibriumConstraintX ~= -1)
-                matrix.constraints{self.optNodeA.equilibriumConstraintX, 1} = matrix.constraints{self.optNodeA.equilibriumConstraintX, 1}.addVariable(self.forceVariable, cosTheta);
-                matrix.constraints{self.optNodeA.equilibriumConstraintY, 1} = matrix.constraints{self.optNodeA.equilibriumConstraintY, 1}.addVariable(self.forceVariable, sinTheta);
+                self.optNodeA.equilibriumConstraintX = self.optNodeA.equilibriumConstraintX.addVariable(self.forceVariable, cosTheta);
+                self.optNodeA.equilibriumConstraintY = self.optNodeA.equilibriumConstraintY.addVariable(self.forceVariable, sinTheta);
             end
             
             if (self.optNodeB.equilibriumConstraintX ~= -1)
-                matrix.constraints{self.optNodeB.equilibriumConstraintX, 1} = matrix.constraints{self.optNodeB.equilibriumConstraintX, 1}.addVariable(self.forceVariable, -cosTheta);
-                matrix.constraints{self.optNodeB.equilibriumConstraintY, 1} = matrix.constraints{self.optNodeB.equilibriumConstraintY, 1}.addVariable(self.forceVariable, -sinTheta);
+                self.optNodeB.equilibriumConstraintX = self.optNodeB.equilibriumConstraintX.addVariable(self.forceVariable, -cosTheta);
+                self.optNodeB.equilibriumConstraintY = self.optNodeB.equilibriumConstraintY.addVariable(self.forceVariable, -sinTheta);
             end
         end
         

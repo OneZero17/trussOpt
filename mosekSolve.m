@@ -1,4 +1,4 @@
-function res = mosekSolve(matrix, output)
+function result = mosekSolve(matrix, output)
     matrix = matrix.deleteEmptyCells();
     prob.c = matrix.getJacobianObjective();
     variableBoundary = matrix.getVariableBoundary();
@@ -9,8 +9,15 @@ function res = mosekSolve(matrix, output)
     prob.blc = constraintBoundary(:,1);
     prob.buc = constraintBoundary(:,2);
 
+    % Select interior-point optimizer... (integer parameter)
+    param.MSK_IPAR_OPTIMIZER = 'MSK_OPTIMIZER_INTPNT';
+    % ... without basis identification (integer parameter)
+    param.MSK_IPAR_INTPNT_BASIS = 'MSK_BI_NEVER';
+    
     if (output == 0)
-        [r, res]=mosekopt('minimize echo(0)',prob);   
+        [r, res]=mosekopt('minimize echo(0)',prob, param);   
     else
-       [r, res]=mosekopt('minimize',prob);    
+        [r, res]=mosekopt('minimize',prob, param); 
+    end   
+    result = res.sol.itr.xx;
 end

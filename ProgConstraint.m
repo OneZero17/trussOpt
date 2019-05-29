@@ -1,12 +1,13 @@
 classdef ProgConstraint < handle
     properties
         index
-        variableIndices
+        variables
         coefficients
         type
         dualValue
         lowerBound
         upperBound
+        variableNum = 0
     end
     
     methods
@@ -21,15 +22,15 @@ classdef ProgConstraint < handle
         
         function obj = addVariable(self, variable, coefficient)
             %% TO DO
-            self.variableIndices =[self.variableIndices; variable];
+            self.variables =[self.variables; variable];
             self.coefficients = [self.coefficients; coefficient];
             obj = self;
         end
         
         function obj = changeCoefficient(self, variable, coefficient)
             variableExist = 0;
-            for i = 1:size(self.variableIndices,1)
-                if self.variableIndices(i) == variable.index
+            for i = 1:size(self.variables,1)
+                if self.variables(i) == variable.index
                     self.coefficients(i) = coefficient;
                     variableExist = 1;
                 end

@@ -1,4 +1,4 @@
-classdef GeoGroundStructure
+classdef GeoGroundStructure < handle
     
     properties
         nodes
@@ -69,6 +69,25 @@ classdef GeoGroundStructure
                 end
             end
             obj = self;
+        end
+        
+        function plotMembers(self)
+            hold on
+            axis square
+            for i = 1:size(self.members)
+                if (self.members{i,1}.area > 0.001)
+                    x1 = [self.members{i,1}.nodeA.x, self.members{i,1}.nodeB.x];
+                    y1 = [self.members{i,1}.nodeA.y, self.members{i,1}.nodeB.y];
+                    plot(x1, y1, 'LineWidth', self.members{i,1}.area);
+                end
+            end
+        end
+        
+        function calcMaxMemberPerNode(self)
+            nodeConnextion = zeros(size(self.nodes, 1), 1);
+            for i = 1:size(self.members, 1)
+                
+            end
         end
     end
 end

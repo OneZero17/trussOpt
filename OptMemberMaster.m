@@ -27,11 +27,10 @@ classdef OptMemberMaster < OptObjectMaster
         
         function [matrix] = calcConstraint(self, matrix)
             for i =1:size(self.slaves, 1)
-                matrix.constraints{self.tensionStressConstraints(i), 1} = matrix.constraints{self.tensionStressConstraints(i), 1}.addVariable(self.areaVariable, 1);
-                matrix.constraints{self.tensionStressConstraints(i), 1} = matrix.constraints{self.tensionStressConstraints(i), 1}.addVariable(self.slaves{i, 1}.forceVariable, -1/self.sigma);
-                matrix.constraints{self.compressionStressConstraints(i), 1} = matrix.constraints{self.compressionStressConstraints(i), 1}.addVariable(self.areaVariable, 1);
-                matrix.constraints{self.compressionStressConstraints(i), 1} = matrix.constraints{self.compressionStressConstraints(i), 1}.addVariable(self.slaves{i, 1}.forceVariable, 1/self.sigma);
-
+                self.tensionStressConstraints(i) = self.tensionStressConstraints(i).addVariable(self.areaVariable, 1);
+                self.tensionStressConstraints(i) = self.tensionStressConstraints(i).addVariable(self.slaves{i, 1}.forceVariable, -1/self.sigma);
+                self.compressionStressConstraints(i) = self.compressionStressConstraints(i).addVariable(self.areaVariable, 1);
+                self.compressionStressConstraints(i) = self.compressionStressConstraints(i).addVariable(self.slaves{i, 1}.forceVariable, 1/self.sigma);
             end
             matrix = self.calcSlavesConstraints(matrix);
         end
@@ -43,6 +42,10 @@ classdef OptMemberMaster < OptObjectMaster
         function [conNum, varNum] = getConAndVarNum(self)
             conNum = size(self.slaves, 1);
             varNum = 1;
+        end
+        
+        function feedBackResult(self)
+            self.geoMember.area = self.areaVariable.value;
         end
     end
 end

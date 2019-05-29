@@ -18,10 +18,17 @@ classdef ProgMatrix < handle
             end
         end
         
+        function obj = feedBackResult(self, result)
+            for i = 1:size(self.variables)
+                self.variables{i, 1}.value = result(i);
+            end
+            obj = self;
+        end
+        
         function matrix = getJacobianObjective(self)
             matrix = zeros(size(self.variables, 1), 1);
-            for i = 1:size(self.objectiveFunction.variableIndices)
-                matrix(self.objectiveFunction.variableIndices(i), 1) = self.objectiveFunction.coefficients(i);
+            for i = 1:size(self.objectiveFunction.variables)
+                matrix(self.objectiveFunction.variables(i).index, 1) = self.objectiveFunction.coefficients(i);
             end
         end
                  
@@ -30,9 +37,9 @@ classdef ProgMatrix < handle
             coefficientNum = 1;
             for i = 1:size(self.constraints, 1)
                 currentConstraint = self.constraints{i, 1};
-                for j = 1:size(currentConstraint.variableIndices)
+                for j = 1:size(currentConstraint.variables)
                     matrix(coefficientNum, 1) = currentConstraint.index;
-                    matrix(coefficientNum, 2) = currentConstraint.variableIndices(j);
+                    matrix(coefficientNum, 2) = currentConstraint.variables(j).index;
                     matrix(coefficientNum, 3) = currentConstraint.coefficients(j);
                     coefficientNum = coefficientNum+1;
                 end
@@ -41,28 +48,26 @@ classdef ProgMatrix < handle
             matrix = sparse(matrix(:,1), matrix(:,2), matrix(:,3));
         end
         
-        function [obj, index] = addConstraint(self, lowerBound, upperBound)
+        function [obj, constraint] = addConstraint(self, lowerBound, upperBound)
             if nargin > 2
-                newConstraint = ProgConstraint(lowerBound, upperBound);
+                constraint = ProgConstraint(lowerBound, upperBound);
             else
-                newConstraint = ProgConstraint(); 
+                constraint = ProgConstraint(); 
             end
     
             self.addConNum = self.addConNum+1;
-            self.constraints{self.addConNum, 1} = newConstraint;
-            index = self.addConNum;
+            self.constraints{self.addConNum, 1} = constraint;
             obj = self;
         end
         
-        function [obj, index] = addVariable(self, lowerBound, upperBound)
+        function [obj, variable] = addVariable(self, lowerBound, upperBound)
             if nargin > 2
-                newVariable = ProgVariable(lowerBound, upperBound);
+                variable = ProgVariable(lowerBound, upperBound);
             else
-                newVariable = ProgVariable(); 
+                variable = ProgVariable(); 
             end
             self.addVariableNum = self.addVariableNum+1;
-            self.variables{self.addVariableNum, 1} = newVariable;
-            index = self.addVariableNum;
+            self.variables{self.addVariableNum, 1} = variable;
             obj = self;
         end
         

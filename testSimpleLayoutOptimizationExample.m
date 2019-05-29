@@ -1,6 +1,6 @@
 function obj = testSimpleLayoutOptimizationExample()
     groundStructure = GeoGroundStructure;
-    x=5;y=5;
+    x=7;y=7;
     groundStructure= groundStructure.createRectangularNodeGrid(x, y);
     loadcase = PhyLoadCase();
     [groundStructure, loadNodeIndex] = groundStructure.findOrAppendNode(x, 0);
@@ -18,11 +18,13 @@ function obj = testSimpleLayoutOptimizationExample()
     solverOptions = OptOptions();
     
     trussProblem = OptProblem();
-    trussProblem = trussProblem.createProblem(groundStructure, loadcases, supports, solverOptions);
+    trussProblem.createProblem(groundStructure, loadcases, supports, solverOptions);
     
     [conNum, varNum] = trussProblem.getConAndVarNum();
-    matrix = ProgMatrix(conNum, varNum)
-    [trussProblem, matrix] = trussProblem.initializeProblem(matrix);
+    matrix = ProgMatrix(conNum, varNum);
+    trussProblem.initializeProblem(matrix);
     result = mosekSolve(matrix, 0);
-    answer = result.sol.bas.xx;
+    matrix.feedBackResult(result);
+    trussProblem.feedBackResult();
+    groundStructure.plotMembers();
 end

@@ -88,6 +88,12 @@ classdef OptProblem < handle
             matrix = self.calcCoefficients(matrix);
             obj = self;
         end
+        
+        function feedBackResult(self)
+            for i = 1:size(self.optObjects, 1)
+                self.optObjects{i, 1}.feedBackResult();
+            end
+        end
     end
 end
 
