@@ -28,29 +28,32 @@ classdef ProgMatrix < handle
         function matrix = getJacobianObjective(self)
             matrix = zeros(size(self.variables, 1), 1);
             for i = 1:size(self.objectiveFunction.variables)
-                matrix(self.objectiveFunction.variables(i).index, 1) = self.objectiveFunction.coefficients(i);
+                matrix(self.objectiveFunction.variables{i,1}.index, 1) = self.objectiveFunction.coefficients(i);
             end
         end
                  
         function matrix = getJacobianConstraint(self)
-            matrix = zeros(size(self.constraints, 1)*size(self.variables, 1), 3);
+            totalCoefficientNum = 0;
+            for i = 1:size(self.constraints, 1)
+                totalCoefficientNum = totalCoefficientNum + size(self.constraints{i, 1}.variables, 1);
+            end
+            matrix = zeros(totalCoefficientNum, 3);
             coefficientNum = 1;
             for i = 1:size(self.constraints, 1)
                 currentConstraint = self.constraints{i, 1};
                 for j = 1:size(currentConstraint.variables)
                     matrix(coefficientNum, 1) = currentConstraint.index;
-                    matrix(coefficientNum, 2) = currentConstraint.variables(j).index;
+                    matrix(coefficientNum, 2) = currentConstraint.variables{j,1}.index;
                     matrix(coefficientNum, 3) = currentConstraint.coefficients(j);
                     coefficientNum = coefficientNum+1;
                 end
             end
-            matrix(coefficientNum:end,:)=[];
             matrix = sparse(matrix(:,1), matrix(:,2), matrix(:,3));
         end
         
-        function [obj, constraint] = addConstraint(self, lowerBound, upperBound)
+        function [obj, constraint] = addConstraint(self, lowerBound, upperBound, variableNum)
             if nargin > 2
-                constraint = ProgConstraint(lowerBound, upperBound);
+                constraint = ProgConstraint(lowerBound, upperBound, variableNum);
             else
                 constraint = ProgConstraint(); 
             end

@@ -30,9 +30,12 @@ classdef OptProblem < handle
             self.solverOptions = solverOptions;
             objectNum = 1;
             
+            nodeConnection = groundStructure.calcMemberPerNode();
+            
             for i = 1:size(groundStructure.nodes, 1)
                 self.optObjects{objectNum, 1} = OptNodeMaster();
                 self.optObjects{objectNum, 1}.geoNode = groundStructure.nodes{i, 1};
+                self.optObjects{objectNum, 1}.connectedMemberNum = nodeConnection(i);
                 nodeSlaves = cell(size(loadCases, 1), 1);
                 for j = 1:size(loadCases, 1)
                     nodeSlaves{j, 1} = OptNodeSlave();
@@ -61,12 +64,13 @@ classdef OptProblem < handle
                 memberSlaves = cell(size(loadCases, 1), 1);
                 for j = 1:size(loadCases, 1)
                     memberSlaves{j, 1} = OptMemberSlave();
+                    memberSlaves{j, 1}.master = self.optObjects{objectNum, 1};
                     nodeAIndex = groundStructure.members{i,1}.nodeA.index;
                     nodeBIndex = groundStructure.members{i,1}.nodeB.index;
                     memberSlaves{j, 1}.optNodeA = self.optObjects{nodeAIndex, 1}.slaves{j, 1};
                     memberSlaves{j, 1}.optNodeB = self.optObjects{nodeBIndex, 1}.slaves{j, 1};
                 end
-                self.optObjects{objectNum, 1} = self.optObjects{objectNum, 1}.addSlaves(memberSlaves);
+                self.optObjects{objectNum, 1}.slaves = memberSlaves;
                 objectNum = objectNum+1;
             end
             
@@ -75,14 +79,14 @@ classdef OptProblem < handle
         
         function matrix = calcCoefficients(self, matrix)
             for i = 1:size(self.optObjects, 1)
-                matrix = self.optObjects{i, 1}.calcConstraint(matrix);
-                matrix = self.optObjects{i, 1}.calcObjective(matrix);
+                self.optObjects{i, 1}.calcConstraint(matrix);
+                self.optObjects{i, 1}.calcObjective(matrix);
             end       
         end
         
         function [obj, matrix] = initializeProblem(self, matrix)
             for i = 1:size(self.optObjects, 1)
-                [matrix, self.optObjects{i, 1}] = self.optObjects{i, 1}.initialize(matrix);
+                self.optObjects{i, 1}.initialize(matrix);
             end
             matrix = matrix.initialize();
             matrix = self.calcCoefficients(matrix);

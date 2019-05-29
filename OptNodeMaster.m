@@ -1,14 +1,15 @@
 classdef OptNodeMaster < OptObjectMaster
     properties
         geoNode
+        connectedMemberNum
     end
     
     methods
         function obj = OptNodeMaster()
         end
         
-        function [matrix, obj] = initialize(self, matrix)
-            [matrix, obj] = self.initializeSlaves(matrix);
+        function initialize(self, matrix)
+            self.initializeSlaves(matrix);
         end
         
         function [conNum, varNum] = getConAndVarNum(self)

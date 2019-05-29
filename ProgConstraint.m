@@ -11,19 +11,23 @@ classdef ProgConstraint < handle
     end
     
     methods
-        function obj = ProgConstraint(lowerBoundary, upperBoundary)
+        function obj = ProgConstraint(lowerBoundary, upperBoundary, variableNum)
             if nargin > 0
                 obj.lowerBound = lowerBoundary;
             end
             if nargin > 1
                 obj.upperBound = upperBoundary;
             end
+            if nargin > 2
+                obj.variables=cell(variableNum, 1);
+                obj.coefficients = zeros(variableNum, 1);
+            end
         end
         
         function obj = addVariable(self, variable, coefficient)
-            %% TO DO
-            self.variables =[self.variables; variable];
-            self.coefficients = [self.coefficients; coefficient];
+            self.variableNum = self.variableNum+1;
+            self.variables{self.variableNum , 1} = variable;
+            self.coefficients(self.variableNum, 1) = coefficient;
             obj = self;
         end
         

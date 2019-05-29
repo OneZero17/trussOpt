@@ -83,10 +83,11 @@ classdef GeoGroundStructure < handle
             end
         end
         
-        function calcMaxMemberPerNode(self)
-            nodeConnextion = zeros(size(self.nodes, 1), 1);
+        function nodeConnection = calcMemberPerNode(self)
+            nodeConnection = zeros(size(self.nodes, 1), 1);
             for i = 1:size(self.members, 1)
-                
+                nodeConnection(self.members{i, 1}.nodeA.index, 1) = nodeConnection(self.members{i, 1}.nodeA.index, 1) +1;
+                nodeConnection(self.members{i, 1}.nodeB.index, 1) = nodeConnection(self.members{i, 1}.nodeB.index, 1) +1;
             end
         end
     end

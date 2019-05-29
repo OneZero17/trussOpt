@@ -1,6 +1,6 @@
 function obj = testSimpleLayoutOptimizationExample()
     groundStructure = GeoGroundStructure;
-    x=7;y=7;
+    x=10;y=10;
     groundStructure= groundStructure.createRectangularNodeGrid(x, y);
     loadcase = PhyLoadCase();
     [groundStructure, loadNodeIndex] = groundStructure.findOrAppendNode(x, 0);
@@ -14,7 +14,6 @@ function obj = testSimpleLayoutOptimizationExample()
     support2 = PhySupport(support2NodeIndex);
     supports = {support1; support2};
     groundStructure = groundStructure.createGroundStructureFromNodeGrid();
-    
     solverOptions = OptOptions();
     
     trussProblem = OptProblem();

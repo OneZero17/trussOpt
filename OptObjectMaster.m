@@ -7,11 +7,10 @@ classdef OptObjectMaster < OptObject
         function obj = OptObjectMaster()
         end
         
-        function [matrix, obj] = initializeSlaves(self, matrix)
+        function initializeSlaves(self, matrix)
             for i = 1: size(self.slaves)
-                [matrix, self.slaves{i, 1}] = self.slaves{i, 1}.initialize(matrix);
+                self.slaves{i, 1}.initialize(matrix);
             end
-            obj = self;
         end
         
         function matrix = calcSlavesConstraints(self, matrix)
@@ -21,7 +20,7 @@ classdef OptObjectMaster < OptObject
         end
         
         function obj = addSlaves(self, slaves)
-            for i = 1:size(slaves)
+            for i = 1:size(slaves,1)
                 slaves{i,1}.master = self;
             end
             self.slaves = slaves;
