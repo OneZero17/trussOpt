@@ -1,4 +1,4 @@
-classdef OptObject
+classdef OptObject < handle
     
     properties
         index
@@ -14,10 +14,13 @@ classdef OptObject
         function matrix = initialize(matrix)
         end
         
-        function matrix = calcConstraint(matrix)
+        function matrix = calcConstraint(self, matrix)
         end
         
-        function matrix = calcObjective(matrix)
+        function matrix = calcObjective(self, matrix)
+        end
+        
+        function [conNum, varNum] = getConAndVarNum()
         end
     end
 end

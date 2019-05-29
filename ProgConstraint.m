@@ -1,4 +1,4 @@
-classdef ProgConstraint    
+classdef ProgConstraint < handle
     properties
         index
         variableIndices
@@ -20,7 +20,8 @@ classdef ProgConstraint
         end
         
         function obj = addVariable(self, variable, coefficient)
-            self.variableIndices =[self.variableIndices; variable.index];
+            %% TO DO
+            self.variableIndices =[self.variableIndices; variable];
             self.coefficients = [self.coefficients; coefficient];
             obj = self;
         end

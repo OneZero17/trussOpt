@@ -1,4 +1,4 @@
-variables = [ProgVariable(0, inf); ProgVariable(0, 10); ProgVariable(0, inf); ProgVariable(0, inf)];
+ variables = [ProgVariable(0, inf); ProgVariable(0, 10); ProgVariable(0, inf); ProgVariable(0, inf)];
 constraints = [ProgConstraint(30, 30); ProgConstraint(15, inf); ProgConstraint(-inf, 25)];
 
 matrix = ProgMatrix();

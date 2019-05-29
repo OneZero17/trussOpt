@@ -1,21 +1,22 @@
-classdef GeoMember
-    %UNTITLED3 此处显示有关此类的摘要
-    %   此处显示详细说明
-    
+classdef GeoMember < handle
     properties
+        index
         nodeA
         nodeB
         length
     end
     
     methods
-        function obj = GeoMember(aNode,bNode)
+        function obj = GeoMember(aNode,bNode, index)
             if (nargin > 0)
                 obj.nodeA = aNode;
             end
             if (nargin > 1)
                 obj.nodeB = bNode;
                 obj.length = aNode.calcDistance(bNode);
+            end
+            if (nargin > 2)
+                obj.index = index;
             end
         end
     end

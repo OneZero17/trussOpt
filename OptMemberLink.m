@@ -16,7 +16,7 @@ classdef OptMemberLink
             obj = self;
         end
         
-        function [matrix] = calculateConstraint(self, matrix)
+        function [matrix] = calcConstraint(self, matrix)
             % memberA area - coefficient * memberB area = 0
             matrix.constraints(self.linkConstraint) = matrix.constraints(self.linkConstraint).addVariable(self.linkedMemberA, 1);
             matrix.constraints(self.linkConstraint) = matrix.constraints(self.linkConstraint).addVariable(self.linkedMemberB, -self.coefficient);

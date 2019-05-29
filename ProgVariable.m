@@ -1,4 +1,4 @@
-classdef ProgVariable    
+classdef ProgVariable < handle
     properties
         index
         upperBound 

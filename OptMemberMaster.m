@@ -2,8 +2,10 @@ classdef OptMemberMaster < OptObjectMaster
    
     properties
         sigma;
+        geoMember;
         areaVariable;
-        stressConstraints;
+        tensionStressConstraints;
+        compressionStressConstraints
     end
     
     methods
@@ -12,19 +14,35 @@ classdef OptMemberMaster < OptObjectMaster
         
         function [matrix, obj] = initialize(self, matrix)
             [matrix, self.areaVariable] = matrix.addVariable(0,inf);
-            for i =1:size(slaves)
+            for i =1:size(self.slaves, 1)
+                %% TO DO
                 [matrix, stressConstraint] = matrix.addConstraint(0,inf);
-                self.stressConstraints = [self.stressConstraints; stressConstraint];
+                self.tensionStressConstraints = [self.tensionStressConstraints; stressConstraint];
+                [matrix, stressConstraint] = matrix.addConstraint(0,inf);
+                self.compressionStressConstraints = [self.compressionStressConstraints; stressConstraint];
             end
             [matrix, self] = self.initializeSlaves(matrix);
             obj = self;
         end
         
-        function [matrix] = calculateConstraint(self, matrix)
-            for i =1:size(slaves)
-                matrix.constraints(self.stressConstraints(i)) = matrix.constraints(self.stressConstraints(i)).addVariable(self.areaVariable, 1);
-                matrix.constraints(self.stressConstraints(i)) = matrix.constraints(self.stressConstraints(i)).addVariable(slaves(i).forceVariable, -1/self.sigma);
+        function [matrix] = calcConstraint(self, matrix)
+            for i =1:size(self.slaves, 1)
+                matrix.constraints{self.tensionStressConstraints(i), 1} = matrix.constraints{self.tensionStressConstraints(i), 1}.addVariable(self.areaVariable, 1);
+                matrix.constraints{self.tensionStressConstraints(i), 1} = matrix.constraints{self.tensionStressConstraints(i), 1}.addVariable(self.slaves{i, 1}.forceVariable, -1/self.sigma);
+                matrix.constraints{self.compressionStressConstraints(i), 1} = matrix.constraints{self.compressionStressConstraints(i), 1}.addVariable(self.areaVariable, 1);
+                matrix.constraints{self.compressionStressConstraints(i), 1} = matrix.constraints{self.compressionStressConstraints(i), 1}.addVariable(self.slaves{i, 1}.forceVariable, 1/self.sigma);
+
             end
+            matrix = self.calcSlavesConstraints(matrix);
+        end
+        
+        function matrix = calcObjective(self, matrix)
+            matrix.objectiveFunction = matrix.objectiveFunction.addVariable(self.areaVariable, self.geoMember.length);
+        end
+        
+        function [conNum, varNum] = getConAndVarNum(self)
+            conNum = size(self.slaves, 1);
+            varNum = 1;
         end
     end
 end

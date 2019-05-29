@@ -1,9 +1,8 @@
-classdef OptMemberSlave < OptObject
+classdef OptMemberSlave < OptObjectSlave
    
     properties
         optNodeA
         optNodeB
-        geoMember
         forceVariable
     end
     
@@ -16,14 +15,24 @@ classdef OptMemberSlave < OptObject
             obj = self;
         end
         
-        function [matrix] = calculateConstraint(self, matrix)
-            cosTheta = (self.optNodeB.geoNode.x - self.optNodeA.geoNode.x)/self.geoMember.length;
-            sinTheta = (self.optNodeB.geoNode.y - self.optNodeA.geoNode.y)/self.geoMember.length;
+        function [matrix] = calcConstraint(self, matrix)
+            cosTheta = (self.optNodeB.master.geoNode.x - self.optNodeA.master.geoNode.x)/self.master.geoMember.length;
+            sinTheta = (self.optNodeB.master.geoNode.y - self.optNodeA.master.geoNode.y)/self.master.geoMember.length;
             
-            matrix.constraints(self.optNodeA.equilibriumConstraintX) = matrix.constraints(self.optNodeA.equilibriumConstraintX).addVariable(self.forceVariable, cosTheta);
-            matrix.constraints(self.optNodeA.equilibriumConstraintY) = matrix.constraints(self.optNodeA.equilibriumConstraintY).addVariable(self.forceVariable, sinTheta);
-            matrix.constraints(self.optNodeB.equilibriumConstraintX) = matrix.constraints(self.optNodeB.equilibriumConstraintX).addVariable(self.forceVariable, -cosTheta);
-            matrix.constraints(self.optNodeB.equilibriumConstraintY) = matrix.constraints(self.optNodeB.equilibriumConstraintY).addVariable(self.forceVariable, -sinTheta);
+            if (self.optNodeA.equilibriumConstraintX ~= -1)
+                matrix.constraints{self.optNodeA.equilibriumConstraintX, 1} = matrix.constraints{self.optNodeA.equilibriumConstraintX, 1}.addVariable(self.forceVariable, cosTheta);
+                matrix.constraints{self.optNodeA.equilibriumConstraintY, 1} = matrix.constraints{self.optNodeA.equilibriumConstraintY, 1}.addVariable(self.forceVariable, sinTheta);
+            end
+            
+            if (self.optNodeB.equilibriumConstraintX ~= -1)
+                matrix.constraints{self.optNodeB.equilibriumConstraintX, 1} = matrix.constraints{self.optNodeB.equilibriumConstraintX, 1}.addVariable(self.forceVariable, -cosTheta);
+                matrix.constraints{self.optNodeB.equilibriumConstraintY, 1} = matrix.constraints{self.optNodeB.equilibriumConstraintY, 1}.addVariable(self.forceVariable, -sinTheta);
+            end
+        end
+        
+        function [conNum, varNum] = getConAndVarNum(self)
+            conNum = 0;
+            varNum = 1;
         end
     end
 end
