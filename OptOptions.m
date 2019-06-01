@@ -3,6 +3,7 @@ classdef OptOptions
     
     properties
         sigma = 1;
+        cellOptimization = 0;
     end
     
     methods

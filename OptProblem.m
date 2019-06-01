@@ -15,9 +15,11 @@ classdef OptProblem < handle
                 [conNumToAdd, varNumToAdd] = self.optObjects{i, 1}.getConAndVarNum();
                 conNum = conNum + conNumToAdd;
                 varNum = varNum + varNumToAdd;
-                [slaveConNumToAdd, slaveVarNumToAdd] = self.optObjects{i, 1}.getSlavesConAndVarNum();
-                conNum = conNum + slaveConNumToAdd;
-                varNum = varNum + slaveVarNumToAdd;
+                if isa(self.optObjects{i, 1}, 'OptObjectMaster')
+                    [slaveConNumToAdd, slaveVarNumToAdd] = self.optObjects{i, 1}.getSlavesConAndVarNum();
+                    conNum = conNum + slaveConNumToAdd;
+                    varNum = varNum + slaveVarNumToAdd;
+                end
             end
         end
         
@@ -58,9 +60,9 @@ classdef OptProblem < handle
             end
             
             for i = 1:size(groundStructure.members, 1)
-                self.optObjects{objectNum, 1} = OptMemberMaster();
-                self.optObjects{objectNum, 1}.geoMember = groundStructure.members{i,1};
-                self.optObjects{objectNum, 1}.sigma = solverOptions.sigma;
+                self.optObjects{objectNum, 1} = OptMemberMaster(groundStructure.members{i,1}, solverOptions.sigma);
+                %self.optObjects{objectNum, 1}.geoMember = ;
+                %self.optObjects{objectNum, 1}.sigma = ;
                 memberSlaves = cell(size(loadCases, 1), 1);
                 for j = 1:size(loadCases, 1)
                     memberSlaves{j, 1} = OptMemberSlave();
@@ -75,6 +77,64 @@ classdef OptProblem < handle
             end
             
             obj = self;
+        end
+        
+        function optMember = getOptmemberByIndex(self, cellGrid, index)
+            optmemberNo = index + size(cellGrid.nodes, 1);
+            optMember = self.optObjects{optmemberNo, 1};
+        end
+        
+        function createCellLinks(self, cellGrid)
+            optLinkObjects = cell(5*size(cellGrid.cells, 1)*size(cellGrid.cells, 2), 1);
+            linkNum = 0;
+            innerToBoundRatio = 1/ sqrt(2);
+            for i = 1 : size(cellGrid.cells, 1)
+                for j =  1 : size(cellGrid.cells, 2)
+                    % create links of cell inner members
+                    inclinedMemberAIndex = cellGrid.cells{i, j}.members{5, 1}.index;
+                    inclinedMemberBIndex = cellGrid.cells{i, j}.members{6, 1}.index;
+                    inclinedMemberA = self.getOptmemberByIndex(cellGrid, inclinedMemberAIndex);
+                    inclinedMemberB = self.getOptmemberByIndex(cellGrid, inclinedMemberBIndex);
+                    link = OptMemberLink();
+                    link.linkedMemberA = inclinedMemberA;
+                    link.linkedMemberB = inclinedMemberB;
+                    link.coefficient = 1;
+                    linkNum = linkNum + 1;
+                    optLinkObjects{linkNum, 1} = link;
+                    
+                    % create links of cell boundary members
+                    for k = 1:4
+                        boundMember = self.getOptmemberByIndex(cellGrid, cellGrid.cells{i, j}.members{k, 1}.index);
+                        if (k == 1 && j ==1) || (k == 2 && i == size(cellGrid.cells, 1)) || (k == 3 && j == size(cellGrid.cells, 2)) || (k == 4 && i == 1)
+                            link = OptMemberLink();
+                            link.linkedMemberA = boundMember;
+                            link.linkedMemberB = inclinedMemberA;
+                            link.coefficient = innerToBoundRatio;
+                            linkNum = linkNum + 1;
+                            optLinkObjects{linkNum, 1} = link;
+                        else
+                            link = OptThreeMemberLink();
+                            link.linkedMemberA = boundMember;
+                            link.linkedMemberB = inclinedMemberA;
+                            link.coefficientB = innerToBoundRatio;
+                            if k == 1
+                                link.linkedMemberC = self.getOptmemberByIndex(cellGrid, cellGrid.cells{i, j-1}.members{5, 1}.index);
+                            elseif k == 2   
+                                link.linkedMemberC = self.getOptmemberByIndex(cellGrid, cellGrid.cells{i+1, j}.members{5, 1}.index);
+                            elseif k == 3  
+                                link.linkedMemberC = self.getOptmemberByIndex(cellGrid, cellGrid.cells{i, j+1}.members{5, 1}.index);
+                            elseif k == 4  
+                                link.linkedMemberC = self.getOptmemberByIndex(cellGrid, cellGrid.cells{i-1, j}.members{5, 1}.index);
+                            end
+                            link.coefficientC = innerToBoundRatio;    
+                            linkNum = linkNum + 1;
+                            optLinkObjects{linkNum, 1} = link;
+                        end                      
+                    end
+                end
+            end
+                   
+            self.optObjects = [self.optObjects; optLinkObjects];
         end
         
         function matrix = calcCoefficients(self, matrix)

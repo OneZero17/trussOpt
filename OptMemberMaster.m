@@ -9,7 +9,13 @@ classdef OptMemberMaster < OptObjectMaster
     end
     
     methods
-        function obj = OptMemberMaster()
+        function obj = OptMemberMaster(geoMember, sigma)
+            if (nargin > 0)
+                obj.geoMember = geoMember;
+            end
+            if (nargin > 1)
+                obj.sigma = sigma;
+            end
         end
         
         function [matrix, obj] = initialize(self, matrix)
@@ -28,10 +34,10 @@ classdef OptMemberMaster < OptObjectMaster
         
         function calcConstraint(self, matrix)
             for i =1:size(self.slaves, 1)
-                self.tensionStressConstraints{i,1} = self.tensionStressConstraints{i,1}.addVariable(self.areaVariable, 1);
-                self.tensionStressConstraints{i,1} = self.tensionStressConstraints{i,1}.addVariable(self.slaves{i, 1}.forceVariable, -1/self.sigma);
-                self.compressionStressConstraints{i,1} = self.compressionStressConstraints{i,1}.addVariable(self.areaVariable, 1);
-                self.compressionStressConstraints{i,1} = self.compressionStressConstraints{i,1}.addVariable(self.slaves{i, 1}.forceVariable, 1/self.sigma);
+                self.tensionStressConstraints{i,1}.addVariable(self.areaVariable, 1);
+                self.tensionStressConstraints{i,1}.addVariable(self.slaves{i, 1}.forceVariable, -1/self.sigma);
+                self.compressionStressConstraints{i,1}.addVariable(self.areaVariable, 1);
+                self.compressionStressConstraints{i,1}.addVariable(self.slaves{i, 1}.forceVariable, 1/self.sigma);
             end
             self.calcSlavesConstraints(matrix);
         end

@@ -15,6 +15,16 @@ classdef GeoGroundStructure < handle
             end
         end
         
+        function initializeIndices(self)
+            for i = 1:size(self.nodes, 1)
+                self.nodes{i,1}.index = i;
+            end
+            
+            for i = 1:size(self.members, 1)
+                self.members{i,1}.index = i;
+            end
+        end
+        
         function obj = findNodeIndex(self, x, y)
             for i = 1:size(self.nodes)
                 if (self.nodes{i, 1}.x == x && self.nodes{i, 1}.y == y)
@@ -73,7 +83,7 @@ classdef GeoGroundStructure < handle
         
         function plotMembers(self)
             hold on
-            axis square
+            axis equal
             for i = 1:size(self.members)
                 if (self.members{i,1}.area > 0.001)
                     x1 = [self.members{i,1}.nodeA.x, self.members{i,1}.nodeB.x];
@@ -86,8 +96,10 @@ classdef GeoGroundStructure < handle
         function nodeConnection = calcMemberPerNode(self)
             nodeConnection = zeros(size(self.nodes, 1), 1);
             for i = 1:size(self.members, 1)
-                nodeConnection(self.members{i, 1}.nodeA.index, 1) = nodeConnection(self.members{i, 1}.nodeA.index, 1) +1;
-                nodeConnection(self.members{i, 1}.nodeB.index, 1) = nodeConnection(self.members{i, 1}.nodeB.index, 1) +1;
+                nodeAIndex = self.members{i, 1}.nodeA.index;
+                nodeBIndex = self.members{i, 1}.nodeB.index;
+                nodeConnection(nodeAIndex, 1) = nodeConnection(nodeAIndex, 1) + 1;
+                nodeConnection(nodeBIndex, 1) = nodeConnection(nodeBIndex, 1) + 1;
             end
         end
     end
