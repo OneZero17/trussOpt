@@ -27,7 +27,8 @@ classdef GeoGroundStructure < handle
         
         function obj = findNodeIndex(self, x, y)
             for i = 1:size(self.nodes)
-                if (self.nodes{i, 1}.x == x && self.nodes{i, 1}.y == y)
+                diff = sqrt((self.nodes{i, 1}.x - x)^2 + (self.nodes{i, 1}.y - y)^2);
+                if (diff < 1e-7)
                     obj = i;
                     return;
                 end

@@ -43,8 +43,8 @@ classdef OptProblem < handle
                     nodeSlaves{j, 1} = OptNodeSlave();
                     for k = 1:size(loadCases{j, 1}.loads)
                         if (loadCases{j, 1}.loads{k,1}.nodeIndex == i)
-                            nodeSlaves{j, 1}.loadX = loadCases{j, 1}.loads{k,1}.loadX;
-                            nodeSlaves{j, 1}.loadY = loadCases{j, 1}.loads{k,1}.loadY;
+                            nodeSlaves{j, 1}.loadX = nodeSlaves{j, 1}.loadX + loadCases{j, 1}.loads{k,1}.loadX;
+                            nodeSlaves{j, 1}.loadY = nodeSlaves{j, 1}.loadY + loadCases{j, 1}.loads{k,1}.loadY;
                         end               
                     end
                     
@@ -61,8 +61,6 @@ classdef OptProblem < handle
             
             for i = 1:size(groundStructure.members, 1)
                 self.optObjects{objectNum, 1} = OptMemberMaster(groundStructure.members{i,1}, solverOptions.sigma);
-                %self.optObjects{objectNum, 1}.geoMember = ;
-                %self.optObjects{objectNum, 1}.sigma = ;
                 memberSlaves = cell(size(loadCases, 1), 1);
                 for j = 1:size(loadCases, 1)
                     memberSlaves{j, 1} = OptMemberSlave();
@@ -134,6 +132,46 @@ classdef OptProblem < handle
                 end
             end
                    
+            self.optObjects = [self.optObjects; optLinkObjects];
+        end
+        
+        function createComplexCellLinks(self, cellGrid, maxArea, boundMemberCoefficient)
+            memberNumPerCell = size(cellGrid.members, 1);
+            optLinkObjects = cell((memberNumPerCell+1)*size(cellGrid.cells, 1)*size(cellGrid.cells, 2), 1);
+            optLinkObjectNum = 0;
+            for i=1:size(cellGrid.cells, 1)
+                for j = 1:size(cellGrid.cells, 2)
+                    currentCell = cellGrid.cells{i, j};
+                    optLinkObjectNum = optLinkObjectNum+1;
+                    optCell = OptCell(maxArea);
+                    optLinkObjects{optLinkObjectNum, 1} = optCell;
+                    
+                    
+                    for k=1:4
+                        for l = 1:size(currentCell.boundMembers, 2)
+                            currentMember = currentCell.boundMembers{k, l};
+                            optMember = self.getOptmemberByIndex(cellGrid, currentMember.index);
+                            link = OptMemberLink();
+                            link.linkedMemberA = optCell;
+                            link.linkedMemberB = optMember;
+                            link.coefficient = boundMemberCoefficient/(currentMember.length * currentCell.splitNum);
+                            optLinkObjectNum = optLinkObjectNum+1;
+                            optLinkObjects{optLinkObjectNum, 1} = link;
+                        end
+                    end
+                    
+                    for k = 1:size(currentCell.innerMembers, 1)
+                        currentMember = currentCell.innerMembers{k, 1};
+                        optMember = self.getOptmemberByIndex(cellGrid, currentMember.index);
+                        link = OptMemberLink();
+                        link.linkedMemberA = optCell;
+                        link.linkedMemberB = optMember;
+                        link.coefficient = 1/currentMember.length;
+                        optLinkObjectNum = optLinkObjectNum+1;
+                        optLinkObjects{optLinkObjectNum, 1} = link;
+                    end           
+                end
+            end   
             self.optObjects = [self.optObjects; optLinkObjects];
         end
         

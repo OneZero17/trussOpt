@@ -1,4 +1,4 @@
-function result = mosekSolve(matrix, output)
+function [vars, result] = mosekSolve(matrix, output)
     matrix = matrix.deleteEmptyCells();
     prob.c = matrix.getJacobianObjective();
     variableBoundary = matrix.getVariableBoundary();
@@ -19,5 +19,6 @@ function result = mosekSolve(matrix, output)
     else
         [r, res]=mosekopt('minimize',prob, param); 
     end   
-    result = res.sol.itr.xx;
+    vars = res.sol.itr.xx;
+    result = res.sol.itr.pobjval;
 end

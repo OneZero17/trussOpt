@@ -106,6 +106,38 @@ classdef GeoCellGrid < GeoGroundStructure
             cell = CellSimpleSquare(nodes, members);
             cell.size = size;
         end
+        
+        function obj = createPharseOneComplexCell(self, xStart, yStart, size, splitNum)
+            nodes  = cell(splitNum*4, 1);
+            spacing = size/splitNum;
+            nodeNum = 0;    
+            for i = 1:splitNum
+                node = GeoNode(xStart + spacing * (i - 1), yStart);
+                nodeNum = nodeNum+1;
+                nodes{nodeNum} = node;
+            end
+            
+            for i = 1:splitNum
+                node = GeoNode(xStart + size, yStart + spacing * (i - 1));
+                nodeNum = nodeNum+1;
+                nodes{nodeNum} = node;
+            end
+            
+            for i = 1:splitNum
+                node = GeoNode(xStart + size - spacing * (i - 1), yStart + size);
+                nodeNum = nodeNum+1;
+                nodes{nodeNum} = node;
+            end
+            
+            for i = 1:splitNum
+                node = GeoNode(xStart, yStart + size - spacing * (i - 1));
+                nodeNum = nodeNum+1;
+                nodes{nodeNum} = node;
+            end
+            
+            obj = CellComplexSquare(nodes, splitNum);
+            self.nodes = [self.nodes; nodes];
+        end
     end
 end
 
