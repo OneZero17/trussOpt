@@ -107,36 +107,80 @@ classdef GeoCellGrid < GeoGroundStructure
             cell.size = size;
         end
         
-        function obj = createPharseOneComplexCell(self, xStart, yStart, size, splitNum)
-            nodes  = cell(splitNum*4, 1);
-            spacing = size/splitNum;
-            nodeNum = 0;    
-            for i = 1:splitNum
-                node = GeoNode(xStart + spacing * (i - 1), yStart);
-                nodeNum = nodeNum+1;
-                nodes{nodeNum} = node;
+        function obj = createPharseOneComplexCell(self, xStart, yStart, size, splitNum)    
+            obj = CellComplexSquare(xStart, yStart, size, splitNum);
+            obj.boundnodes = cell(4, splitNum+1);
+            obj.boundMembers = cell(4, splitNum);
+            for i = 1:4
+                obj.createBoundNodes(i);
             end
-            
-            for i = 1:splitNum
-                node = GeoNode(xStart + size, yStart + spacing * (i - 1));
-                nodeNum = nodeNum+1;
-                nodes{nodeNum} = node;
+            obj.addBoundEndNode();
+            for i = 1:4
+                obj.createBoundMembers(i);
             end
+            obj.createInnerMembers();
             
-            for i = 1:splitNum
-                node = GeoNode(xStart + size - spacing * (i - 1), yStart + size);
-                nodeNum = nodeNum+1;
-                nodes{nodeNum} = node;
+            self.nodes = [self.nodes; obj.nodes];
+            self.members = [self.members; obj.members];
+        end
+        
+        function obj = createPharseTwoComplexCell(self, pharseOneCell)    
+            obj = CellComplexSquare(pharseOneCell.xStart + pharseOneCell.size, pharseOneCell.yStart, pharseOneCell.size, pharseOneCell.splitNum);
+            obj.boundnodes = cell(4, pharseOneCell.splitNum+1);
+            obj.boundMembers = cell(4, pharseOneCell.splitNum);
+            obj.boundnodes(4,:) = flip(pharseOneCell.boundnodes(2,:));
+            obj.createBoundNodes(1, pharseOneCell.boundnodes{2, 1});
+            obj.createBoundNodes(2);
+            obj.createBoundNodes(3);
+            obj.addBoundEndNode();
+            obj.boundMembers(4,:) = flip(pharseOneCell.boundMembers(2,:));
+            for i = 1:3
+                obj.createBoundMembers(i);
             end
+            obj.createInnerMembers();
             
-            for i = 1:splitNum
-                node = GeoNode(xStart, yStart + size - spacing * (i - 1));
-                nodeNum = nodeNum+1;
-                nodes{nodeNum} = node;
+            self.nodes = [self.nodes; obj.nodes];
+            self.members = [self.members; obj.members];
+        end
+        
+        function obj = createPharseThreeComplexCell(self, pharseOneCell)    
+            obj = CellComplexSquare(pharseOneCell.xStart , pharseOneCell.yStart + pharseOneCell.size, pharseOneCell.size, pharseOneCell.splitNum);
+            obj.boundnodes = cell(4, pharseOneCell.splitNum+1);
+            obj.boundMembers = cell(4, pharseOneCell.splitNum);
+            obj.boundnodes(1,:) = flip(pharseOneCell.boundnodes(3,:));
+            obj.createBoundNodes(2, pharseOneCell.boundnodes{3, 1});
+            obj.createBoundNodes(3);
+            obj.createBoundNodes(4);
+            obj.addBoundEndNode();
+            obj.boundMembers(1,:) = flip(pharseOneCell.boundMembers(3,:));
+            for i = 2:4
+                obj.createBoundMembers(i);
             end
+            obj.createInnerMembers();
             
-            obj = CellComplexSquare(nodes, splitNum);
-            self.nodes = [self.nodes; nodes];
+            self.nodes = [self.nodes; obj.nodes];
+            self.members = [self.members; obj.members];
+        end
+        
+       function obj = createPharseFourComplexCell(self, pharseTwoCell, pharseThreeCell)    
+            obj = CellComplexSquare(pharseTwoCell.xStart, pharseTwoCell.yStart + pharseTwoCell.size, pharseTwoCell.size, pharseTwoCell.splitNum);
+            obj.boundnodes = cell(4, pharseTwoCell.splitNum+1);
+            obj.boundMembers = cell(4, pharseTwoCell.splitNum);
+            obj.boundnodes(1,:) = flip(pharseTwoCell.boundnodes(3,:));
+            obj.createBoundNodes(2, pharseTwoCell.boundnodes{3, 1});
+            obj.createBoundNodes(3);
+            obj.boundnodes(4,:) = flip(pharseThreeCell.boundnodes(2,:));
+            obj.addBoundEndNode();
+            
+            obj.boundMembers(1,:) = flip(pharseTwoCell.boundMembers(3,:));
+            for i = 2:3
+                obj.createBoundMembers(i);
+            end
+            obj.boundMembers(4,:) = flip(pharseThreeCell.boundMembers(2,:));
+            obj.createInnerMembers();
+            
+            self.nodes = [self.nodes; obj.nodes];
+            self.members = [self.members; obj.members];
         end
     end
 end

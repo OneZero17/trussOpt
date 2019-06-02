@@ -85,11 +85,17 @@ classdef GeoGroundStructure < handle
         function plotMembers(self)
             hold on
             axis equal
+            axis off
+            maxArea = -1;
             for i = 1:size(self.members)
-                if (self.members{i,1}.area > 0.001)
+                maxArea = max(maxArea, self.members{i,1}.area);
+            end
+            for i = 1:size(self.members)
+                if (self.members{i,1}.area > maxArea / 1000)
+                    color = [1,1,1] - (self.members{i,1}.area / maxArea)^(0.3) * [1, 1, 1];
                     x1 = [self.members{i,1}.nodeA.x, self.members{i,1}.nodeB.x];
                     y1 = [self.members{i,1}.nodeA.y, self.members{i,1}.nodeB.y];
-                    plot(x1, y1, 'LineWidth', self.members{i,1}.area);
+                    plot(x1, y1, 'Color', color);
                 end
             end
         end

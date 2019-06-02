@@ -1,8 +1,11 @@
-xMax=1; yMax=1; cellSize=1; splitNum = 2;
+clear 
+xMax=1; yMax=1; cellSize=1; splitNum = 1;
 results = [];
 maxArea = inf;
-boundMemberCoefficient = 1/sqrt(1.35);
+%boundMemberCoefficient = 1/sqrt(1.35);
 %boundMemberCoefficient = 0.707;
+boundMemberCoefficient = 0.5;
+%boundMemberCoefficient = 1;
 for xStep = -10:10
     for yStep = -10:10
         xLoad = xStep / 100;
@@ -10,8 +13,6 @@ for xStep = -10:10
         cellGrid = GeoCellGrid(xMax, yMax);
 
         cellGrid.cells{1, 1}= cellGrid.createPharseOneComplexCell(0, 0, cellSize, splitNum);
-        newMembers = cellGrid.cells{1, 1}.initialize();
-        cellGrid.members = newMembers;
         cellGrid.initializeIndices();
 
         %loads and supports
@@ -45,10 +46,14 @@ for xStep = -10:10
         results = [results; xLoad, yLoad, result];
     end
 end
-
+figure 
+axis off
+matrix.feedBackResult(vars);
+cellProblem.feedBackResult();
+cellGrid.plotMembers();
 results(:, 1:2) = results(:, 1:2)./results(:, 3);
 results(:, 1:2) = results(:, 1:2) /results(1, 1);
-figure
+figure 
 hold on
 axis equal
 for i = 1:size(results, 1)

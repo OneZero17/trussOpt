@@ -136,27 +136,58 @@ classdef OptProblem < handle
         end
         
         function createComplexCellLinks(self, cellGrid, maxArea, boundMemberCoefficient)
-            memberNumPerCell = size(cellGrid.members, 1);
+            memberNumPerCell = size(cellGrid.cells{1, 1}.members, 1);
             optLinkObjects = cell((memberNumPerCell+1)*size(cellGrid.cells, 1)*size(cellGrid.cells, 2), 1);
             optLinkObjectNum = 0;
+            
+            for i=1:size(cellGrid.cells, 1)
+                for j = 1:size(cellGrid.cells, 2)
+                    currentCell = cellGrid.cells{i, j};
+                    optCell = OptCell(maxArea);
+                    currentCell.optCell = optCell;
+                end
+            end
+            
             for i=1:size(cellGrid.cells, 1)
                 for j = 1:size(cellGrid.cells, 2)
                     currentCell = cellGrid.cells{i, j};
                     optLinkObjectNum = optLinkObjectNum+1;
-                    optCell = OptCell(maxArea);
+                    optCell = currentCell.optCell;
                     optLinkObjects{optLinkObjectNum, 1} = optCell;
                     
-                    
                     for k=1:4
-                        for l = 1:size(currentCell.boundMembers, 2)
-                            currentMember = currentCell.boundMembers{k, l};
-                            optMember = self.getOptmemberByIndex(cellGrid, currentMember.index);
-                            link = OptMemberLink();
-                            link.linkedMemberA = optCell;
-                            link.linkedMemberB = optMember;
-                            link.coefficient = boundMemberCoefficient/(currentMember.length * currentCell.splitNum);
-                            optLinkObjectNum = optLinkObjectNum+1;
-                            optLinkObjects{optLinkObjectNum, 1} = link;
+                        if (k == 1 && j ==1) || (k == 2 && i == size(cellGrid.cells, 1)) || (k == 3 && j == size(cellGrid.cells, 2)) || (k == 4 && i == 1)
+                            for l = 1:size(currentCell.boundMembers, 2)
+                                currentMember = currentCell.boundMembers{k, l};
+                                optMember = self.getOptmemberByIndex(cellGrid, currentMember.index);
+                                link = OptMemberLink();
+                                link.linkedMemberA = optMember;
+                                link.linkedMemberB = optCell;
+                                link.coefficient = (currentMember.length * currentCell.splitNum)/boundMemberCoefficient;
+                                optLinkObjectNum = optLinkObjectNum+1;
+                                optLinkObjects{optLinkObjectNum, 1} = link;
+                            end
+                        else
+                            for l = 1:size(currentCell.boundMembers, 2)
+                                currentMember = currentCell.boundMembers{k, l};
+                                optMember = self.getOptmemberByIndex(cellGrid, currentMember.index);
+                                link = OptThreeMemberLink();
+                                link.linkedMemberA = optMember;
+                                link.linkedMemberB = optCell;
+                                link.coefficientB = (currentMember.length * currentCell.splitNum)/boundMemberCoefficient;
+                                if k == 1
+                                    link.linkedMemberC = cellGrid.cells{i, j-1}.optCell;
+                                elseif k == 2   
+                                    link.linkedMemberC = cellGrid.cells{i+1, j}.optCell;
+                                elseif k == 3  
+                                    link.linkedMemberC = cellGrid.cells{i, j+1}.optCell;
+                                elseif k == 4  
+                                    link.linkedMemberC = cellGrid.cells{i-1, j}.optCell;
+                                end
+                                link.coefficientC = (currentMember.length * currentCell.splitNum)/boundMemberCoefficient;  
+                                optLinkObjectNum = optLinkObjectNum+1;
+                                optLinkObjects{optLinkObjectNum, 1} = link;
+                            end
                         end
                     end
                     

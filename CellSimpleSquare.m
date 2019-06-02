@@ -1,7 +1,6 @@
 classdef CellSimpleSquare < CellBasic
   
     properties
-        size
     end
     
     methods

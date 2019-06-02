@@ -1,17 +1,18 @@
 classdef CellBasic < GeoGroundStructure
 
     properties
-        xIndex
-        yIndex
+        xStart
+        yStart
+        size
     end
     
     methods
-        function obj = CellBasic(xIndex,yIndex)
+        function obj = CellBasic(xStart,yStart)
             if (nargin > 0)
-                obj.xIndex = xIndex;
+                obj.xStart = xStart;
             end
             if (nargin > 1)
-                obj.yIndex = yIndex;
+                obj.yStart = yStart;
             end
         end
     end
