@@ -23,7 +23,7 @@ classdef OptObject < handle
         function [conNum, varNum] = getConAndVarNum()
         end
         
-        function feedBackResult(self)
+        function feedBackResult(self, loadCaseNum)
         end
     end
 end

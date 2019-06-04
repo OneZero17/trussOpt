@@ -21,11 +21,17 @@ classdef OptMemberSlave < OptObjectSlave
             
             if (self.optNodeA.equilibriumConstraintX ~= -1)
                 self.optNodeA.equilibriumConstraintX.addVariable(self.forceVariable, cosTheta);
+            end
+            
+            if (self.optNodeA.equilibriumConstraintY ~= -1)
                 self.optNodeA.equilibriumConstraintY.addVariable(self.forceVariable, sinTheta);
             end
             
             if (self.optNodeB.equilibriumConstraintX ~= -1)
                 self.optNodeB.equilibriumConstraintX.addVariable(self.forceVariable, -cosTheta);
+            end
+            
+            if (self.optNodeB.equilibriumConstraintY ~= -1)
                 self.optNodeB.equilibriumConstraintY.addVariable(self.forceVariable, -sinTheta);
             end
         end

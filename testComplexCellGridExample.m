@@ -4,7 +4,7 @@ results = [];
 maxArea = inf;
 %boundMemberCoefficient = 1/sqrt(1.35);
 %boundMemberCoefficient = 0.707;
-boundMemberCoefficient = 0.5;
+boundMemberCoefficient = 0.1;
 %boundMemberCoefficient = 1;
 for xStep = -10:10
     for yStep = -10:10
@@ -49,8 +49,8 @@ end
 figure 
 axis off
 matrix.feedBackResult(vars);
-cellProblem.feedBackResult();
-cellGrid.plotMembers();
+cellProblem.feedBackResult(1);
+cellGrid.plotMembers(0, 'Failing criterion');
 results(:, 1:2) = results(:, 1:2)./results(:, 3);
 results(:, 1:2) = results(:, 1:2) /results(1, 1);
 figure 

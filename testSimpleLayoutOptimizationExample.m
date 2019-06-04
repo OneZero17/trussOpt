@@ -11,7 +11,7 @@ function obj = testSimpleLayoutOptimizationExample()
     [groundStructure, support1NodeIndex] = groundStructure.findOrAppendNode(0, 0);
     [groundStructure, support2NodeIndex] = groundStructure.findOrAppendNode(0, y);
     support1 = PhySupport(support1NodeIndex);
-    support2 = PhySupport(support2NodeIndex);
+    support2 = PhySupport(support2NodeIndex,1,0);
     supports = {support1; support2};
     groundStructure = groundStructure.createGroundStructureFromNodeGrid();
     solverOptions = OptOptions();
@@ -24,6 +24,6 @@ function obj = testSimpleLayoutOptimizationExample()
     trussProblem.initializeProblem(matrix);
     result = mosekSolve(matrix, 0);
     matrix.feedBackResult(result);
-    trussProblem.feedBackResult();
-    groundStructure.plotMembers();
+    trussProblem.feedBackResult(1);
+    groundStructure.plotMembers(0);
 end

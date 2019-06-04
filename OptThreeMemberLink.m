@@ -14,7 +14,7 @@ classdef OptThreeMemberLink < OptObject
         end
         
         function [matrix, obj] = initialize(self, matrix)
-            [matrix, self.linkConstraint] = matrix.addConstraint(0, inf, 3);
+            [matrix, self.linkConstraint] = matrix.addConstraint(0, 0, 3);
             obj = self;
         end
         

@@ -5,6 +5,7 @@ classdef GeoMember < handle
         nodeB
         length
         area
+        force
     end
     
     methods

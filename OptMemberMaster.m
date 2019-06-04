@@ -1,7 +1,8 @@
 classdef OptMemberMaster < OptObjectMaster
    
     properties
-        sigma;
+        sigmaT;
+        sigmaC;
         geoMember;
         areaVariable;
         tensionStressConstraints;
@@ -9,12 +10,15 @@ classdef OptMemberMaster < OptObjectMaster
     end
     
     methods
-        function obj = OptMemberMaster(geoMember, sigma)
+        function obj = OptMemberMaster(geoMember, sigmaT, sigmaC)
             if (nargin > 0)
                 obj.geoMember = geoMember;
             end
             if (nargin > 1)
-                obj.sigma = sigma;
+                obj.sigmaT = sigmaT;
+            end
+            if (nargin > 1)
+                obj.sigmaC = sigmaC;
             end
         end
         
@@ -35,9 +39,9 @@ classdef OptMemberMaster < OptObjectMaster
         function calcConstraint(self, matrix)
             for i =1:size(self.slaves, 1)
                 self.tensionStressConstraints{i,1}.addVariable(self.areaVariable, 1);
-                self.tensionStressConstraints{i,1}.addVariable(self.slaves{i, 1}.forceVariable, -1/self.sigma);
+                self.tensionStressConstraints{i,1}.addVariable(self.slaves{i, 1}.forceVariable, -1/self.sigmaT);
                 self.compressionStressConstraints{i,1}.addVariable(self.areaVariable, 1);
-                self.compressionStressConstraints{i,1}.addVariable(self.slaves{i, 1}.forceVariable, 1/self.sigma);
+                self.compressionStressConstraints{i,1}.addVariable(self.slaves{i, 1}.forceVariable, 1/self.sigmaC);
             end
             self.calcSlavesConstraints(matrix);
         end
@@ -51,8 +55,9 @@ classdef OptMemberMaster < OptObjectMaster
             varNum = 1;
         end
         
-        function feedBackResult(self)
+        function feedBackResult(self, loadCaseNum)
             self.geoMember.area = self.areaVariable.value;
+            self.geoMember.force = self.slaves{loadCaseNum, 1}.forceVariable.value;
         end
     end
 end

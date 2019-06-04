@@ -2,7 +2,8 @@ classdef OptOptions
 
     
     properties
-        sigma = 1;
+        sigmaT = 1;
+        sigmaC = 1
         cellOptimization = 0;
     end
     
