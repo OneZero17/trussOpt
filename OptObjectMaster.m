@@ -27,13 +27,15 @@ classdef OptObjectMaster < OptObject
             obj = self;
         end
         
-        function [conNum, varNum] = getSlavesConAndVarNum(self)
+        function [conNum, varNum, objVarNum] = getSlavesConAndVarNum(self)
             conNum = 0;
             varNum = 0;
+            objVarNum = 0;
             for i = 1:size(self.slaves)
-                [slaveConNum, slaveVarNum] = self.slaves{i, 1}.getConAndVarNum();
+                [slaveConNum, slaveVarNum, slaveObjVarNum] = self.slaves{i, 1}.getConAndVarNum();
                 conNum = conNum + slaveConNum;
                 varNum = varNum + slaveVarNum;
+                objVarNum = objVarNum + slaveObjVarNum;
             end
         end
     end

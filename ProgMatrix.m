@@ -8,13 +8,17 @@ classdef ProgMatrix < handle
     end
     
     methods
-        function obj = ProgMatrix(conNum, varNum)
+        function obj = ProgMatrix(conNum, varNum, objVarNum)
             obj.objectiveFunction = ProgConstraint();
             if nargin > 0
                 obj.constraints = cell(conNum, 1);
             end
             if nargin > 1
                 obj.variables = cell(varNum, 1);
+            end
+            if nargin > 2
+                obj.objectiveFunction.variables = cell(objVarNum, 1);
+                obj.objectiveFunction.coefficients = zeros(objVarNum, 1);
             end
         end
         
@@ -100,7 +104,7 @@ classdef ProgMatrix < handle
             end
         end  
         
-        function obj = deleteEmptyCells(self)
+        function deleteEmptyCells(self)
             totalConNum = size(self.constraints, 1);
             for i = self.addConNum+1:totalConNum
                 self.constraints{i, 1} = [];
@@ -111,8 +115,6 @@ classdef ProgMatrix < handle
                 self.variables{i, 1} = [];
             end     
             self.variables = self.variables(~cellfun('isempty',self.variables));
-            
-            obj = self;
         end
     end
 end

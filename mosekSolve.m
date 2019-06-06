@@ -1,5 +1,5 @@
 function [vars, result] = mosekSolve(matrix, output)
-    matrix = matrix.deleteEmptyCells();
+    matrix.deleteEmptyCells();
     prob.c = matrix.getJacobianObjective();
     variableBoundary = matrix.getVariableBoundary();
     prob.blx = variableBoundary(:,1);

@@ -31,9 +31,10 @@ classdef OptNodeSlave < OptObjectSlave
         function matrix = calcConstraint(matrix)
         end
         
-        function [conNum, varNum] = getConAndVarNum(self)
+        function [conNum, varNum, objVarNum] = getConAndVarNum(self)
             conNum = 2;
             varNum = 0;
+            objVarNum = 0;
         end
     end
 end

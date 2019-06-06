@@ -15,6 +15,34 @@ classdef GeoCellGrid < GeoGroundStructure
             obj = self.cells(xIndex, yIndex);
         end
         
+        function initializeCellNodesAndMembers(self)
+            nodeNum = 0;
+            memberNum = 0;
+            for i=1:size(self.cells, 1)
+                for j = 1:size(self.cells, 1)
+                    nodeNum = nodeNum + size(self.cells{i,j}.nodes, 1);
+                    memberNum = memberNum + size(self.cells{i,j}.members, 1);
+                end
+            end
+            
+            self.nodes = cell(nodeNum, 1);
+            self.members = cell(memberNum, 1);
+            startNodeNum = 1;
+            startMemberNum = 1;
+            for i=1:size(self.cells, 1)
+                for j = 1:size(self.cells, 1)
+                    currentNodes = self.cells{i,j}.nodes;
+                    currentMembers = self.cells{i,j}.members;
+                    endNodeNum = startNodeNum+size(currentNodes, 1) - 1;
+                    endMemberNum = startMemberNum + size(currentMembers, 1) - 1;
+                    self.nodes(startNodeNum:endNodeNum, 1) = currentNodes;
+                    self.members(startMemberNum:endMemberNum, 1) = currentMembers;
+                    startNodeNum = endNodeNum+1;
+                    startMemberNum = endMemberNum+1;
+                end
+            end
+        end
+        
         function cell = createPhaseOneCell(self, xStart, yStart, size)
             node1 = GeoNode(xStart, yStart);
             node2 = GeoNode(xStart + size, yStart);
@@ -119,9 +147,6 @@ classdef GeoCellGrid < GeoGroundStructure
                 obj.createBoundMembers(i);
             end
             obj.createInnerMembers();
-            
-            self.nodes = [self.nodes; obj.nodes];
-            self.members = [self.members; obj.members];
         end
         
         function obj = createPharseTwoComplexCell(self, pharseOneCell)    
@@ -138,9 +163,6 @@ classdef GeoCellGrid < GeoGroundStructure
                 obj.createBoundMembers(i);
             end
             obj.createInnerMembers();
-            
-            self.nodes = [self.nodes; obj.nodes];
-            self.members = [self.members; obj.members];
         end
         
         function obj = createPharseThreeComplexCell(self, pharseOneCell)    
@@ -157,9 +179,6 @@ classdef GeoCellGrid < GeoGroundStructure
                 obj.createBoundMembers(i);
             end
             obj.createInnerMembers();
-            
-            self.nodes = [self.nodes; obj.nodes];
-            self.members = [self.members; obj.members];
         end
         
        function obj = createPharseFourComplexCell(self, pharseTwoCell, pharseThreeCell)    
@@ -178,9 +197,6 @@ classdef GeoCellGrid < GeoGroundStructure
             end
             obj.boundMembers(4,:) = flip(pharseThreeCell.boundMembers(2,:));
             obj.createInnerMembers();
-            
-            self.nodes = [self.nodes; obj.nodes];
-            self.members = [self.members; obj.members];
         end
     end
 end

@@ -9,16 +9,18 @@ classdef OptProblem < handle
         function obj = OptProblem()
         end
         
-        function [conNum, varNum] = getConAndVarNum(self)
-            conNum = 0; varNum = 0;
+        function [conNum, varNum, objVarNum] = getConAndVarNum(self)
+            conNum = 0; varNum = 0; objVarNum= 0;
             for i = 1:size(self.optObjects, 1)
-                [conNumToAdd, varNumToAdd] = self.optObjects{i, 1}.getConAndVarNum();
+                [conNumToAdd, varNumToAdd, objVarNumToAdd] = self.optObjects{i, 1}.getConAndVarNum();
                 conNum = conNum + conNumToAdd;
                 varNum = varNum + varNumToAdd;
+                objVarNum = objVarNum + objVarNumToAdd;
                 if isa(self.optObjects{i, 1}, 'OptObjectMaster')
-                    [slaveConNumToAdd, slaveVarNumToAdd] = self.optObjects{i, 1}.getSlavesConAndVarNum();
+                    [slaveConNumToAdd, slaveVarNumToAdd, slaveObjVarNumToAdd] = self.optObjects{i, 1}.getSlavesConAndVarNum();
                     conNum = conNum + slaveConNumToAdd;
                     varNum = varNum + slaveVarNumToAdd;
+                    objVarNum = objVarNum + slaveObjVarNumToAdd;
                 end
             end
         end

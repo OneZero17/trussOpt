@@ -15,9 +15,10 @@ classdef OptCell < OptObject
             [matrix, self.areaVariable] = matrix.addVariable(0,self.maximumArea);
         end
         
-        function [conNum, varNum] = getConAndVarNum(self)
+        function [conNum, varNum, objVarNum] = getConAndVarNum(self)
             conNum = 0;
             varNum = 1;
+            objVarNum = 0;
         end
     end
 end

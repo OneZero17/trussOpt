@@ -50,9 +50,10 @@ classdef OptMemberMaster < OptObjectMaster
             matrix.objectiveFunction.addVariable(self.areaVariable, self.geoMember.length);
         end
         
-        function [conNum, varNum] = getConAndVarNum(self)
+        function [conNum, varNum, objVarNum] = getConAndVarNum(self)
             conNum = size(self.slaves, 1);
             varNum = 1;
+            objVarNum = 1;
         end
         
         function feedBackResult(self, loadCaseNum)

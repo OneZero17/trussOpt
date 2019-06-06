@@ -19,8 +19,8 @@ function obj = testSimpleLayoutOptimizationExample()
     trussProblem = OptProblem();
     trussProblem.createProblem(groundStructure, loadcases, supports, solverOptions);
     
-    [conNum, varNum] = trussProblem.getConAndVarNum();
-    matrix = ProgMatrix(conNum, varNum);
+    [conNum, varNum, objVarNum] = trussProblem.getConAndVarNum();
+    matrix = ProgMatrix(conNum, varNum, objVarNum);
     trussProblem.initializeProblem(matrix);
     result = mosekSolve(matrix, 0);
     matrix.feedBackResult(result);

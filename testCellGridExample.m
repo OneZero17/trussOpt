@@ -1,18 +1,23 @@
-caseNum = 4;
+caseNum = 2;
 %case 0 single bar
 %case 1 single bar
 %case 2 quarter bicycle wheel
 %case 3 fan shape
 %case 4 michell cantilever
-
+%case 5 constained michell cantilever
 
 %for stepNum = 10:10
 xMax=30; yMax=30; cellSize=1; splitNum = 1;
 
+if (caseNum == 5)
+    xMax = 60;
+    yMax = 30;
+end
+
 maxArea = inf;
 switch splitNum
     case 1
-        boundMemberCoefficient = 0.1;
+        boundMemberCoefficient = 1;
     case 2
         boundMemberCoefficient = 1/sqrt(1.35);
     case 3
@@ -38,6 +43,7 @@ for i= 1:xMax
         end
     end
 end
+cellGrid.initializeCellNodesAndMembers();
 cellGrid.initializeIndices();
 
 %loads and supports
@@ -113,6 +119,23 @@ switch caseNum
             end
         end
         supports = supports(~cellfun('isempty',supports));
+    case 5
+        loadcase = PhyLoadCase();
+        loadNodeIndex = cellGrid.findNodeIndex(xMax,yMax/2);
+        load = PhyLoad(loadNodeIndex, 0, -1);
+        loadcase.loads = {load};
+        loadcases = {loadcase};
+        nodeNum = splitNum*yMax + 1;
+        spacing = 1/splitNum;
+        supports = cell(nodeNum, 1);
+        for i = 1:nodeNum+1
+            if (i-1) * spacing > yMax/3 && (i-1) * spacing < 2*yMax/3
+                supportNodeIndex = cellGrid.findNodeIndex(0, (i-1) * spacing); 
+                support = PhySupport(supportNodeIndex);
+                supports{i, 1} = support;
+            end
+        end
+        supports = supports(~cellfun('isempty',supports));
  end
 
     %construct Optimization problem
@@ -123,12 +146,12 @@ switch caseNum
     cellProblem.createComplexCellLinks(cellGrid, maxArea, boundMemberCoefficient);
 
     %solve the problem
-    [conNum, varNum] = cellProblem.getConAndVarNum();
-    matrix = ProgMatrix(conNum, varNum);
+    [conNum, varNum, objVarNum] = cellProblem.getConAndVarNum();
+    matrix = ProgMatrix(conNum, varNum, objVarNum);
     cellProblem.initializeProblem(matrix);
     [vars, result] = mosekSolve(matrix, 0);
     matrix.feedBackResult(vars);
     cellProblem.feedBackResult(1);
-    firstRowVolumePercentage = calcCellsVolume(cellGrid.cells(:,1))/result
-    cellGrid.plotMembers(0, ['CellRatio = ', num2str(boundMemberCoefficient), ' Result = ', num2str(result)]);          
+    %firstRowVolumePercentage = calcCellsVolume(cellGrid.cells(:,1))/result;
+    %cellGrid.plotMembers(0, ['CellRatio = ', num2str(boundMemberCoefficient), ' Result = ', num2str(result)]);          
 %end

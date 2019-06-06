@@ -25,9 +25,10 @@ classdef OptThreeMemberLink < OptObject
             self.linkConstraint.addVariable(self.linkedMemberC.areaVariable, -self.coefficientC);
         end
         
-        function [conNum, varNum] = getConAndVarNum(self)
+        function [conNum, varNum, objVarNum] = getConAndVarNum(self)
             conNum = 1;
             varNum = 0;
+            objVarNum = 0;
         end
     end
 end

@@ -14,6 +14,7 @@ for xStep = -10:10
         cellGrid = GeoCellGrid(xMax, yMax);
 
         cellGrid.cells{1, 1}= cellGrid.createPharseOneComplexCell(0, 0, cellSize, splitNum);
+        cellGrid.initializeCellNodesAndMembers();
         cellGrid.initializeIndices();
 
         
@@ -60,8 +61,8 @@ for xStep = -10:10
         cellProblem.createComplexCellLinks(cellGrid, maxArea, boundMemberCoefficient);
 
         %solve the problem
-        [conNum, varNum] = cellProblem.getConAndVarNum();
-        matrix = ProgMatrix(conNum, varNum);
+        [conNum, varNum, objVarNum] = cellProblem.getConAndVarNum();
+        matrix = ProgMatrix(conNum, varNum, objVarNum);
         cellProblem.initializeProblem(matrix);
         [vars, result] = mosekSolve(matrix, 0);
         matrix.feedBackResult(vars);

@@ -16,29 +16,32 @@ classdef OptMemberSlave < OptObjectSlave
         end
         
         function [matrix] = calcConstraint(self, matrix)
-            cosTheta = (self.optNodeB.master.geoNode.x - self.optNodeA.master.geoNode.x)/self.master.geoMember.length;
-            sinTheta = (self.optNodeB.master.geoNode.y - self.optNodeA.master.geoNode.y)/self.master.geoMember.length;
+            nodeA = self.optNodeA;
+            nodeB = self.optNodeB;
+            cosTheta = (nodeB.master.geoNode.x - nodeA.master.geoNode.x)/self.master.geoMember.length;
+            sinTheta = (nodeB.master.geoNode.y - nodeA.master.geoNode.y)/self.master.geoMember.length;
             
             if (self.optNodeA.equilibriumConstraintX ~= -1)
-                self.optNodeA.equilibriumConstraintX.addVariable(self.forceVariable, cosTheta);
+                nodeA.equilibriumConstraintX.addVariable(self.forceVariable, cosTheta);
             end
             
             if (self.optNodeA.equilibriumConstraintY ~= -1)
-                self.optNodeA.equilibriumConstraintY.addVariable(self.forceVariable, sinTheta);
+                nodeA.equilibriumConstraintY.addVariable(self.forceVariable, sinTheta);
             end
             
             if (self.optNodeB.equilibriumConstraintX ~= -1)
-                self.optNodeB.equilibriumConstraintX.addVariable(self.forceVariable, -cosTheta);
+                nodeB.equilibriumConstraintX.addVariable(self.forceVariable, -cosTheta);
             end
             
             if (self.optNodeB.equilibriumConstraintY ~= -1)
-                self.optNodeB.equilibriumConstraintY.addVariable(self.forceVariable, -sinTheta);
+                nodeB.equilibriumConstraintY.addVariable(self.forceVariable, -sinTheta);
             end
         end
         
-        function [conNum, varNum] = getConAndVarNum(self)
+        function [conNum, varNum, objVarNum] = getConAndVarNum(self)
             conNum = 0;
             varNum = 1;
+            objVarNum = 0;
         end
     end
 end

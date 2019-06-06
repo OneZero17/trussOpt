@@ -12,9 +12,10 @@ classdef OptNodeMaster < OptObjectMaster
             self.initializeSlaves(matrix);
         end
         
-        function [conNum, varNum] = getConAndVarNum(self)
+        function [conNum, varNum, objVarNum] = getConAndVarNum(self)
             conNum = 0;
             varNum = 0;
+            objVarNum = 0;
         end
     end
 end
