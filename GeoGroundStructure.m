@@ -98,17 +98,17 @@ classdef GeoGroundStructure < handle
             for i = 1:size(self.members)
                 if (self.members{i,1}.area > maxArea / 1000)
                     if (self.members{i,1}.force > 0)
-                        color = [1, 1, 1] - (self.members{i,1}.area / maxArea)^(0.3) * [1, 1, 0];
+                        color = [1, 1, 1] - (self.members{i,1}.area / maxArea)^0.3 * [1, 1, 0];
                     else
-                        color = [1, 1, 1] - (self.members{i,1}.area / maxArea)^(0.3) * [0, 1, 1];
+                        color = [1, 1, 1] - (self.members{i,1}.area / maxArea)^0.3 * [0, 1, 1];
                     end
                     x1 = [self.members{i,1}.nodeA.x, self.members{i,1}.nodeB.x];
                     y1 = [self.members{i,1}.nodeA.y, self.members{i,1}.nodeB.y];
                     plot(x1, y1, 'Color', color);
                     if (plotForce ~=0)
-                    	xText = sum(x1)/2;
-                        yText = sum(y1)/2;
-                        text(xText, yText, sprintf('%0.2g',self.members{i,1}.area), 'FontSize',10, 'Color', color);
+                    	xText = x1(1) + (x1(2) -x1(1))/3; 
+                        yText = y1(1) + (y1(2) -y1(1))/3; 
+                        text(xText, yText, sprintf('%0.2g',self.members{i,1}.force), 'FontSize',15, 'Color', color);
                     end
                 end
             end

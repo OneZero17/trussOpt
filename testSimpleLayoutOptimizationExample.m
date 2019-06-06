@@ -1,6 +1,6 @@
 function obj = testSimpleLayoutOptimizationExample()
     groundStructure = GeoGroundStructure;
-    x=10;y=10;
+    x=20;y=10;
     groundStructure= groundStructure.createRectangularNodeGrid(x, y);
     loadcase = PhyLoadCase();
     [groundStructure, loadNodeIndex] = groundStructure.findOrAppendNode(x, 0);

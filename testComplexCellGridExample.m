@@ -1,11 +1,12 @@
 clear 
+caseNum = 1;
 xMax=1; yMax=1; cellSize=1; splitNum = 1;
 results = [];
 maxArea = inf;
 %boundMemberCoefficient = 1/sqrt(1.35);
 %boundMemberCoefficient = 0.707;
-boundMemberCoefficient = 0.1;
-%boundMemberCoefficient = 1;
+%boundMemberCoefficient = 0.1;
+boundMemberCoefficient = 1;
 for xStep = -10:10
     for yStep = -10:10
         xLoad = xStep / 100;
@@ -15,21 +16,41 @@ for xStep = -10:10
         cellGrid.cells{1, 1}= cellGrid.createPharseOneComplexCell(0, 0, cellSize, splitNum);
         cellGrid.initializeIndices();
 
+        
         %loads and supports
-        loadcase = PhyLoadCase();
-        spacing = xMax/splitNum;
-        for i = 1:splitNum+1
-            loadNodeIndex = cellGrid.findNodeIndex((i-1) * spacing, 0);
-            load1 = PhyLoad(loadNodeIndex, 0, yLoad);
-            loadNodeIndex = cellGrid.findNodeIndex(xMax, (i-1) * spacing);
-            load2 = PhyLoad(loadNodeIndex, -xLoad, 0);
-            loadNodeIndex = cellGrid.findNodeIndex((i-1) * spacing, yMax);
-            load3 = PhyLoad(loadNodeIndex, 0, -yLoad);
-            loadNodeIndex = cellGrid.findNodeIndex(0, (i-1) * spacing);
-            load4 = PhyLoad(loadNodeIndex, xLoad, 0);
-            loadcase.loads = [loadcase.loads; {load1; load2; load3; load4}];
+        switch caseNum
+            case 1
+                loadcase = PhyLoadCase();
+                spacing = xMax/splitNum;
+                for i = 1:splitNum+1
+                    loadNodeIndex = cellGrid.findNodeIndex((i-1) * spacing, 0);
+                    load1 = PhyLoad(loadNodeIndex, 0, yLoad);
+                    loadNodeIndex = cellGrid.findNodeIndex(xMax, (i-1) * spacing);
+                    load2 = PhyLoad(loadNodeIndex, -xLoad, 0);
+                    loadNodeIndex = cellGrid.findNodeIndex((i-1) * spacing, yMax);
+                    load3 = PhyLoad(loadNodeIndex, 0, -yLoad);
+                    loadNodeIndex = cellGrid.findNodeIndex(0, (i-1) * spacing);
+                    load4 = PhyLoad(loadNodeIndex, xLoad, 0);
+                    loadcase.loads = [loadcase.loads; {load1; load2; load3; load4}];
+                end
+                loadcases = {loadcase};
+            case 2
+                loadcase = PhyLoadCase();
+                spacing = xMax/splitNum;
+                for i = 1:splitNum+1
+                    loadNodeIndex = cellGrid.findNodeIndex((i-1) * spacing, 0);
+                    load1 = PhyLoad(loadNodeIndex, -xLoad, 0);
+                    loadNodeIndex = cellGrid.findNodeIndex(xMax, (i-1) * spacing);
+                    load2 = PhyLoad(loadNodeIndex, 0, xLoad);
+                    loadNodeIndex = cellGrid.findNodeIndex((i-1) * spacing, yMax);
+                    load3 = PhyLoad(loadNodeIndex, xLoad, 0);
+                    loadNodeIndex = cellGrid.findNodeIndex(0, (i-1) * spacing);
+                    load4 = PhyLoad(loadNodeIndex, 0, -xLoad);
+                    loadcase.loads = [loadcase.loads; {load1; load2; load3; load4}];
+                end
+                loadcases = {loadcase};
         end
-        loadcases = {loadcase};
+
 
         %construct Optimization problem
         solverOptions = OptOptions();
@@ -43,14 +64,18 @@ for xStep = -10:10
         matrix = ProgMatrix(conNum, varNum);
         cellProblem.initializeProblem(matrix);
         [vars, result] = mosekSolve(matrix, 0);
-        results = [results; xLoad, yLoad, result];
+        matrix.feedBackResult(vars);
+        cellProblem.feedBackResult(1);
+        results = [results; xLoad, yLoad, result, checkMaterialWasting(cellGrid.cells{1, 1})];
+        %break;
     end
+    %break;
 end
 figure 
 axis off
 matrix.feedBackResult(vars);
 cellProblem.feedBackResult(1);
-cellGrid.plotMembers(0, 'Failing criterion');
+cellGrid.plotMembers(1, 'Failing criterion');
 results(:, 1:2) = results(:, 1:2)./results(:, 3);
 results(:, 1:2) = results(:, 1:2) /results(1, 1);
 figure 
