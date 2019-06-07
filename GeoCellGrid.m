@@ -19,7 +19,7 @@ classdef GeoCellGrid < GeoGroundStructure
             nodeNum = 0;
             memberNum = 0;
             for i=1:size(self.cells, 1)
-                for j = 1:size(self.cells, 1)
+                for j = 1:size(self.cells, 2)
                     nodeNum = nodeNum + size(self.cells{i,j}.nodes, 1);
                     memberNum = memberNum + size(self.cells{i,j}.members, 1);
                 end
@@ -30,7 +30,7 @@ classdef GeoCellGrid < GeoGroundStructure
             startNodeNum = 1;
             startMemberNum = 1;
             for i=1:size(self.cells, 1)
-                for j = 1:size(self.cells, 1)
+                for j = 1:size(self.cells, 2)
                     currentNodes = self.cells{i,j}.nodes;
                     currentMembers = self.cells{i,j}.members;
                     endNodeNum = startNodeNum+size(currentNodes, 1) - 1;

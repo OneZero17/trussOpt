@@ -82,7 +82,15 @@ classdef GeoGroundStructure < handle
             obj = self;
         end
         
-        function plotMembers(self, plotForce, titleText)
+        function plotMembers(self, varargin)
+            p = inputParser;
+            addOptional(p,'force', false, @islogical);
+            addOptional(p,'title','', @isstring);
+            addOptional(p,'nodalForce', false, @islogical);
+            parse(p,varargin{:});
+            plotForce = p.Results.force;
+            titleText = p.Results.title;
+            nodalForce = p.Results.nodalForce;
             
             figure
             hold on
@@ -112,7 +120,33 @@ classdef GeoGroundStructure < handle
                     end
                 end
             end
-
+            
+            if nodalForce
+                nodalForces = self.calcNodeForceDensity();
+                maxNodalForce = max(nodalForces);
+                for i = 1:size(self.nodes)
+                    if (nodalForces(i) > 0)
+                        plot(self.nodes{i, 1}.x, self.nodes{i, 1}.y,'o', 'MarkerEdgeColor', [0.2,0.2,0.2], 'MarkerFaceColor', [0.2,0.2,0.2], 'MarkerSize', 20*nodalForces(i)/maxNodalForce);
+                    end
+                end
+                
+%                 for i = 1:size(self.nodes)
+%                     if (nodalForces(i) > maxNodalForce/20)
+%                         plot(self.nodes{i, 1}.x, self.nodes{i, 1}.y,'o', 'MarkerEdgeColor', [0.2,0.2,0.2], 'MarkerFaceColor', [0.2,0.2,0.2], 'MarkerSize', 10);
+%                     end
+%                 end
+                
+            end
+        end
+        
+        function obj = calcNodeForceDensity(self)
+            obj = zeros(size(self.nodes, 1), 1);
+            
+            for i = 1:size(self.members)
+                currentMember = self.members{i, 1};
+                obj(currentMember.nodeA.index) = obj(currentMember.nodeA.index) + currentMember.area;
+                obj(currentMember.nodeB.index) = obj(currentMember.nodeB.index) + currentMember.area;
+            end
         end
         
         function nodeConnection = calcMemberPerNode(self)
