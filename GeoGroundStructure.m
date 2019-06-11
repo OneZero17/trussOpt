@@ -87,10 +87,14 @@ classdef GeoGroundStructure < handle
             addOptional(p,'force', false, @islogical);
             addOptional(p,'title','', @isstring);
             addOptional(p,'nodalForce', false, @islogical);
+            addOptional(p,'nodalForcePlottingRatio', -1, @isnumeric);
+            addOptional(p, 'blackAndWhite', false, @islogical);
             parse(p,varargin{:});
             plotForce = p.Results.force;
             titleText = p.Results.title;
             nodalForce = p.Results.nodalForce;
+            blackAndWhite = p.Results.blackAndWhite;
+            nodalForcePlottingRatio = p.Results.nodalForcePlottingRatio;
             
             figure
             hold on
@@ -105,11 +109,16 @@ classdef GeoGroundStructure < handle
             end
             for i = 1:size(self.members)
                 if (self.members{i,1}.area > maxArea / 1000)
-                    if (self.members{i,1}.force > 0)
-                        color = [1, 1, 1] - (self.members{i,1}.area / maxArea)^0.3 * [1, 1, 0];
+                    if blackAndWhite
+                        color = [1, 1, 1] - (self.members{i,1}.area / maxArea)^0.3 * [1, 1, 1];
                     else
+                        if (self.members{i,1}.force > 0)
+                        color = [1, 1, 1] - (self.members{i,1}.area / maxArea)^0.3 * [1, 1, 0];
+                        else
                         color = [1, 1, 1] - (self.members{i,1}.area / maxArea)^0.3 * [0, 1, 1];
+                        end
                     end
+
                     x1 = [self.members{i,1}.nodeA.x, self.members{i,1}.nodeB.x];
                     y1 = [self.members{i,1}.nodeA.y, self.members{i,1}.nodeB.y];
                     plot(x1, y1, 'Color', color);
@@ -124,17 +133,17 @@ classdef GeoGroundStructure < handle
             if nodalForce
                 nodalForces = self.calcNodeForceDensity();
                 maxNodalForce = max(nodalForces);
-                for i = 1:size(self.nodes)
-                    if (nodalForces(i) > 0)
-                        plot(self.nodes{i, 1}.x, self.nodes{i, 1}.y,'o', 'MarkerEdgeColor', [0.2,0.2,0.2], 'MarkerFaceColor', [0.2,0.2,0.2], 'MarkerSize', 20*nodalForces(i)/maxNodalForce);
-                    end
-                end
-                
 %                 for i = 1:size(self.nodes)
-%                     if (nodalForces(i) > maxNodalForce/20)
-%                         plot(self.nodes{i, 1}.x, self.nodes{i, 1}.y,'o', 'MarkerEdgeColor', [0.2,0.2,0.2], 'MarkerFaceColor', [0.2,0.2,0.2], 'MarkerSize', 10);
+%                     if (nodalForces(i) > 0)
+%                         plot(self.nodes{i, 1}.x, self.nodes{i, 1}.y,'o', 'MarkerEdgeColor', [0.2,0.2,0.2], 'MarkerFaceColor', [0.2,0.2,0.2], 'MarkerSize', 10*nodalForces(i)/maxNodalForce);
 %                     end
 %                 end
+                
+                for i = 1:size(self.nodes)
+                    if (nodalForces(i) > maxNodalForce/10)
+                        plot(self.nodes{i, 1}.x, self.nodes{i, 1}.y,'o', 'MarkerEdgeColor', [0.2,0.2,0.2], 'MarkerFaceColor', [0.2,0.2,0.2], 'MarkerSize', 10);
+                    end
+                end
                 
             end
         end

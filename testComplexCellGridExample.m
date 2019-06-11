@@ -1,12 +1,18 @@
 clear 
 caseNum = 1;
-xMax=1; yMax=1; cellSize=1; splitNum = 1;
+xMax=1; yMax=1; cellSize=1; splitNum = 4;
 results = [];
 maxArea = inf;
-%boundMemberCoefficient = 1/sqrt(1.35);
-%boundMemberCoefficient = 0.707;
-%boundMemberCoefficient = 0.1;
-boundMemberCoefficient = 1;
+switch splitNum
+    case 1
+        boundMemberCoefficient = 1;
+    case 2
+        boundMemberCoefficient = 1/sqrt(1.35);
+    case 3
+        boundMemberCoefficient = 0.707;
+    case 4
+        boundMemberCoefficient = 0.607;
+end
 for xStep = -10:10
     for yStep = -10:10
         xLoad = xStep / 100;
@@ -17,7 +23,6 @@ for xStep = -10:10
         cellGrid.initializeCellNodesAndMembers();
         cellGrid.initializeIndices();
 
-        
         %loads and supports
         switch caseNum
             case 1
@@ -72,11 +77,9 @@ for xStep = -10:10
     end
     %break;
 end
-figure 
-axis off
 matrix.feedBackResult(vars);
 cellProblem.feedBackResult(1);
-cellGrid.plotMembers(1, 'Failing criterion');
+cellGrid.plotMembers('blackAndWhite', true);
 results(:, 1:2) = results(:, 1:2)./results(:, 3);
 results(:, 1:2) = results(:, 1:2) /results(1, 1);
 figure 
@@ -95,6 +98,11 @@ vonMises(:, 1:2) = vonMises(:, 1:2)./vonMises(:, 3);
 for i = 1:size(results, 1)
     plot(vonMises(i, 1),vonMises(i, 2),'b*');
 end
+ax = gca;
+ax.XAxisLocation = 'origin';
+ax.YAxisLocation = 'origin';
+ax.XTick = -1:0.2:1;
+ax.YTick = -1:0.2:1;
 
 %matrix.feedBackResult(vars);
 %cellProblem.feedBackResult();

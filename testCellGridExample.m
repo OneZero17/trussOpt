@@ -1,4 +1,5 @@
-caseNum = 5;
+clear;
+caseNum = 3;
 %case 0 single bar
 %case 1 single bar
 %case 2 quarter bicycle wheel
@@ -7,14 +8,14 @@ caseNum = 5;
 %case 5 constained michell cantilever
 
 %for stepNum = 10:10
-xMax=40; yMax=40; cellSize=1; splitNum = 2;
+xMax=30; yMax=30; cellSize=1; splitNum = 2;
 
 if (caseNum == 5)
     xMax = 60;
     yMax = 30;
 end
 
-maxArea = 0.8;
+maxArea = 1;
 switch splitNum
     case 1
         boundMemberCoefficient = 1;
@@ -22,6 +23,8 @@ switch splitNum
         boundMemberCoefficient = 1/sqrt(1.35);
     case 3
         boundMemberCoefficient = 0.707;
+    case 4
+        boundMemberCoefficient = 0.607;
 end
 cellGrid = GeoCellGrid(xMax, yMax);
 
@@ -152,7 +155,8 @@ switch caseNum
     [vars, result] = mosekSolve(matrix, 0);
     matrix.feedBackResult(vars);
     cellProblem.feedBackResult(1);
-    %firstRowVolumePercentage = calcCellsVolume(cellGrid.cells(:,1))/result;
+    %cellGrid.plotMembers();
+    firstRowVolumePercentage = calcCellsVolume(cellGrid.cells(:,1))/result;
     title = "CellRatio = "+num2str(boundMemberCoefficient)+" Result = "+num2str(result);
     cellGrid.plotMembers('title', title, 'nodalForce', true);          
 %end
