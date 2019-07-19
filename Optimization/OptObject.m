@@ -20,7 +20,10 @@ classdef OptObject < handle
         function matrix = calcObjective(self, matrix)
         end
         
-        function [conNum, varNum, objVarNum] = getConAndVarNum()
+        function [conNum, varNum, objVarNum] = getConAndVarNum(self)
+            conNum = 0;
+            varNum = 0;
+            objVarNum = 0;
         end
         
         function feedBackResult(self, loadCaseNum)

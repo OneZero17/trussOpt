@@ -1,5 +1,6 @@
 classdef ProgConstraint < handle
     properties
+        name
         index
         variables
         coefficients
@@ -11,7 +12,7 @@ classdef ProgConstraint < handle
     end
     
     methods
-        function obj = ProgConstraint(lowerBoundary, upperBoundary, variableNum)
+        function obj = ProgConstraint(lowerBoundary, upperBoundary, variableNum, name)
             if nargin > 0
                 obj.lowerBound = lowerBoundary;
             end
@@ -21,6 +22,9 @@ classdef ProgConstraint < handle
             if nargin > 2
                 obj.variables=cell(variableNum, 1);
                 obj.coefficients = zeros(variableNum, 1);
+            end
+            if (nargin >3)
+                obj.name = name;
             end
         end
         

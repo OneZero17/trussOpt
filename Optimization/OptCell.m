@@ -12,7 +12,7 @@ classdef OptCell < OptObject
         end
         
         function matrix = initialize(self, matrix)
-            [matrix, self.areaVariable] = matrix.addVariable(0,self.maximumArea);
+            self.areaVariable = matrix.addVariable(0, self.maximumArea);
         end
         
         function [conNum, varNum, objVarNum] = getConAndVarNum(self)

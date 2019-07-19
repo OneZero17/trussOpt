@@ -12,7 +12,7 @@ classdef OptMemberLink < OptObject
         end
         
         function [matrix, obj] = initialize(self, matrix)
-            [matrix, self.linkConstraint] = matrix.addConstraint(0, 0, 2);
+            self.linkConstraint = matrix.addConstraint(0, 0, 2);
             obj = self;
         end
         

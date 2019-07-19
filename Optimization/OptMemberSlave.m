@@ -11,7 +11,7 @@ classdef OptMemberSlave < OptObjectSlave
         end
         
         function [matrix, obj] = initialize(self, matrix)
-            [matrix, self.forceVariable] = matrix.addVariable(-inf,inf);
+            self.forceVariable = matrix.addVariable(-inf,inf);
             obj = self;
         end
         

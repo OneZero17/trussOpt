@@ -57,10 +57,11 @@ classdef OptProblem < handle
                         end
                     end   
                 end
-                self.optObjects{objectNum, 1} = self.optObjects{objectNum, 1}.addSlaves(nodeSlaves);
+                self.optObjects{objectNum, 1}.addSlaves(nodeSlaves);
                 objectNum = objectNum+1;
             end
             
+
             for i = 1:size(groundStructure.members, 1)
                 self.optObjects{objectNum, 1} = OptMemberMaster(groundStructure.members{i,1}, solverOptions.sigmaT, solverOptions.sigmaC);
                 memberSlaves = cell(size(loadCases, 1), 1);
@@ -75,7 +76,7 @@ classdef OptProblem < handle
                 self.optObjects{objectNum, 1}.slaves = memberSlaves;
                 objectNum = objectNum+1;
             end
-            
+                  
             obj = self;
         end
         

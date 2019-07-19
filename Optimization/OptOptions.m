@@ -1,4 +1,4 @@
-classdef OptOptions
+classdef OptOptions < handle
 
     
     properties

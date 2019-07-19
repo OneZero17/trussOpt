@@ -197,6 +197,39 @@ classdef GeoCellGrid < GeoGroundStructure
             end
             obj.boundMembers(4,:) = flip(pharseThreeCell.boundMembers(2,:));
             obj.createInnerMembers();
+       end
+        
+       
+       function flag = checkCollision(line, cell)
+            cellNodes = zeros(4, cell.splitNum);
+            nodePush = zeros(4, cell.splitNum);
+            pushFacor = 0.01;
+            pushDistance  = pushFacor * cell.size;
+            for i=1:4
+                for j = 1:(size(cell.boundnodes, 2)-1)
+                    cellNodes(j, i*2-1:i*2) = [cell.boundnodes{i, j}.x, cell.boundnodes{i, j}.y];
+                    switch i
+                        case 1
+                            cellNodes(j, i*2-1:i*2) = [0, pushDistance];
+                        case 2
+                            cellNodes(j, i*2-1:i*2) = [-pushDistance, 0];
+                        case 3
+                            cellNodes(j, i*2-1:i*2) = [0, -pushDistance];
+                        case 4
+                            cellNodes(j, i*2-1:i*2) = [pushDistance, 0];
+                    end
+                end
+            end
+            
+            nodePush(1, 1:2) = nodePush(1, 1:2) + [pushDistance, 0];
+            nodePush(2, 1:2) = nodePush(2, 1:2) + [0, pushDistance];
+            nodePush(3, 1:2) = nodePush(3, 1:2) + [-pushDistance, 0];
+            nodePush(4, 1:2) = nodePush(4, 1:2) + [0, -pushDistance];
+            
+            cellNodes = cellNodes + nodePush;
+
+            cellNodesVector = []
+            
         end
     end
 end

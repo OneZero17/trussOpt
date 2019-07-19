@@ -15,13 +15,13 @@ classdef OptNodeSlave < OptObjectSlave
         
         function [matrix, obj] = initialize(self, matrix)
             if (self.fixedX == 0)
-                [matrix, self.equilibriumConstraintX] = matrix.addConstraint(self.loadX,self.loadX, self.master.connectedMemberNum);
+                self.equilibriumConstraintX = matrix.addConstraint(self.loadX,self.loadX, self.master.connectedMemberNum);
             else
                 self.equilibriumConstraintX = -1;
             end
             
             if (self.fixedY == 0)
-                [matrix, self.equilibriumConstraintY] = matrix.addConstraint(self.loadY,self.loadY, self.master.connectedMemberNum);
+                self.equilibriumConstraintY = matrix.addConstraint(self.loadY,self.loadY, self.master.connectedMemberNum);
             else
                 self.equilibriumConstraintY = -1;
             end

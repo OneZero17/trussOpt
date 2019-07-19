@@ -23,13 +23,13 @@ classdef OptMemberMaster < OptObjectMaster
         end
         
         function [matrix, obj] = initialize(self, matrix)
-            [matrix, self.areaVariable] = matrix.addVariable(0,inf);
+            self.areaVariable = matrix.addVariable(0,inf);
             self.tensionStressConstraints = cell(size(self.slaves, 1), 1);
             self.compressionStressConstraints = cell(size(self.slaves, 1), 1);
             for i =1:size(self.slaves, 1)
-                [matrix, stressConstraint] = matrix.addConstraint(0,inf, size(self.slaves, 1) +1);
+                stressConstraint = matrix.addConstraint(0,inf, size(self.slaves, 1) +1);
                 self.tensionStressConstraints{i, 1} = stressConstraint;
-                [matrix, stressConstraint] = matrix.addConstraint(0,inf, size(self.slaves, 1) +1);
+                stressConstraint = matrix.addConstraint(0,inf, size(self.slaves, 1) +1);
                 self.compressionStressConstraints{i, 1} = stressConstraint;
             end
             self.initializeSlaves(matrix);

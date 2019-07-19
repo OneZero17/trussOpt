@@ -8,17 +8,29 @@ function [vars, result] = mosekSolve(matrix, output)
     constraintBoundary = matrix.getConstraintBoundary();
     prob.blc = constraintBoundary(:,1);
     prob.buc = constraintBoundary(:,2);
+    % All cones
+    [FQ, gQ, cQ] = matrix.getCoefficientOfConicConstraints();
+    [rcode, res] = mosekopt('symbcon echo(0)');
+    cQ = [res.symbcon.MSK_CT_QUAD*ones(size(cQ, 1), 1), cQ];
+    recQ = zeros(1, size(cQ, 1)*size(cQ, 2));
+    for i = 1:size(cQ)
+        recQ(i*2-1:i*2)=cQ(i,:);
+    end
+    prob.f = FQ;
+    prob.g = gQ;
+    prob.cones = recQ;
     %prob = optimizeMatrix(prob);
     % Select interior-point optimizer... (integer parameter)
-    param.MSK_IPAR_OPTIMIZER = 'MSK_OPTIMIZER_INTPNT';
-    % ... without basis identification (integer parameter)
-    param.MSK_IPAR_INTPNT_BASIS = 'MSK_BI_NEVER';
     
+    %param.MSK_IPAR_OPTIMIZER = 'MSK_OPTIMIZER_INTPNT';
+    % ... without basis identification (integer parameter)
+    %param.MSK_IPAR_INTPNT_BASIS = 'MSK_BI_NEVER';
     if (output == 0)
-        [r, res]=mosekopt('minimize echo(0)',prob, param);   
+        [r, res]=mosekopt('minimize echo(0)',prob);   
     else
-        [r, res]=mosekopt('minimize',prob, param); 
-    end   
+        [r, res]=mosekopt('minimize',prob); 
+    end
+    
     vars = res.sol.itr.xx;
     result = res.sol.itr.pobjval;
 end

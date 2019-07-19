@@ -25,5 +25,5 @@ function obj = testSimpleLayoutOptimizationExample()
     result = mosekSolve(matrix, 0);
     matrix.feedBackResult(result);
     trussProblem.feedBackResult(1);
-    groundStructure.plotMembers(0);
+    groundStructure.plotMembers();
 end
