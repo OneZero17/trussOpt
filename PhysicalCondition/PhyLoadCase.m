@@ -1,6 +1,6 @@
 classdef PhyLoadCase
     properties
-        loads
+        loads = cell(0, 0);
     end
     
     methods

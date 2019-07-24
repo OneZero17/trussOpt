@@ -43,42 +43,90 @@ classdef Mesh < handle
             end    
         end
         
-        function plotMesh(self)
+        function maximumDensity = getMaximumDensity(self)
+            maximumDensity = 0;
             facetNum = size(self.meshFacets, 1);
-            x = zeros(3, facetNum);
-            y = zeros(3, facetNum);
-            color = zeros(3, facetNum);
-            faces = zeros(facetNum, 3);
-            facetNo = 0;
+            for i = 1:facetNum
+                if (self.meshFacets{i, 1}.density > maximumDensity)
+                    maximumDensity = self.meshFacets{i, 1}.density;
+                end
+            end
+        end
+        
+        function plotMesh(self, varargin)
+            p = inputParser;
+            addOptional(p,'figureNumber',0, @isnumeric);
+            addOptional(p,'title',"", @isstring);
+            addOptional(p,'fileName',"", @isstring);
+            addOptional(p,'fixedMaximumDensity', true, @islogical);
+            addOptional(p,'colorBarHorizontal', false, @islogical);
+            addOptional(p,'xLimit', 1, @isnumeric);
+            addOptional(p,'yLimit', 1, @isnumeric);
+            parse(p,varargin{:});
+            titleText = p.Results.title;
+            figureNo = p.Results.figureNumber;
+            fileName = p.Results.fileName;
+            fixedMaximumDensity = p.Results.fixedMaximumDensity;
+            colorBarHorizontal = p.Results.colorBarHorizontal;
+            xLimit = p.Results.xLimit;
+            yLimit = p.Results.yLimit;
+            if fixedMaximumDensity
+                maximumDensity = 1;
+            else
+                maximumDensity = getMaximumDensity(self);
+            end
+            figure(figureNo)
+            facetNum = size(self.meshFacets, 1);
+            axis equal;
+            colormap hot;
+
+            if colorBarHorizontal
+                colorbar('southoutside');
+            else
+                colorbar;
+            end
+            caxis([0 1]);
+            cmap = colormap;
+            fig=figure(figureNo);
+            mycmap = get(fig,'Colormap');
+            set(fig,'Colormap',flipud(mycmap));
+            xlim([0 xLimit])
+            ylim([0 yLimit])
+            title(titleText);
             hold on
             for i = 1:facetNum
                 currentFacet = self.meshFacets{i, 1};
+                if (currentFacet.density > 1)
+                    currentFacet.density = 1;
+                end
+                rgb = interp1( linspace(maximumDensity, 0, size(cmap, 1)), cmap, currentFacet.density);               
                 fill ([currentFacet.nodeA.x; currentFacet.nodeB.x; currentFacet.nodeC.x], ...
                       [currentFacet.nodeA.y; currentFacet.nodeB.y; currentFacet.nodeC.y],...
-                      [1, 1, 1]-currentFacet.density^0.3*[1, 1, 1], 'EdgeColor', [1, 1, 1]-currentFacet.density^0.3*[1, 1, 1]);
-                x(:,i) = [currentFacet.nodeA.x; currentFacet.nodeB.x; currentFacet.nodeC.x];
-                y(:,i) = [currentFacet.nodeA.y; currentFacet.nodeB.y; currentFacet.nodeC.y];
-                %color(:,i) = 1-(1-currentFacet.density)^0.3;
-                color(:,i) = [currentFacet.density, currentFacet.density, currentFacet.density];
-                facetNo = facetNo +1;
-                faces(facetNo, :) = [3*(facetNo - 1)+1, 3*(facetNo - 1)+2, 3*(facetNo - 1)+3];
+                      rgb, 'EdgeColor', rgb);
             end
-
-            x(:,color(:, 1)==0)=[];
-            y(:,color(:, 1)==0)=[];
-            color(:,color(:, 1)==0)=[];
-            faces(faces(:, 1)==0, :)=[];
-            clear graph
-            x = x(:);
-            y = y(:);
-            graph.Vertices = [x, y];
-            graph.Faces  = faces;
-            graph.FaceVertexCData  = color';
-            %patch(graph);
-            colormap(flipud(gray(256)));
-            colorbar;
-            %color = [1, 1, 1] - (self.members{i,1}.area)^0.3 * [1, 1, 1];
             
+            if (fileName ~= "")
+                saveas(fig,"Results\"+fileName)
+            end
+            close(figureNo)
+        end
+        
+        function volume = calculateVolume(self)
+            volume = 0;
+            facetNum = size(self.meshFacets, 1);
+            for i = 1:facetNum
+                currentFacet = self.meshFacets{i, 1};
+                volume = volume + currentFacet.density * currentFacet.area;
+            end
+        end
+        
+        function area = calculateArea(self)
+            area = 0;
+            facetNum = size(self.meshFacets, 1);
+            for i = 1:facetNum
+                currentFacet = self.meshFacets{i, 1};
+                area = area + currentFacet.area;
+            end
         end
         
 %         function createRectangularMesh(self, xStart, yStart, xElementNum, yElementNum, spacing)     

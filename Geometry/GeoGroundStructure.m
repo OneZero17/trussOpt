@@ -25,6 +25,13 @@ classdef GeoGroundStructure < handle
             end
         end
         
+        function volume = calculateVolume(self)
+            volume = 0;
+            for i = 1:size(self.members, 1)
+                volume = volume + self.members{i, 1}.length * self.members{i, 1}.area;
+            end
+        end
+        
         function obj = findNodeIndex(self, x, y)
             for i = 1:size(self.nodes)
                 diff = sqrt((self.nodes{i, 1}.x - x)^2 + (self.nodes{i, 1}.y - y)^2);

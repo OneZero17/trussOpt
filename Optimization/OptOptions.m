@@ -5,6 +5,7 @@ classdef OptOptions < handle
         sigmaT = 1;
         sigmaC = 1
         cellOptimization = 0;
+        useVonMises = true;
     end
     
     methods

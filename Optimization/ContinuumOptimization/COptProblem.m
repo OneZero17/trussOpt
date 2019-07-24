@@ -23,7 +23,7 @@ classdef COptProblem < OptProblem
 
             %% Add equiilibrium within an element 
             for i = 1:elementNum
-                self.optObjects{objectNum, 1} = COptTriangularElementMaster(solverOptions.sigmaC, mesh.meshFacets{i, 1});
+                self.optObjects{objectNum, 1} = COptTriangularElementMaster(solverOptions.sigmaC, mesh.meshFacets{i, 1}, solverOptions.useVonMises);
                 elementSlaves = cell(loadcaseNum, 1);
                 for j = 1: loadcaseNum
                     elementSlaves{j, 1} = COptTriangularElementSlave();
@@ -52,27 +52,35 @@ classdef COptProblem < OptProblem
             % Add eight columns: node1X fixed, node1Y fixed, node2X fixed,
             % node2Y fixed, node1X load, node1Y load, node2X load, node2Y
             % load
+            
             externalEdges = [externalEdges, zeros(size(externalEdges, 1), 8)];
+            externalEdges = [(1:size(externalEdges, 1))', externalEdges];
             for i = 1:size(supports, 1)
                 supportID = supports{i, 1}.node;
-                externalEdges(externalEdges(:, 1) == supportID, 6:7) = [supports{i, 1}.fixedX, supports{i, 1}.fixedY];
-                externalEdges(externalEdges(:, 2) == supportID, 8:9) = [supports{i, 1}.fixedX, supports{i, 1}.fixedY];
+                node1Supported = externalEdges(externalEdges(:, 2) == supportID, :);
+                node2Supported = externalEdges(externalEdges(:, 3) == supportID, :);
+                for j = 1:size(node1Supported, 1)
+                    externalEdges(node1Supported(j, 1), 7:8) = [supports{i, 1}.fixedX, supports{i, 1}.fixedY];
+                end
+                for j = 1:size(node2Supported, 1)
+                    externalEdges(node2Supported(j, 1), 9:10) = [supports{i, 1}.fixedX, supports{i, 1}.fixedY];
+                end
             end
             
             currentObjectNum = objectNum;
             
             for i = 1:size(externalEdges, 1)
-                coptElement = self.optObjects{externalEdges(i, 3), 1};
-                self.optObjects{objectNum, 1} = COptBoundaryMaster(mesh.meshEdges{externalEdges(i, 5), 1}, coptElement); 
-                self.optObjects{objectNum, 1}.node1SigmaSupported = externalEdges(i, 6);
-                self.optObjects{objectNum, 1}.node1TauSupported = externalEdges(i, 7);
-                self.optObjects{objectNum, 1}.node2SigmaSupported = externalEdges(i, 8);
-                self.optObjects{objectNum, 1}.node2TauSupported = externalEdges(i, 9);
+                coptElement = self.optObjects{externalEdges(i, 4), 1};
+                self.optObjects{objectNum, 1} = COptBoundaryMaster(mesh.meshEdges{externalEdges(i, 6), 1}, coptElement); 
+                self.optObjects{objectNum, 1}.node1SigmaSupported = externalEdges(i, 7);
+                self.optObjects{objectNum, 1}.node1TauSupported = externalEdges(i, 8);
+                self.optObjects{objectNum, 1}.node2SigmaSupported = externalEdges(i, 9);
+                self.optObjects{objectNum, 1}.node2TauSupported = externalEdges(i, 10);
                 objectNum = objectNum + 1;
             end
             
             boundarySlaves = cell(size(externalEdges, 1), loadcaseNum);
-            externalEdges = [(1:size(externalEdges, 1))', externalEdges];
+
             for i = 1:loadcaseNum
                 loadcase = loadCases{i, 1};
                 for j = 1: size(loadcase.loads)
@@ -82,9 +90,10 @@ classdef COptProblem < OptProblem
                     for k = 1:size(contactedEdges, 1)
                         edgeTotalLength = edgeTotalLength + mesh.meshEdges{externalEdges(contactedEdges(k), 6), 1}.length;
                     end
-                    
-                    externalEdges(externalEdges(:, 2) == loadID, 11:12) = [loadcase.loads{i, 1}.loadX / edgeTotalLength, loadcase.loads{i, 1}.loadY / edgeTotalLength];
-                    externalEdges(externalEdges(:, 3) == loadID, 13:14) = [loadcase.loads{i, 1}.loadX / edgeTotalLength, loadcase.loads{i, 1}.loadY / edgeTotalLength];
+                    if (edgeTotalLength ~= 0)
+                        externalEdges(externalEdges(:, 2) == loadID, 11:12) = [2 * loadcase.loads{i, 1}.loadX / edgeTotalLength, 2 * loadcase.loads{i, 1}.loadY / edgeTotalLength];
+                        externalEdges(externalEdges(:, 3) == loadID, 13:14) = [2 * loadcase.loads{i, 1}.loadX / edgeTotalLength, 2 * loadcase.loads{i, 1}.loadY / edgeTotalLength];
+                    end
                 end
                 for j = 1:size(externalEdges, 1)
                     boundarySlaves{j, i} = COptBoundarySlave(externalEdges(j, 11:14)');
@@ -97,7 +106,6 @@ classdef COptProblem < OptProblem
             end
             
             self.optObjects = self.optObjects(~cellfun('isempty',self.optObjects));
-            
         end
     end
 end
