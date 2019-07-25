@@ -9,11 +9,12 @@ for i = 1:5
 end
 
 function runContinuumCase(caseNum, x, y, spacing, load, figureNum, vonMises)
-    matlabMesh = createRectangularMesh(x, y, spacing);
+    matlabMesh = createRectangularMeshMK2(x, y, spacing);
     edges = createMeshEdges(matlabMesh);
     edges(edges(:,1)==0, :) =[];
     mesh = Mesh(matlabMesh);
     mesh.createEdges(edges);
+    area = mesh.calculateArea()
 
     switch caseNum
         case 1
@@ -29,11 +30,11 @@ function runContinuumCase(caseNum, x, y, spacing, load, figureNum, vonMises)
             loadcase.loads = [uniformLoad.loads];
             loadcases = {loadcase};
             
-            uniformSupports1 = PhyUniformSupport([-0.001, 0.001; -0.001, 2.001], 1, 1, matlabMesh);
+            uniformSupports1 = PhyUniformSupport([-0.001, 0.001; -0.001, y + 0.001], 1, 1, matlabMesh);
             supports = [uniformSupports1.supports];            
     end
     
-    area = mesh.calculateArea()
+
     solverOptions = OptOptions();
     solverOptions.useVonMises = vonMises;
     continuumProblem = COptProblem();

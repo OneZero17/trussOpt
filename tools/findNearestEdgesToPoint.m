@@ -1,5 +1,5 @@
 function outPutEdges = findNearestEdgesToPoint(mesh, edges, x, y)
-    nodeID = findNodes(mesh,'nearest',[x; y]);
+    nodeID = findNearestNode(mesh,'nearest',[x; y]);
     elementIDs = findElements(mesh,'attached',nodeID);
     outPutEdges = [];
     edges = [edges, [1:size(edges, 1)]'];

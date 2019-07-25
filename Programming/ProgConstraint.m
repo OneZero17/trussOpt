@@ -23,7 +23,7 @@ classdef ProgConstraint < handle
                 obj.variables=cell(variableNum, 1);
                 obj.coefficients = zeros(variableNum, 1);
             end
-            if (nargin >3)
+            if nargin >3
                 obj.name = name;
             end
         end
@@ -48,6 +48,12 @@ classdef ProgConstraint < handle
                 ME = MException('MyComponent:noSuchVariable','Variable [%s] not found',variable.index);
                 throw(ME)
             end
+        end
+        
+        % Currently only works for equilibrium constraint
+        function obj = addConstraintToRHS(self, constraint)
+            self.variables = [self.variables; constraint.variables];
+            self.coefficients = [self.coefficients; -1 * constraint.coefficients];
         end
     end
 end
