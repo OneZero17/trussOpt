@@ -14,7 +14,6 @@ function runContinuumCase(caseNum, x, y, spacing, load, figureNum, vonMises)
     edges(edges(:,1)==0, :) =[];
     mesh = Mesh(matlabMesh);
     mesh.createEdges(edges);
-    area = mesh.calculateArea()
 
     switch caseNum
         case 1
@@ -31,7 +30,15 @@ function runContinuumCase(caseNum, x, y, spacing, load, figureNum, vonMises)
             loadcases = {loadcase};
             
             uniformSupports1 = PhyUniformSupport([-0.001, 0.001; -0.001, y + 0.001], 1, 1, matlabMesh);
-            supports = [uniformSupports1.supports];            
+            supports = [uniformSupports1.supports];        
+        case 3
+            uniformLoad = PhyUniformLoad([x/2 - 0.03, x/2 + 0.03; 0, 0], 0, load, matlabMesh);
+            loadcase.loads = [uniformLoad.loads];
+            loadcases = {loadcase};
+            
+            uniformSupports1 = PhyUniformSupport([-0.001, 0.06; -0.001, 0.06], 1, 1, matlabMesh);
+            uniformSupports2 = PhyUniformSupport([1.94, 2.001; -0.001, 0.06], 0, 1, matlabMesh);
+            supports = [uniformSupports1.supports; uniformSupports2.supports];  
     end
     
 

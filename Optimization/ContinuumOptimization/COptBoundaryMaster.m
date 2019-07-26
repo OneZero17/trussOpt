@@ -1,10 +1,10 @@
 classdef COptBoundaryMaster < OptObjectMaster
 
     properties
-        node1SigmaSupported = false;
-        node1TauSupported = false;
-        node2SigmaSupported = false;
-        node2TauSupported = false;
+        node1XSupported = false;
+        node1YSupported = false;
+        node2XSupported = false;
+        node2YSupported = false;
         edge;
         coptElement;
     end

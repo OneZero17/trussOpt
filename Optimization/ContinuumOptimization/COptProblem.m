@@ -72,10 +72,10 @@ classdef COptProblem < OptProblem
             for i = 1:size(externalEdges, 1)
                 coptElement = self.optObjects{externalEdges(i, 4), 1};
                 self.optObjects{objectNum, 1} = COptBoundaryMaster(mesh.meshEdges{externalEdges(i, 6), 1}, coptElement); 
-                self.optObjects{objectNum, 1}.node1SigmaSupported = externalEdges(i, 7);
-                self.optObjects{objectNum, 1}.node1TauSupported = externalEdges(i, 8);
-                self.optObjects{objectNum, 1}.node2SigmaSupported = externalEdges(i, 9);
-                self.optObjects{objectNum, 1}.node2TauSupported = externalEdges(i, 10);
+                self.optObjects{objectNum, 1}.node1XSupported = externalEdges(i, 7);
+                self.optObjects{objectNum, 1}.node1YSupported = externalEdges(i, 8);
+                self.optObjects{objectNum, 1}.node2XSupported = externalEdges(i, 9);
+                self.optObjects{objectNum, 1}.node2YSupported = externalEdges(i, 10);
                 objectNum = objectNum + 1;
             end
             
