@@ -51,10 +51,16 @@ classdef ProgConstraint < handle
         end
         
         % Currently only works for equilibrium constraint
-        function obj = addConstraintToRHS(self, constraint)
+        function addConstraintToRHS(self, constraint, coefficient)
             self.variables = [self.variables; constraint.variables];
-            self.coefficients = [self.coefficients; -1 * constraint.coefficients];
+            if nargin > 2
+                self.coefficients = [self.coefficients; -1 *coefficient* constraint.coefficients];
+            else
+                self.coefficients = [self.coefficients; -1 * constraint.coefficients];
+            end
+            self.variableNum = self.variableNum + constraint.variableNum;
         end
+        
     end
 end
 

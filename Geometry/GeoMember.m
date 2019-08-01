@@ -9,16 +9,22 @@ classdef GeoMember < handle
     end
     
     methods
-        function obj = GeoMember(aNode,bNode, index)
+        function obj = GeoMember(aNode,bNode, index, length)
             if (nargin > 0)
                 obj.nodeA = aNode;
             end
             if (nargin > 1)
                 obj.nodeB = bNode;
-                obj.length = aNode.calcDistance(bNode);
+                
             end
             if (nargin > 2)
                 obj.index = index;
+            end
+            
+            if (nargin<=3)
+                obj.length = aNode.calcDistance(bNode);
+            else
+                obj.length = length;
             end
         end
     end

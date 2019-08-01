@@ -21,17 +21,17 @@ classdef COptBoundarySlave < OptObjectSlave
             externalForces = self.forces;
 
             if ~self.master.node1XSupported
-                self.node1SigmaXEquilibrium = matrix.addConstraint(externalForces(1, 1), externalForces(1, 1), 6, 'BoundarySigmaEquilibrium');
+                self.node1SigmaXEquilibrium = matrix.addConstraint(externalForces(1, 1), externalForces(1, 1), 3, 'BoundarySigmaEquilibrium');
             end
             if ~self.master.node1YSupported
-                self.node1SigmaYEquilibrium = matrix.addConstraint(externalForces(2, 1), externalForces(2, 1), 6, 'BoundaryTauEquilibrium');
+                self.node1SigmaYEquilibrium = matrix.addConstraint(externalForces(2, 1), externalForces(2, 1), 3, 'BoundaryTauEquilibrium');
             end
 
             if ~self.master.node2XSupported
-                self.node2SigmaXEquilibrium = matrix.addConstraint(externalForces(3, 1), externalForces(3, 1), 6, 'BoundarySigmaEquilibrium');
+                self.node2SigmaXEquilibrium = matrix.addConstraint(externalForces(3, 1), externalForces(3, 1), 3, 'BoundarySigmaEquilibrium');
             end
             if ~self.master.node2YSupported
-                self.node2SigmaYEquilibrium = matrix.addConstraint(externalForces(4, 1), externalForces(4, 1), 6, 'BoundaryTauEquilibrium');
+                self.node2SigmaYEquilibrium = matrix.addConstraint(externalForces(4, 1), externalForces(4, 1), 3, 'BoundaryTauEquilibrium');
             end
         end
         

@@ -55,13 +55,14 @@ classdef Mesh < handle
         
         function plotMesh(self, varargin)
             p = inputParser;
-            addOptional(p,'figureNumber',0, @isnumeric);
+            addOptional(p,'figureNumber',1, @isnumeric);
             addOptional(p,'title',"", @isstring);
             addOptional(p,'fileName',"", @isstring);
             addOptional(p,'fixedMaximumDensity', true, @islogical);
             addOptional(p,'colorBarHorizontal', false, @islogical);
             addOptional(p,'xLimit', 1, @isnumeric);
             addOptional(p,'yLimit', 1, @isnumeric);
+            addOptional(p,'plotFacetNumber', false, @islogical);
             parse(p,varargin{:});
             titleText = p.Results.title;
             figureNo = p.Results.figureNumber;
@@ -70,11 +71,13 @@ classdef Mesh < handle
             colorBarHorizontal = p.Results.colorBarHorizontal;
             xLimit = p.Results.xLimit;
             yLimit = p.Results.yLimit;
+            plotFacetNumber = p.Results.plotFacetNumber;
             if fixedMaximumDensity
                 maximumDensity = 1;
             else
                 maximumDensity = getMaximumDensity(self);
             end
+            
             figure(figureNo)
             facetNum = size(self.meshFacets, 1);
             axis equal;
@@ -92,23 +95,29 @@ classdef Mesh < handle
             set(fig,'Colormap',flipud(mycmap));
             xlim([0 xLimit])
             ylim([0 yLimit])
-            title(titleText);
+            if titleText~= ""
+                title(titleText);
+            end
             hold on
             for i = 1:facetNum
                 currentFacet = self.meshFacets{i, 1};
                 if (currentFacet.density > 1)
                     currentFacet.density = 1;
                 end
-                rgb = interp1( linspace(maximumDensity, 0, size(cmap, 1)), cmap, currentFacet.density);               
-                fill ([currentFacet.nodeA.x; currentFacet.nodeB.x; currentFacet.nodeC.x], ...
-                      [currentFacet.nodeA.y; currentFacet.nodeB.y; currentFacet.nodeC.y],...
-                      rgb, 'EdgeColor', rgb);
+                rgb = interp1( linspace(maximumDensity, 0, size(cmap, 1)), cmap, currentFacet.density);       
+                x = [currentFacet.nodeA.x; currentFacet.nodeB.x; currentFacet.nodeC.x];
+                y = [currentFacet.nodeA.y; currentFacet.nodeB.y; currentFacet.nodeC.y];
+                fill (x, y, rgb, 'EdgeColor', rgb);
+                if plotFacetNumber
+                    text(mean(x), mean(y), sprintf('%d',i), 'FontSize',10, 'Color', [0,0,0]);
+                end
+                  
             end
             
             if (fileName ~= "")
                 saveas(fig,"Results\"+fileName)
+                close(figureNo)
             end
-            close(figureNo)
         end
         
         function volume = calculateVolume(self)

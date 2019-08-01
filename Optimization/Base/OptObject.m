@@ -11,7 +11,7 @@ classdef OptObject < handle
         function matrix = addConstraint(matrix)
         end
         
-        function matrix = initialize(matrix)
+        function matrix = initialize(self, matrix)
         end
         
         function matrix = calcConstraint(self, matrix)

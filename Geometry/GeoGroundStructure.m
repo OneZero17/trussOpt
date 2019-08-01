@@ -1,6 +1,7 @@
 classdef GeoGroundStructure < handle
     
     properties
+        nodeGrid
         nodes
         members
     end
@@ -23,6 +24,32 @@ classdef GeoGroundStructure < handle
             for i = 1:size(self.members, 1)
                 self.members{i,1}.index = i;
             end
+        end
+        
+        function createCustomizedNodeGrid(self, xStart, yStart, xEnd, yEnd, xSpacing, ySpacing)
+            xSpacingNumber = floor((xEnd-xStart)/xSpacing);
+            ySpacingNumber = floor((yEnd-yStart)/ySpacing);
+            x = 0 : xSpacingNumber;
+            y = 0 : ySpacingNumber;
+            [X,Y] = meshgrid(x,y);
+            points = [X(:), Y(:)];
+            if xSpacingNumber == 0
+                xSpacingNumber = 1;
+            end
+            if ySpacingNumber == 0
+                ySpacingNumber = 1;
+            end
+            points(:, 1) = points(:, 1) *(xEnd - xStart)/xSpacingNumber + xStart;
+            points(:, 2) = points(:, 2) *(yEnd - yStart)/ySpacingNumber + yStart;
+            self.nodeGrid = points;
+        end
+        
+        function createNodesFromGrid(self)
+            nodeNum = size(self.nodeGrid, 1);
+            self.nodes = cell(nodeNum, 1);
+            for i = 1:nodeNum
+                self.nodes{i, 1} = GeoNode(self.nodeGrid(i, 1),self.nodeGrid(i, 2), i);
+            end     
         end
         
         function volume = calculateVolume(self)
@@ -49,11 +76,10 @@ classdef GeoGroundStructure < handle
             obj = self;
         end
         
-        function [obj, nodeIndex] = findOrAppendNode(self, x,y)
+        function nodeIndex = findOrAppendNode(self, x,y)
             nodeIndex = self.findNodeIndex(x, y);
-            obj = self;
             if nodeIndex == -1
-                [obj, nodeIndex] = self.appendNode(x, y);
+                nodeIndex = self.appendNode(x, y);
             end
         end
         
@@ -91,19 +117,23 @@ classdef GeoGroundStructure < handle
         
         function plotMembers(self, varargin)
             p = inputParser;
+            addOptional(p,'figureNumber',1, @isnumeric);
             addOptional(p,'force', false, @islogical);
             addOptional(p,'title','', @isstring);
             addOptional(p,'nodalForce', false, @islogical);
             addOptional(p,'nodalForcePlottingRatio', -1, @isnumeric);
             addOptional(p, 'blackAndWhite', false, @islogical);
+            addOptional(p, 'plotGroundStructure', false, @islogical);
             parse(p,varargin{:});
             plotForce = p.Results.force;
             titleText = p.Results.title;
             nodalForce = p.Results.nodalForce;
             blackAndWhite = p.Results.blackAndWhite;
             nodalForcePlottingRatio = p.Results.nodalForcePlottingRatio;
+            plotGroundStructure = p.Results.plotGroundStructure;
+            figureNo = p.Results.figureNumber;
             
-            figure
+            figure(figureNo)
             hold on
             axis equal
             axis off
@@ -115,14 +145,18 @@ classdef GeoGroundStructure < handle
                 maxArea = max(maxArea, self.members{i,1}.area);
             end
             for i = 1:size(self.members)
-                if (self.members{i,1}.area > maxArea / 1000)
+                coefficient = self.members{i,1}.area / maxArea;
+                if plotGroundStructure
+                    coefficient = 1;
+                end
+                if coefficient > 1 / 1000                 
                     if blackAndWhite
-                        color = [1, 1, 1] - (self.members{i,1}.area / maxArea)^0.3 * [1, 1, 1];
+                        color = [1, 1, 1] -  coefficient^0.3 * [1, 1, 1];
                     else
                         if (self.members{i,1}.force > 0)
-                        color = [1, 1, 1] - (self.members{i,1}.area / maxArea)^0.3 * [1, 1, 0];
+                        color = [1, 1, 1] - coefficient^0.3 * [1, 1, 0];
                         else
-                        color = [1, 1, 1] - (self.members{i,1}.area / maxArea)^0.3 * [0, 1, 1];
+                        color = [1, 1, 1] - coefficient^0.3 * [0, 1, 1];
                         end
                     end
 

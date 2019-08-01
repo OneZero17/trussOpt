@@ -1,5 +1,6 @@
 function [vars, result] = mosekSolve(matrix, output)
     matrix.deleteEmptyCells();
+    matrix.initialize();
     prob.c = matrix.getJacobianObjective();
     variableBoundary = matrix.getVariableBoundary();
     prob.blx = variableBoundary(:,1);
@@ -16,9 +17,11 @@ function [vars, result] = mosekSolve(matrix, output)
     for i = 1:size(cQ)
         recQ(i*2-1:i*2)=cQ(i,:);
     end
-    prob.f = FQ;
-    prob.g = gQ;
-    prob.cones = recQ;
+    if size(recQ, 2) > 0
+        prob.f = FQ;
+        prob.g = gQ;
+        prob.cones = recQ;
+    end
     %prob = optimizeMatrix(prob);
     % Select interior-point optimizer... (integer parameter)
     

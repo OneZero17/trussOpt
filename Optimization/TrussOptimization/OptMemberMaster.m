@@ -27,9 +27,9 @@ classdef OptMemberMaster < OptObjectMaster
             self.tensionStressConstraints = cell(size(self.slaves, 1), 1);
             self.compressionStressConstraints = cell(size(self.slaves, 1), 1);
             for i =1:size(self.slaves, 1)
-                stressConstraint = matrix.addConstraint(0,inf, size(self.slaves, 1) +1);
+                stressConstraint = matrix.addConstraint(0,inf, size(self.slaves, 1) +1, 'tensionStressConstraint');
                 self.tensionStressConstraints{i, 1} = stressConstraint;
-                stressConstraint = matrix.addConstraint(0,inf, size(self.slaves, 1) +1);
+                stressConstraint = matrix.addConstraint(0,inf, size(self.slaves, 1) +1, 'compressionStressConstraints');
                 self.compressionStressConstraints{i, 1} = stressConstraint;
             end
             self.initializeSlaves(matrix);
@@ -51,7 +51,7 @@ classdef OptMemberMaster < OptObjectMaster
         end
         
         function [conNum, varNum, objVarNum] = getConAndVarNum(self)
-            conNum = size(self.slaves, 1);
+            conNum = size(self.slaves, 1)*2;
             varNum = 1;
             objVarNum = 1;
         end

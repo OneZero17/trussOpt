@@ -30,4 +30,6 @@ for i = 1 : numFacet
         
     end
 end
+    edges(edges(:,1)==0, :) =[];
+end
 

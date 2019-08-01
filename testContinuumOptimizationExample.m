@@ -1,5 +1,5 @@
-for i = 1:5
-    for j = 1:3
+for i = 5:5
+    for j = 2:2
         load = [1, 5, 10, 50, 100];
         load2 = [10, 15, 50, 100, 110];
         xy = [4, 1; 2, 1; 1, 2];
@@ -11,7 +11,6 @@ end
 function runContinuumCase(caseNum, x, y, spacing, load, figureNum, vonMises)
     matlabMesh = createRectangularMeshMK2(x, y, spacing);
     edges = createMeshEdges(matlabMesh);
-    edges(edges(:,1)==0, :) =[];
     mesh = Mesh(matlabMesh);
     mesh.createEdges(edges);
 
