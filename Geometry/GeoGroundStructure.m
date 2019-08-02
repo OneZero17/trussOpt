@@ -162,7 +162,10 @@ classdef GeoGroundStructure < handle
 
                     x1 = [self.members{i,1}.nodeA.x, self.members{i,1}.nodeB.x];
                     y1 = [self.members{i,1}.nodeA.y, self.members{i,1}.nodeB.y];
-                    plot(x1, y1, 'Color', color);
+                    width = self.members{i,1}.area;
+                    coordinates = getLineCornerCoordinates([x1;y1], self.members{i,1}.length, width);
+                    %plot(x1, y1, 'Color', color, 'LineWidth', radius);
+                    fill (coordinates(1,:), coordinates(2,:), color, 'EdgeColor', color);
                     if (plotForce ~=0)
                     	xText = x1(1) + (x1(2) -x1(1))/3; 
                         yText = y1(1) + (y1(2) -y1(1))/3; 

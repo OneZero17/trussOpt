@@ -13,7 +13,7 @@ classdef COptProblem < OptProblem
             obj = elementNum*(1+loadcaseNum) + edgeNum * loadcaseNum * 2;
         end
         
-        function obj = createProblem(self, mesh, edges, loadCases, supports, solverOptions)
+        function obj = createProblem(self, mesh, edges, loadCases, supports, solverOptions, thickness)
             self.optObjects = cell(self.estimateOptObjectNumber(mesh, loadCases), 1);
             self.solverOptions = solverOptions;
             objectNum = 1;
@@ -23,7 +23,7 @@ classdef COptProblem < OptProblem
 
             %% Add equiilibrium within an element 
             for i = 1:elementNum
-                self.optObjects{objectNum, 1} = COptTriangularElementMaster(solverOptions.sigmaC, mesh.meshFacets{i, 1}, solverOptions.useVonMises);
+                self.optObjects{objectNum, 1} = COptTriangularElementMaster(solverOptions.sigmaC, mesh.meshFacets{i, 1}, solverOptions.useVonMises, thickness);
                 elementSlaves = cell(loadcaseNum, 1);
                 for j = 1: loadcaseNum
                     elementSlaves{j, 1} = COptTriangularElementSlave();

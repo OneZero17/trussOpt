@@ -37,7 +37,7 @@ classdef HybridProblem < handle
             end       
         end
         
-        function createHybridElements(self, loadCaseNum, thickness)
+        function createHybridElements(self, loadCaseNum)
 
             geoMesh = self.hybridMesh.geoMesh;
             
@@ -93,7 +93,7 @@ classdef HybridProblem < handle
                 linkedNodes = zeros(size(edgeObjects, 1), 1);
                 linkedNodes(connectedEdges(:, 2) == currentNode) = 1;
                 linkedNodes(connectedEdges(:, 3) == currentNode) = 2;
-                hybridNodeMaster = HybridNodeMaster(optTrussNodes{overlappingMap(i, 1), 1}, edgeObjects, linkedNodes, thickness);
+                hybridNodeMaster = HybridNodeMaster(optTrussNodes{overlappingMap(i, 1), 1}, edgeObjects, linkedNodes);
                 
                 hybridNodeSlaves = cell(loadCaseNum, 1);
                 for k = 1:loadCaseNum

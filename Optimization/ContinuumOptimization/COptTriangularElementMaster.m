@@ -8,10 +8,11 @@ classdef COptTriangularElementMaster < OptObjectMaster
         densityVariable
         densityCoefficient
         isVonMises = true
+        thickness
     end
     
     methods
-        function obj = COptTriangularElementMaster(sigmaMax, facet, isVonMises)
+        function obj = COptTriangularElementMaster(sigmaMax, facet, isVonMises, thickness)
             obj.densityCoefficient = 1;
             if (nargin > 0)
                 obj.sigmaMax = sigmaMax;
@@ -21,6 +22,11 @@ classdef COptTriangularElementMaster < OptObjectMaster
             end
             if (nargin > 2)
                 obj.isVonMises = isVonMises;
+            end
+            if (nargin >3)
+                obj.thickness = thickness;
+            else
+                obj.thickness = 1;
             end
         end
         
@@ -76,7 +82,7 @@ classdef COptTriangularElementMaster < OptObjectMaster
                         sigmaXXminusSigmaYYCone.addVariable(self.slaves{i,1}.sigmaXXVariables{j, 1}, 1);
                         sigmaXXminusSigmaYYCone.addVariable(self.slaves{i,1}.sigmaYYVariables{j, 1}, -1);
                         tauCone = ProgCone(1, self.slaves{i,1}.tauXYVariables{j, 1}, sqrt(6));
-                        sigmaMaxCone = ProgCone(1, self.densityVariable, 2*sqrt(2)*self.sigmaMax);
+                        sigmaMaxCone = ProgCone(1, self.densityVariable, sqrt(2)*self.sigmaMax);
                         yieldConicConstraint = self.yieldConstraints{yieldConstraintNum,1};
 
                         yieldConicConstraint.addRHSCone(sigmaMaxCone);
@@ -111,7 +117,7 @@ classdef COptTriangularElementMaster < OptObjectMaster
         end
         
         function calcObjective(self, matrix)
-            matrix.objectiveFunction.addVariable(self.densityVariable, self.facet.area*self.densityCoefficient);
+            matrix.objectiveFunction.addVariable(self.densityVariable, self.facet.area*self.densityCoefficient * self.thickness);
         end
         
         function [conNum, varNum, objVarNum] = getConAndVarNum(self)

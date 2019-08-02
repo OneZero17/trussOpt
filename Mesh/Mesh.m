@@ -120,12 +120,15 @@ classdef Mesh < handle
             end
         end
         
-        function volume = calculateVolume(self)
+        function volume = calculateVolume(self, thickness)
+            if (nargin == 1)
+                thickness = 1;
+            end
             volume = 0;
             facetNum = size(self.meshFacets, 1);
             for i = 1:facetNum
                 currentFacet = self.meshFacets{i, 1};
-                volume = volume + currentFacet.density * currentFacet.area;
+                volume = volume + thickness * currentFacet.density * currentFacet.area;
             end
         end
         

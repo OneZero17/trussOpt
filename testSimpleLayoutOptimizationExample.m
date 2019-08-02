@@ -1,20 +1,27 @@
 function obj = testSimpleLayoutOptimizationExample()
     groundStructure = GeoGroundStructure;
     x=10;y=20;
-    groundStructure= groundStructure.createRectangularNodeGrid(x, y);
+    groundStructure.createCustomizedNodeGrid(0, 0, x, y, 1, 1);
+    groundStructure.createNodesFromGrid();
     loadcase = PhyLoadCase();
-    load1NodeIndex = groundStructure.findOrAppendNode(0, 20);
-    %load2NodeIndex = groundStructure.findOrAppendNode(2, 2);
-    load1 = PhyLoad(load1NodeIndex, 1, 0);
-    %load2 = PhyLoad(load2NodeIndex, 1, 0);
-    loadcase.loads = {load1};
+    load1NodeIndex = groundStructure.findOrAppendNode(0, y);
+    load2NodeIndex = groundStructure.findOrAppendNode(x, y);
+    load1 = PhyLoad(load1NodeIndex, 0.1, 0);
+    load2 = PhyLoad(load2NodeIndex, 0.1, 0);
+    loadcase.loads = {load1; load2};
     loadcases = {loadcase};
     
-    support1NodeIndex = groundStructure.findOrAppendNode(0, 0);
-    support2NodeIndex = groundStructure.findOrAppendNode(10, 0);
-    support1 = PhySupport(support1NodeIndex);
-    support2 = PhySupport(support2NodeIndex,1,1);
-    supports = {support1; support2};
+    supports = cell(11, 1);
+    for i = 1:11
+        supportNodeIndex = groundStructure.findOrAppendNode((i-1)*1, 0);
+        support = PhySupport(supportNodeIndex);
+        supports{i, 1} = support;
+    end
+%    support1NodeIndex = groundStructure.findOrAppendNode(0, 0);
+%     support2NodeIndex = groundStructure.findOrAppendNode(9, 0);
+%     support1 = PhySupport(support1NodeIndex);
+%     support2 = PhySupport(support2NodeIndex,0,1);
+%     supports = {support1; support2};
     groundStructure.createGroundStructureFromNodeGrid();
     solverOptions = OptOptions();
     
