@@ -2,6 +2,7 @@ classdef GeoGroundStructure < handle
     
     properties
         nodeGrid
+        memberList
         nodes
         members
     end
@@ -42,6 +43,22 @@ classdef GeoGroundStructure < handle
             points(:, 1) = points(:, 1) *(xEnd - xStart)/xSpacingNumber + xStart;
             points(:, 2) = points(:, 2) *(yEnd - yStart)/ySpacingNumber + yStart;
             self.nodeGrid = points;
+        end
+        
+        function createMemberListFromNodeGrid(self)
+            nodes = self.nodeGrid;
+            nodeNum = size(nodes, 1);
+            memberList = zeros(nodeNum * (nodeNum - 1) / 2, 6);
+            addedMemberNumber = 0;
+            
+            for i = 1:nodeNum
+                memberList(addedMemberNumber+1 : addedMemberNumber+nodeNum - i, 1) = repmat(i, nodeNum - i, 1);
+                memberList(addedMemberNumber+1 : addedMemberNumber+nodeNum - i, 2) = (i+1):nodeNum;
+                memberList(addedMemberNumber+1 : addedMemberNumber+nodeNum - i, 3:4) = repmat(nodes(i,:), nodeNum - i, 1);
+                memberList(addedMemberNumber+1 : addedMemberNumber+nodeNum - i, 5:6) = nodes(i+1:end, :);
+                addedMemberNumber = addedMemberNumber + nodeNum - i;
+            end
+            self.memberList = memberList;
         end
         
         function createNodesFromGrid(self)
@@ -115,6 +132,14 @@ classdef GeoGroundStructure < handle
             obj = self;
         end
         
+       function createGroundStructureFromMemberList(self)
+           memberNum = size(self.memberList, 1);
+           self.members = cell(memberNum, 1);
+           for i = 1:memberNum
+               self.members{i, 1} = GeoMember(self.nodes{self.memberList(i, 1),1}, self.nodes{self.memberList(i, 2),1}, i);
+           end
+       end
+        
         function plotMembers(self, varargin)
             p = inputParser;
             addOptional(p,'figureNumber',1, @isnumeric);
@@ -162,7 +187,11 @@ classdef GeoGroundStructure < handle
 
                     x1 = [self.members{i,1}.nodeA.x, self.members{i,1}.nodeB.x];
                     y1 = [self.members{i,1}.nodeA.y, self.members{i,1}.nodeB.y];
-                    width = self.members{i,1}.area;
+                    if plotGroundStructure
+                        width = 0.1;
+                    else
+                        width = self.members{i,1}.area;
+                    end
                     coordinates = getLineCornerCoordinates([x1;y1], self.members{i,1}.length, width);
                     %plot(x1, y1, 'Color', color, 'LineWidth', radius);
                     fill (coordinates(1,:), coordinates(2,:), color, 'EdgeColor', color);

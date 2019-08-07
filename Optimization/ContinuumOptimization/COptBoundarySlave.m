@@ -4,10 +4,10 @@ classdef COptBoundarySlave < OptObjectSlave
         forces = zeros(4, 1);
         node1Variables
         node2Variables
-        node1SigmaXEquilibrium;
-        node1SigmaYEquilibrium;
-        node2SigmaXEquilibrium;
-        node2SigmaYEquilibrium;
+        node1SigmaEquilibrium;
+        node1TauEquilibrium;
+        node2SigmaEquilibrium;
+        node2TauEquilibrium;
     end
     
     methods
@@ -19,19 +19,27 @@ classdef COptBoundarySlave < OptObjectSlave
         
         function initialize(self, matrix)
             externalForces = self.forces;
-
+            thisEdge = self.master.edge;
+            sinTheta = (thisEdge.nodeB.y - thisEdge.nodeA.y) / thisEdge.length;
+            cosTheta = (thisEdge.nodeB.x - thisEdge.nodeA.x) / thisEdge.length;
+            forces = self.forces;
+            transformedForces = [-forces(1, 1)*sinTheta + forces(2, 1)*cosTheta;
+                                 forces(1, 1)*cosTheta + forces(2, 1)*sinTheta;
+                                 -forces(3, 1)*sinTheta + forces(4, 1)*cosTheta;
+                                 forces(3, 1)*cosTheta + forces(4, 1)*sinTheta;];
+                             
             if ~self.master.node1XSupported
-                self.node1SigmaXEquilibrium = matrix.addConstraint(externalForces(1, 1), externalForces(1, 1), 3, 'BoundarySigmaEquilibrium');
+                self.node1SigmaEquilibrium = matrix.addConstraint(transformedForces(1, 1), transformedForces(1, 1), 3, 'BoundarySigmaEquilibrium');
             end
             if ~self.master.node1YSupported
-                self.node1SigmaYEquilibrium = matrix.addConstraint(externalForces(2, 1), externalForces(2, 1), 3, 'BoundaryTauEquilibrium');
+                self.node1TauEquilibrium = matrix.addConstraint(transformedForces(2, 1), transformedForces(2, 1), 3, 'BoundaryTauEquilibrium');
             end
 
             if ~self.master.node2XSupported
-                self.node2SigmaXEquilibrium = matrix.addConstraint(externalForces(3, 1), externalForces(3, 1), 3, 'BoundarySigmaEquilibrium');
+                self.node2SigmaEquilibrium = matrix.addConstraint(transformedForces(3, 1), transformedForces(3, 1), 3, 'BoundarySigmaEquilibrium');
             end
             if ~self.master.node2YSupported
-                self.node2SigmaYEquilibrium = matrix.addConstraint(externalForces(4, 1), externalForces(4, 1), 3, 'BoundaryTauEquilibrium');
+                self.node2TauEquilibrium = matrix.addConstraint(transformedForces(4, 1), transformedForces(4, 1), 3, 'BoundaryTauEquilibrium');
             end
         end
         
@@ -39,24 +47,23 @@ classdef COptBoundarySlave < OptObjectSlave
             thisEdge = self.master.edge;
             sinTheta = (thisEdge.nodeB.y - thisEdge.nodeA.y) / thisEdge.length;
             cosTheta = (thisEdge.nodeB.x - thisEdge.nodeA.x) / thisEdge.length;
-
-            T = [-sinTheta, 0, cosTheta;
-                 0, cosTheta, sinTheta];
+            T = [sinTheta^2, cosTheta^2, -2*sinTheta*cosTheta;
+                 -sinTheta*cosTheta, sinTheta*cosTheta, 1-2*sinTheta^2];
             for i = 1:3
                 if ~self.master.node1XSupported
-                    self.node1SigmaXEquilibrium.addVariable(self.node1Variables{i, 1}, T(1, i));
+                    self.node1SigmaEquilibrium.addVariable(self.node1Variables{i, 1}, T(1, i));
                 end
                 
                 if ~self.master.node1YSupported
-                    self.node1SigmaYEquilibrium.addVariable(self.node1Variables{i, 1}, T(2, i));
+                    self.node1TauEquilibrium.addVariable(self.node1Variables{i, 1}, T(2, i));
                 end
                 
                 if ~self.master.node2XSupported
-                    self.node2SigmaXEquilibrium.addVariable(self.node2Variables{i, 1}, T(1, i));
+                    self.node2SigmaEquilibrium.addVariable(self.node2Variables{i, 1}, T(1, i));
                 end
                 
                 if ~self.master.node2YSupported
-                    self.node2SigmaYEquilibrium.addVariable(self.node2Variables{i, 1}, T(2, i));
+                    self.node2TauEquilibrium.addVariable(self.node2Variables{i, 1}, T(2, i));
                 end
                     
             end

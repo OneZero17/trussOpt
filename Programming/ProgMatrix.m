@@ -99,7 +99,7 @@ classdef ProgMatrix < handle
         function constraint = addConstraint(self, lowerBound, upperBound, variableNum, name)
             if nargin == 4
                 constraint = ProgConstraint(lowerBound, upperBound, variableNum);
-            elseif nargin ==5
+            elseif nargin == 5
                 constraint = ProgConstraint(lowerBound, upperBound, variableNum, name);
             else
                 constraint = ProgConstraint(); 

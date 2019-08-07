@@ -28,6 +28,42 @@ classdef Mesh < handle
                 obj.meshFacets = meshElements;
             end
         end
+
+        function levelList = createElementGroupsBasedOnDensity(self, levelNum)
+            levelSpacing = 1/levelNum;
+            facetNum = size(self.meshFacets, 1);
+            levelList = zeros(facetNum, 1);
+            for i = 1:facetNum
+                levelList(i, 1) = floor(self.meshFacets{i, 1}.density / levelSpacing);
+            end
+
+        end
+        
+        function newMesh = createNewMeshWithSetLevel(self, matlabMesh, level)
+           oldNodes = matlabMesh.Nodes';
+           oldElements = matlabMesh.Elements';
+           facetNum = size(self.meshFacets, 1);
+           densityList = zeros(facetNum, 1);
+           for i = 1:facetNum
+               densityList(i, 1) = self.meshFacets{i, 1}.density;
+           end
+           keepList = oldElements(densityList > level, :);
+           
+           keepNode = reshape(keepList, [], 1);
+           keepNode = unique(keepNode);
+           keepNode = [keepNode, (1:size(keepNode, 1))'];
+           
+           nodeMap = [(1:size(oldNodes, 1))', zeros(size(oldNodes, 1), 1)];
+           nodeMap(keepNode(:, 1), 2) = keepNode(:, 2);
+           newElements = reshape(keepList, 1, [])';
+           for i = 1:size(newElements, 1)
+               newElements(i, 1) = nodeMap(newElements(i, 1), 2);
+           end
+           newElements = reshape(newElements, [], 3);
+           
+           newMesh.Nodes = oldNodes(keepNode(:, 1), :)';
+           newMesh.Elements = newElements';
+        end
         
         function createEdges(self, edges)
             numEdges = size(edges, 1);
@@ -63,6 +99,8 @@ classdef Mesh < handle
             addOptional(p,'xLimit', 1, @isnumeric);
             addOptional(p,'yLimit', 1, @isnumeric);
             addOptional(p,'plotFacetNumber', false, @islogical);
+            addOptional(p,'setLevel', 0, @isnumeric);
+            addOptional(p,'plotGroundStructure', false, @islogical);
             parse(p,varargin{:});
             titleText = p.Results.title;
             figureNo = p.Results.figureNumber;
@@ -72,6 +110,8 @@ classdef Mesh < handle
             xLimit = p.Results.xLimit;
             yLimit = p.Results.yLimit;
             plotFacetNumber = p.Results.plotFacetNumber;
+            setLevel = p.Results.setLevel;
+            plotGroundStructure = p.Results.plotGroundStructure;
             if fixedMaximumDensity
                 maximumDensity = 1;
             else
@@ -101,10 +141,16 @@ classdef Mesh < handle
             hold on
             for i = 1:facetNum
                 currentFacet = self.meshFacets{i, 1};
-                if (currentFacet.density > 1)
-                    currentFacet.density = 1;
+                density = currentFacet.density;
+                if density > 1
+                    density = 1;
+                elseif density < setLevel
+                    density = 0;
                 end
-                rgb = interp1( linspace(maximumDensity, 0, size(cmap, 1)), cmap, currentFacet.density);       
+                if plotGroundStructure
+                    density = 1;
+                end
+                rgb = interp1( linspace(maximumDensity, 0, size(cmap, 1)), cmap, density);       
                 x = [currentFacet.nodeA.x; currentFacet.nodeB.x; currentFacet.nodeC.x];
                 y = [currentFacet.nodeA.y; currentFacet.nodeB.y; currentFacet.nodeC.y];
                 fill (x, y, rgb, 'EdgeColor', rgb);

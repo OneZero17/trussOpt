@@ -38,7 +38,7 @@ classdef COptProblem < OptProblem
             for i = 1: size(innerEdges, 1)
                 coptElementA = self.optObjects{innerEdges(i, 3), 1};
                 coptElementB = self.optObjects{innerEdges(i, 4), 1};
-                self.optObjects{objectNum, 1} = COptEdgeMaster(mesh.meshEdges{innerEdges(i, 5), 1}, coptElementA, coptElementB); 
+                self.optObjects{objectNum, 1} = COptEdgeMaster(mesh.meshEdges{innerEdges(i, 6), 1}, coptElementA, coptElementB); 
                 edgeSlaves = cell(loadcaseNum, 1);
                 for j = 1: loadcaseNum
                     edgeSlaves{j, 1} = COptEdgeSlave();
@@ -52,7 +52,7 @@ classdef COptProblem < OptProblem
             % Add eight columns: node1X fixed, node1Y fixed, node2X fixed,
             % node2Y fixed, node1X load, node1Y load, node2X load, node2Y
             % load
-            
+
             externalEdges = [externalEdges, zeros(size(externalEdges, 1), 8)];
             externalEdges = [(1:size(externalEdges, 1))', externalEdges];
             for i = 1:size(supports, 1)
@@ -60,10 +60,10 @@ classdef COptProblem < OptProblem
                 node1Supported = externalEdges(externalEdges(:, 2) == supportID, :);
                 node2Supported = externalEdges(externalEdges(:, 3) == supportID, :);
                 for j = 1:size(node1Supported, 1)
-                    externalEdges(node1Supported(j, 1), 7:8) = [supports{i, 1}.fixedX, supports{i, 1}.fixedY];
+                    externalEdges(node1Supported(j, 1), 8:9) = [supports{i, 1}.fixedX, supports{i, 1}.fixedY];
                 end
                 for j = 1:size(node2Supported, 1)
-                    externalEdges(node2Supported(j, 1), 9:10) = [supports{i, 1}.fixedX, supports{i, 1}.fixedY];
+                    externalEdges(node2Supported(j, 1), 10:11) = [supports{i, 1}.fixedX, supports{i, 1}.fixedY];
                 end
             end
             
@@ -71,11 +71,11 @@ classdef COptProblem < OptProblem
             
             for i = 1:size(externalEdges, 1)
                 coptElement = self.optObjects{externalEdges(i, 4), 1};
-                self.optObjects{objectNum, 1} = COptBoundaryMaster(mesh.meshEdges{externalEdges(i, 6), 1}, coptElement); 
-                self.optObjects{objectNum, 1}.node1XSupported = externalEdges(i, 7);
-                self.optObjects{objectNum, 1}.node1YSupported = externalEdges(i, 8);
-                self.optObjects{objectNum, 1}.node2XSupported = externalEdges(i, 9);
-                self.optObjects{objectNum, 1}.node2YSupported = externalEdges(i, 10);
+                self.optObjects{objectNum, 1} = COptBoundaryMaster(mesh.meshEdges{externalEdges(i, 7), 1}, coptElement); 
+                self.optObjects{objectNum, 1}.node1XSupported = externalEdges(i, 8);
+                self.optObjects{objectNum, 1}.node1YSupported = externalEdges(i, 9);
+                self.optObjects{objectNum, 1}.node2XSupported = externalEdges(i, 10);
+                self.optObjects{objectNum, 1}.node2YSupported = externalEdges(i, 11);
                 objectNum = objectNum + 1;
             end
             
@@ -85,18 +85,18 @@ classdef COptProblem < OptProblem
                 loadcase = loadCases{i, 1};
                 for j = 1: size(loadcase.loads)
                     loadID = loadcase.loads{j, 1}.nodeIndex;
-                    contactedEdges = [externalEdges(externalEdges(:, 2) == loadID, 1); externalEdges(externalEdges(:, 3) == loadID, 1)];
+                    contactedEdges = [externalEdges(externalEdges(:, 2) == loadID & externalEdges(:, 6) == 1, 1); externalEdges(externalEdges(:, 3) == loadID & externalEdges(:, 6) == 1, 1)];
                     edgeTotalLength = 0;
                     for k = 1:size(contactedEdges, 1)
-                        edgeTotalLength = edgeTotalLength + mesh.meshEdges{externalEdges(contactedEdges(k), 6), 1}.length;
+                        edgeTotalLength = edgeTotalLength + mesh.meshEdges{externalEdges(contactedEdges(k), 7), 1}.length;
                     end
                     if (edgeTotalLength ~= 0)
-                        externalEdges(externalEdges(:, 2) == loadID, 11:12) = [2 * loadcase.loads{i, 1}.loadX / edgeTotalLength, 2 * loadcase.loads{i, 1}.loadY / edgeTotalLength];
-                        externalEdges(externalEdges(:, 3) == loadID, 13:14) = [2 * loadcase.loads{i, 1}.loadX / edgeTotalLength, 2 * loadcase.loads{i, 1}.loadY / edgeTotalLength];
+                        externalEdges(externalEdges(:, 2) == loadID & externalEdges(:, 6) == 1, 12:13) = [2 * loadcase.loads{i, 1}.loadX / edgeTotalLength, 2 * loadcase.loads{i, 1}.loadY / edgeTotalLength];
+                        externalEdges(externalEdges(:, 3) == loadID & externalEdges(:, 6) == 1, 14:15) = [2 * loadcase.loads{i, 1}.loadX / edgeTotalLength, 2 * loadcase.loads{i, 1}.loadY / edgeTotalLength];
                     end
                 end
                 for j = 1:size(externalEdges, 1)
-                    boundarySlaves{j, i} = COptBoundarySlave(externalEdges(j, 11:14)');
+                    boundarySlaves{j, i} = COptBoundarySlave(externalEdges(j, 12:15)');
                 end          
             end
             

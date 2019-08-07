@@ -1,10 +1,10 @@
 clear
-for i = 1:4
-    for j = 1:2
+for i = 1:1
+    for j = 1:1
     loadMagnitude = [0.05, 0.1, 0.2, 0.3];
-    %spacing = [1, 0.25; 0.5, 0.25];
-    spacing = [0.5, 0.125; 0.25, 0.125];
-    runHybridProblem(0, 10, 2.5, 5, spacing(j, 1),spacing(j, 2), 2, i, 1, loadMagnitude(i))
+    spacing = [1, 0.25; 0.5, 0.25];
+    %spacing = [0.5, 0.125; 0.25, 0.125];
+    runHybridProblem(0, 10, 10, 20, spacing(j, 1),spacing(j, 2), 1, i, 1, loadMagnitude(i))
     end
 end
 %runHybridProblem(0, 10, 2.5, 5,0.5,0.25, 2, 1, 1)
@@ -37,6 +37,8 @@ function runHybridProblem(xStart, xEnd, yStart, yEnd, discreteSpacing, continuum
     xEndMesh = xEnd; yEndMesh = yStart; meshSpacing = continuumSpacing;
     matlabMesh = createRectangularMeshMK2(xEndMesh, yEndMesh, meshSpacing);
     edges = createMeshEdges(matlabMesh);
+    boundaryList = determineExternalBoundaryList(matlabMesh.Nodes', edges, [0, 0, 0, yEndMesh; xEndMesh, yEndMesh, xEndMesh, 0; xEndMesh, 0, 0, 0]);
+    edges = [edges, boundaryList];
     matlabMesh.Edges = edges;
     mesh = Mesh(matlabMesh);
     mesh.createEdges(edges);
@@ -76,7 +78,7 @@ function runHybridProblem(xStart, xEnd, yStart, yEnd, discreteSpacing, continuum
     %% Plot results
     title = "Hybrid optimization - Load: " + loadMagnitude + " volume: " + volume;
     groundStructure.plotMembers('title', title, 'figureNumber', figNumber);
-    filename = "Case_"+caseNumber+"_Load_" + loadMagnitude+"_ContinuumSpacing_"+continuumSpacing+"_discreteSpacing_"+discreteSpacing;
+    filename = "Case_"+caseNumber+"_Load_" + loadMagnitude+"_ContinuumSpacing_"+continuumSpacing+"_discreteSpacing_"+discreteSpacing + ".png";
     mesh.plotMesh('fixedMaximumDensity', false, 'xLimit', xEndMesh, 'yLimit', yEnd, 'figureNumber', figNumber, 'fileName', filename);
     
 end
