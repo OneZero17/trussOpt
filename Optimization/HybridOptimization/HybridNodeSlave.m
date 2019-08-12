@@ -22,56 +22,38 @@ classdef HybridNodeSlave < OptObjectSlave
                 cosTheta = (thisEdge.nodeB.x - thisEdge.nodeA.x) / thisEdge.length;
                 length = thisEdge.length;
                 thickness = self.optBoundarySlaves{i, 1}.master.coptElement.thickness;
-                              
+                %connectedNum = size(self.master.linkedLocalNodes, 1);          
                 if (self.master.linkedLocalNodes(i) == 1)
                     if ~self.optBoundarySlaves{i, 1}.master.node1XSupported
-                        self.optNodeSlave.equilibriumConstraintX.addConstraintToRHS(self.optBoundarySlaves{i, 1}.node1TauEquilibrium, 0.5 * cosTheta * length * thickness );
-                        self.optNodeSlave.equilibriumConstraintX.addConstraintToRHS(self.optBoundarySlaves{i, 1}.node1SigmaEquilibrium, -0.5 * sinTheta * length * thickness );
-                        matrix.constraints{self.optBoundarySlaves{i, 1}.node1SigmaEquilibrium.index, 1} = [];
-                        matrix.constraints{self.optBoundarySlaves{i, 1}.node1TauEquilibrium.index, 1} = [];
-                    elseif self.optNodeSlave.equilibriumConstraintX ~= []
-                        matrix.constraints{self.optNodeSlave.equilibriumConstraintX.index, 1} = [];
-                        delete(self.optNodeSlave.equilibriumConstraintX);
+                        self.optBoundarySlaves{i, 1}.node1SigmaEquilibrium.addConstraintToRHS(self.optNodeSlave.equilibriumConstraintX, -2 * sinTheta * length/(totalLength * thickness));
+                        self.optBoundarySlaves{i, 1}.node1SigmaEquilibrium.addConstraintToRHS(self.optNodeSlave.equilibriumConstraintY, 2 * cosTheta * length/(totalLength * thickness));
                     end
                     
                     if ~self.optBoundarySlaves{i, 1}.master.node1YSupported
-                        self.optNodeSlave.equilibriumConstraintY.addConstraintToRHS(self.optBoundarySlaves{i, 1}.node1TauEquilibrium, 0.5 * sinTheta * length * thickness);
-                        self.optNodeSlave.equilibriumConstraintY.addConstraintToRHS(self.optBoundarySlaves{i, 1}.node1SigmaEquilibrium, 0.5 * cosTheta * length * thickness);
-                        matrix.constraints{self.optBoundarySlaves{i, 1}.node1SigmaEquilibrium.index, 1} = [];
-                        matrix.constraints{self.optBoundarySlaves{i, 1}.node1TauEquilibrium.index, 1} = [];
-                    elseif self.optNodeSlave.equilibriumConstraintY~=[]
-                        matrix.constraints{self.optNodeSlave.equilibriumConstraintY.index, 1} = [];
-                        delete(self.optNodeSlave.equilibriumConstraintY);
+                        self.optBoundarySlaves{i, 1}.node1TauEquilibrium.addConstraintToRHS(self.optNodeSlave.equilibriumConstraintX, 2 * cosTheta * length/(totalLength * thickness));
+                        self.optBoundarySlaves{i, 1}.node1TauEquilibrium.addConstraintToRHS(self.optNodeSlave.equilibriumConstraintY, 2 * sinTheta * length/(totalLength * thickness));
                     end
-                    
-
-                    delete(self.optBoundarySlaves{i, 1}.node1SigmaEquilibrium);
-                    delete(self.optBoundarySlaves{i, 1}.node1TauEquilibrium);
                 end
                 if (self.master.linkedLocalNodes(i) == 2)  
-                    if ~self.optBoundarySlaves{i, 1}.master.node2XSupported
-                        self.optNodeSlave.equilibriumConstraintX.addConstraintToRHS(self.optBoundarySlaves{i, 1}.node2TauEquilibrium, 0.5 * cosTheta * length * thickness );
-                        self.optNodeSlave.equilibriumConstraintX.addConstraintToRHS(self.optBoundarySlaves{i, 1}.node2SigmaEquilibrium, -0.5 * sinTheta * length * thickness );
-                        matrix.constraints{self.optBoundarySlaves{i, 1}.node2SigmaEquilibrium.index, 1} = [];
-                        matrix.constraints{self.optBoundarySlaves{i, 1}.node2TauEquilibrium.index, 1} = [];                    
-                    elseif self.optNodeSlave.equilibriumConstraintX ~= []
-                        matrix.constraints{self.optNodeSlave.equilibriumConstraintX.index, 1} = [];
-                        delete(self.optNodeSlave.equilibriumConstraintX);   
+                    if ~self.optBoundarySlaves{i, 1}.master.node2XSupported   
+                        self.optBoundarySlaves{i, 1}.node2SigmaEquilibrium.addConstraintToRHS(self.optNodeSlave.equilibriumConstraintX, -2 * sinTheta * length/(totalLength * thickness));
+                        self.optBoundarySlaves{i, 1}.node2SigmaEquilibrium.addConstraintToRHS(self.optNodeSlave.equilibriumConstraintY, 2 * cosTheta * length/(totalLength * thickness));  
                     end
                     
                     if ~self.optBoundarySlaves{i, 1}.master.node2YSupported
-                        self.optNodeSlave.equilibriumConstraintY.addConstraintToRHS(self.optBoundarySlaves{i, 1}.node2TauEquilibrium, 0.5 * sinTheta * length * thickness);
-                        self.optNodeSlave.equilibriumConstraintY.addConstraintToRHS(self.optBoundarySlaves{i, 1}.node2SigmaEquilibrium, 0.5 * cosTheta * length * thickness);
-                        matrix.constraints{self.optBoundarySlaves{i, 1}.node2SigmaEquilibrium.index, 1} = [];
-                        matrix.constraints{self.optBoundarySlaves{i, 1}.node2TauEquilibrium.index, 1} = [];    
-                    elseif self.optNodeSlave.equilibriumConstraintY~=[]
-                        matrix.constraints{self.optNodeSlave.equilibriumConstraintY.index, 1} = [];
-                        delete(self.optNodeSlave.equilibriumConstraintX);                           
+                        self.optBoundarySlaves{i, 1}.node2TauEquilibrium.addConstraintToRHS(self.optNodeSlave.equilibriumConstraintX, 2 * cosTheta * length/(totalLength * thickness));
+                        self.optBoundarySlaves{i, 1}.node2TauEquilibrium.addConstraintToRHS(self.optNodeSlave.equilibriumConstraintY, 2 * sinTheta * length/(totalLength * thickness));                          
                     end
-                    
-                    delete(self.optBoundarySlaves{i, 1}.node2SigmaEquilibrium);
-                    delete(self.optBoundarySlaves{i, 1}.node2TauEquilibrium);
                 end
+            end
+            
+            if self.optNodeSlave.equilibriumConstraintX ~= -1
+                matrix.constraints{self.optNodeSlave.equilibriumConstraintX.index, 1} = [];
+                self.optNodeSlave.equilibriumConstraintX = -1;
+            end
+            if self.optNodeSlave.equilibriumConstraintY ~= -1
+                matrix.constraints{self.optNodeSlave.equilibriumConstraintY.index, 1} = [];
+                self.optNodeSlave.equilibriumConstraintY = -1;
             end
         end
     end
