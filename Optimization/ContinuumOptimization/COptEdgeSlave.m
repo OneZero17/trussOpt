@@ -24,7 +24,6 @@ classdef COptEdgeSlave < OptObjectSlave
         
         function [matrix] = calcConstraint(self, matrix)
             thisEdge = self.master.edge;
-            % TO BE CHECKED
             sinTheta = (thisEdge.nodeB.y - thisEdge.nodeA.y) / thisEdge.length;
             cosTheta = (thisEdge.nodeB.x - thisEdge.nodeA.x) / thisEdge.length;
             T = [sinTheta^2, cosTheta^2, -2*sinTheta*cosTheta;

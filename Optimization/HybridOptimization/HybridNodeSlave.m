@@ -11,40 +11,41 @@ classdef HybridNodeSlave < OptObjectSlave
         
         
         function [matrix] = calcConstraint(self, matrix)
+            totalLength = 0;
+            for i = 1:size(self.optBoundarySlaves, 1)
+                totalLength = totalLength + self.optBoundarySlaves{i, 1}.master.edge.length;
+            end
             
             for i = 1:size(self.optBoundarySlaves)            
-             length = self.optBoundarySlaves{i, 1}.master.edge.length;
              thickness = self.optBoundarySlaves{i, 1}.master.coptElement.thickness;
              coefficient = 1;
              
-             if i > 1 && self.master.linkedLocalNodes(1, 2) == 0
-                 continue;
-             end
-             
                 if (self.master.linkedLocalNodes(i, 1) == 1)
                     if ~self.optBoundarySlaves{i, 1}.master.node1XSupported
-                        self.optNodeSlave.equilibriumConstraintX.addConstraintToRHS(self.optBoundarySlaves{i, 1}.node1SigmaXEquilibrium, 0.5 * length * thickness * coefficient);
-                        matrix.constraints{self.optBoundarySlaves{i, 1}.node1SigmaXEquilibrium.index, 1} = [];
-                        delete(self.optBoundarySlaves{i, 1}.node1SigmaXEquilibrium);
+                        self.optBoundarySlaves{i, 1}.node1SigmaXEquilibrium.addConstraintToRHS(self.optNodeSlave.equilibriumConstraintX, 2 / (totalLength * thickness * coefficient));
                     end
                     if ~self.optBoundarySlaves{i, 1}.master.node1YSupported
-                        self.optNodeSlave.equilibriumConstraintY.addConstraintToRHS(self.optBoundarySlaves{i, 1}.node1SigmaYEquilibrium, 0.5 * length * thickness * coefficient);
-                        matrix.constraints{self.optBoundarySlaves{i, 1}.node1SigmaYEquilibrium.index, 1} = [];
-                        delete(self.optBoundarySlaves{i, 1}.node1SigmaYEquilibrium);
+                        self.optBoundarySlaves{i, 1}.node1SigmaYEquilibrium.addConstraintToRHS(self.optNodeSlave.equilibriumConstraintY, 2 / (totalLength * thickness * coefficient));
                     end
                 else
                     if ~self.optBoundarySlaves{i, 1}.master.node2XSupported 
-                        self.optNodeSlave.equilibriumConstraintX.addConstraintToRHS(self.optBoundarySlaves{i, 1}.node2SigmaXEquilibrium, 0.5 * length * thickness * coefficient);
-                        matrix.constraints{self.optBoundarySlaves{i, 1}.node2SigmaXEquilibrium.index, 1} = [];
-                        delete(self.optBoundarySlaves{i, 1}.node2SigmaXEquilibrium);
+                        self.optBoundarySlaves{i, 1}.node2SigmaXEquilibrium.addConstraintToRHS(self.optNodeSlave.equilibriumConstraintX, 2 / (totalLength * thickness * coefficient));
                     end
                     if ~self.optBoundarySlaves{i, 1}.master.node2YSupported
-                        self.optNodeSlave.equilibriumConstraintY.addConstraintToRHS(self.optBoundarySlaves{i, 1}.node2SigmaYEquilibrium, 0.5 * length * thickness * coefficient);
-                        matrix.constraints{self.optBoundarySlaves{i, 1}.node2SigmaYEquilibrium.index, 1} = [];
-                        delete(self.optBoundarySlaves{i, 1}.node2SigmaYEquilibrium);
+                        self.optBoundarySlaves{i, 1}.node2SigmaYEquilibrium.addConstraintToRHS(self.optNodeSlave.equilibriumConstraintY, 2 / (totalLength * thickness * coefficient));
                     end
                 end
             end
+            
+            if self.optNodeSlave.equilibriumConstraintX ~= -1
+                matrix.constraints{self.optNodeSlave.equilibriumConstraintX.index, 1} = [];
+                self.optNodeSlave.equilibriumConstraintX = -1;
+            end
+            if self.optNodeSlave.equilibriumConstraintY ~= -1
+                matrix.constraints{self.optNodeSlave.equilibriumConstraintY.index, 1} = [];
+                self.optNodeSlave.equilibriumConstraintY = -1;
+            end
+            
         end
     end
 end

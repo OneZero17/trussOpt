@@ -4,11 +4,11 @@ function obj = testSimpleLayoutOptimizationExample()
     groundStructure.createCustomizedNodeGrid(0, 0, x, y, 1, 1);
     groundStructure.createNodesFromGrid();
     loadcase = PhyLoadCase();
-    load1NodeIndex = groundStructure.findOrAppendNode(0, y);
-    load2NodeIndex = groundStructure.findOrAppendNode(x, y);
-    load1 = PhyLoad(load1NodeIndex, 0.1, 0);
-    load2 = PhyLoad(load2NodeIndex, 0.1, 0);
-    loadcase.loads = {load1; load2};
+    load1NodeIndex = groundStructure.findOrAppendNode(x/2, y);
+    %load2NodeIndex = groundStructure.findOrAppendNode(x, y);
+    load1 = PhyLoad(load1NodeIndex, 0.5, 0);
+    %load2 = PhyLoad(load2NodeIndex, 0.1, 0);
+    loadcase.loads = {load1};
     loadcases = {loadcase};
     
     supports = cell(11, 1);

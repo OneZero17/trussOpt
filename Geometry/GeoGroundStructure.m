@@ -27,6 +27,11 @@ classdef GeoGroundStructure < handle
             end
         end
         
+        function appendNodes(self, newNodes)
+            self.nodeGrid = [self.nodeGrid; newNodes];
+            self.nodeGrid = unique(self.nodeGrid, 'rows');
+        end
+        
         function createCustomizedNodeGrid(self, xStart, yStart, xEnd, yEnd, xSpacing, ySpacing)
             xSpacingNumber = floor((xEnd-xStart)/xSpacing);
             ySpacingNumber = floor((yEnd-yStart)/ySpacing);

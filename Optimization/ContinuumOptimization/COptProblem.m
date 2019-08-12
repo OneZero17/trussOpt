@@ -91,8 +91,12 @@ classdef COptProblem < OptProblem
                         edgeTotalLength = edgeTotalLength + mesh.meshEdges{externalEdges(contactedEdges(k), 7), 1}.length;
                     end
                     if (edgeTotalLength ~= 0)
+                        if max(externalEdges(:, 2) == loadID & externalEdges(:, 6) == 1) ~= 0
                         externalEdges(externalEdges(:, 2) == loadID & externalEdges(:, 6) == 1, 12:13) = [2 * loadcase.loads{i, 1}.loadX / edgeTotalLength, 2 * loadcase.loads{i, 1}.loadY / edgeTotalLength];
+                        end
+                        if max(externalEdges(:, 3) == loadID & externalEdges(:, 6) == 1) ~= 0
                         externalEdges(externalEdges(:, 3) == loadID & externalEdges(:, 6) == 1, 14:15) = [2 * loadcase.loads{i, 1}.loadX / edgeTotalLength, 2 * loadcase.loads{i, 1}.loadY / edgeTotalLength];
+                        end
                     end
                 end
                 for j = 1:size(externalEdges, 1)
