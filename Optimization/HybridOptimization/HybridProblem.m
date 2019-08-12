@@ -62,7 +62,7 @@ classdef HybridProblem < handle
             %newBoundaryObjects = cell(8*size(overlappingMap, 1), 1);
             %newBoundaryObjectNum = 1;
             hybridObjectNum = 0;
-            
+
             for i = 1:size(overlappingMap, 1)
                 currentNode = overlappingMap(i, 2);
                 connectedExternalEdges = externalEdges(externalEdges(:, 2) == currentNode | externalEdges(:, 3) == currentNode, :);
@@ -86,9 +86,21 @@ classdef HybridProblem < handle
                 connectedEdges = [connectedExternalEdges(:, 1:end-1)];
                 edgeObjects = [externalEdgeObjects];
 
-                linkedNodes = zeros(size(edgeObjects, 1), 1);
+                linkedNodes = zeros(size(edgeObjects, 1), 2);
                 linkedNodes(connectedEdges(:, 2) == currentNode) = 1;
                 linkedNodes(connectedEdges(:, 3) == currentNode) = 2;
+                
+                if size(linkedNodes, 1) == 2
+                    elementOfEdge1 = meshEdges(meshEdges(:, 4) == connectedEdges(1, 4) | meshEdges(:, 5) == connectedEdges(1, 4));
+                    elementOfEdge2 = meshEdges(meshEdges(:, 4) == connectedEdges(2, 4) | meshEdges(:, 5) == connectedEdges(2, 4));
+                    commonEdges = intersect(elementOfEdge1, elementOfEdge2);
+                    if ~isempty(commonEdges)
+                        linkedNodes(:, 2) = [1; 1];
+                    end
+                end
+                if size(linkedNodes, 1) > 2
+                    linkedNodes(:, 2) = zeros(size(linkedNodes, 1), 1);
+                end
                 hybridNodeMaster = HybridNodeMaster(optTrussNodes{overlappingMap(i, 1), 1}, edgeObjects, linkedNodes);
                 
                 hybridNodeSlaves = cell(loadCaseNum, 1);
