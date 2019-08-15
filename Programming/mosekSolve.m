@@ -25,13 +25,13 @@ function [vars, result] = mosekSolve(matrix, output)
     %prob = optimizeMatrix(prob);
     % Select interior-point optimizer... (integer parameter)
     
-    %param.MSK_IPAR_OPTIMIZER = 'MSK_OPTIMIZER_INTPNT';
+    param.MSK_IPAR_INFEAS_REPORT_AUTO  = 'MSK_OFF';
     % ... without basis identification (integer parameter)
     %param.MSK_IPAR_INTPNT_BASIS = 'MSK_BI_NEVER';
     if (output == 0)
-        [r, res]=mosekopt('minimize echo(0)',prob);   
+        [r, res]=mosekopt('minimize echo(0)',prob, param);   
     else
-        [r, res]=mosekopt('minimize',prob); 
+        [r, res]=mosekopt('minimize',prob, param); 
     end
     
     vars = res.sol.itr.xx;

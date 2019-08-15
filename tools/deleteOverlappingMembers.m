@@ -1,15 +1,18 @@
-function deleteOverlappingMembers(groundStructure, mesh)
+function deleteOverlappingMembers(groundStructure, mesh, meshSpacing)
+    if (nargin <= 2)
+        meshSpacing = 1;
+    end
+
     elementNum = size(mesh.Elements, 2);
     meshFacetNodes = zeros(elementNum, 8);
     meshNodes = mesh.Nodes';
     meshElements = mesh.Elements';
-
+    
     for i = 1: elementNum
         meshFacetNodes(i, :) = [meshNodes(meshElements(i, 1), :), meshNodes(meshElements(i, 2), :), meshNodes(meshElements(i, 3), :), meshNodes(meshElements(i, 1), :)];
     end
-    %meshElements2 = zeros(elementNum, 8);
     meshElements2 = [meshFacetNodes(:, [1 3 5 7]), meshFacetNodes(:, [2 4 6 8])];
-
+    
     gElements = groundStructure.memberList;
     gElements = [gElements, zeros(size(gElements, 1), 1)];
     gElementNum = size(gElements, 1);
@@ -37,19 +40,35 @@ function deleteOverlappingMembers(groundStructure, mesh)
 
     for i = 1:gElementNum
         contact = mIndex(mBoundXMin<=gBoundXMax(i) & mBoundXMax>=gBoundXMin(i)& mBoundYMin<=gBoundYMax(i)& mBoundYMax>=gBoundYMin(i));
-%         if gBoundXMin(i) == gBoundXMax(i)
-%             contact = mIndex(mBoundXMin<=gBoundXMin(i) & mBoundXMax>=gBoundXMax(i)& mBoundYMin>=gBoundYMin(i)& mBoundYMax<=gBoundYMax(i));
-%         end
-% 
-%         if gBoundYMin(i) == gBoundYMax(i)
-%             contact = mIndex(mBoundXMin>=gBoundXMin(i) & mBoundXMax<=gBoundXMax(i)& mBoundYMin<=gBoundYMin(i)& mBoundYMax>=gBoundYMax(i));
-%         end
         contactMap{i, 1} = contact;
     end
 
     contactMap = contactMap(~cellfun('isempty', contactMap(:, 1)), :);
     contactMemberNum = size(contactMap, 1);
+    
+    for i = 1:contactMemberNum
+        memberNum = contactMap{i, 2};
+        elementList = contactMap{i, 1};
+        memberX = memberXList(memberNum, :);
+        memberY = memberYList(memberNum, :);
+        mBounds = [mIndex, mBoundXMin, mBoundXMax, mBoundYMin, mBoundYMax];
+        mBounds = mBounds(elementList, :);
+        boundingBoxes = getDividedBoundingBoxes(memberX, memberY, meshSpacing);
 
+        if size(boundingBoxes, 1)<=1
+            continue;
+        else
+            totalContact = cell(size(boundingBoxes, 1), 1);
+            for j = 1:size(boundingBoxes, 1)
+                contact = mBounds(mBounds(:, 2)<=boundingBoxes(j, 2) & mBounds(:, 3)>=boundingBoxes(j, 1)& mBounds(:, 4)<=boundingBoxes(j, 4)& mBounds(:, 5)>=boundingBoxes(j, 3));
+                totalContact{j, 1} = contact;
+            end
+            contactMap{i, 1} = cell2mat(totalContact);
+        end
+    end
+    
+    contactMap = contactMap(~cellfun('isempty', contactMap(:, 1)), :);
+    contactMemberNum = size(contactMap, 1);
     for i = 1:contactMemberNum
             memberNum = contactMap{i, 2};
             memberX = memberXList(memberNum, :);
@@ -93,5 +112,26 @@ function deleteOverlappingMembers(groundStructure, mesh)
     
     groundStructure.memberList = newMemberList;
     groundStructure.nodeGrid = oldNodeList(oldNodeList(:, 3)~=0, 1:2);
+end
+
+function [xMin, xMax, yMin, yMax] = getBoundingBox(x, y)
+    xMin = min(x, [], 2);
+    xMax = max(x, [], 2);
+    yMin = min(y, [], 2);
+    yMax = max(y, [], 2);
+end
+
+function boundingBoxes = getDividedBoundingBoxes(x, y, spacing)
+    length = sqrt((x(2)-x(1))^2 + (y(2)-y(1))^2);
+    divideNum = floor(length/spacing);
+    boundingBoxes = zeros(divideNum, 4);
+    
+    xSpacing = (x(2) - x(1))/divideNum;
+    ySpacing = (y(2) - y(1))/divideNum;
+    
+    for i = 1:divideNum
+        [xMin, xMax, yMin, yMax] = getBoundingBox([x(1)+(i-1)*xSpacing, x(1)+i*xSpacing], [y(1)+(i-1)*ySpacing, y(1)+i*ySpacing]);
+        boundingBoxes(i, :) = [xMin, xMax, yMin, yMax];
+    end
 end
 

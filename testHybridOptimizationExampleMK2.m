@@ -1,7 +1,7 @@
 clear
-x = 20; y = 10; load = -0.5;
+x = 30; y = 10; load = -0.5;
 thickness = 1; setContinuumLevel = 0.2;
-matlabMesh = createRectangularMeshMK2(x, y, 1);
+matlabMesh = createRectangularMeshMK2(x, y, 0.5);
 fullNodeGrid = matlabMesh.Nodes';
 edges = createMeshEdges(matlabMesh);
 mesh = Mesh(matlabMesh);
@@ -9,7 +9,7 @@ mesh.createEdges(edges);
 boundaryList = determineExternalBoundaryList(matlabMesh.Nodes', edges, [0, 0, 0, y; 0, y, x, y; x, y, x, 0; x, 0, 0, 0]);
 edges = [edges, boundaryList];
 
-loadRange = [x, x; y/2-0.25, y/2+0.25];
+loadRange = [x, x; y/2-0.5, y/2+0.5];
 uniformLoad1 = PhyUniformLoad(loadRange, 0, load, matlabMesh);
 loadcase.loads = [uniformLoad1.loads];
 loadcases = {loadcase};
@@ -28,7 +28,7 @@ continuumProblem.initializeProblem(matrix);
 result = mosekSolve(matrix, 1);
 matrix.feedBackResult(result);
 continuumProblem.feedBackResult(1);
-
+volume = mesh.calculateVolume(thickness);
 mesh.plotMesh('title', "Test", 'xLimit', x, 'yLimit', y, 'figureNumber', 1);
 mesh.plotMesh('title', "Test", 'xLimit', x, 'yLimit', y, 'figureNumber', 2, 'setLevel', setContinuumLevel);
 %% Create mesh
