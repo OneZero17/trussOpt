@@ -5,6 +5,7 @@ classdef GeoHybridMesh < handle
         mesh
         geoMesh
         overLappingMap
+        nodeWithinRadiusMap
     end
     
     methods
@@ -18,6 +19,17 @@ classdef GeoHybridMesh < handle
             if nargin > 2
                 obj.geoMesh = geoMesh;
             end
+        end
+        
+        function findNodesWithinRadius(self, radius)
+            targetNodes =  self.overLappingMap(:, 1);
+            gNodes = self.groundStructure.nodeGrid;
+            nodeWithinRadiusMap = cell(size(targetNodes, 1), 2);
+            for i = 1:size(targetNodes)
+                nodeWithinRadiusMap{i, 1} = targetNodes(i, 1);
+                nodeWithinRadiusMap{i, 2} = findNodesWithinDistance(self.mesh, gNodes(targetNodes(i, 1), 1), gNodes(targetNodes(i, 1), 2), radius);
+            end
+            self.nodeWithinRadiusMap = nodeWithinRadiusMap;
         end
         
         function findOverlappingNodes(self)

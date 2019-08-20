@@ -37,6 +37,57 @@ classdef HybridProblem < handle
             end       
         end
         
+        function createHybridElementsWithinRadius(self, loadCaseNum)
+            nodeWithinRadiusMap = self.hybridMesh.nodeWithinRadiusMap;
+            self.optObjects = cell(size(nodeWithinRadiusMap, 1), 1);
+
+            meshEdges = self.hybridMesh.mesh.Edges;
+            meshEdges = [(1:size(meshEdges, 1))', meshEdges];
+            externalEdges = meshEdges(meshEdges(:, 5) == 0, :);
+            externalEdges = [externalEdges, (1:size(externalEdges))'];
+            
+            externalEdges(externalEdges(:,end-1)~=0, :)= [];
+            externalEdges(:, end - 1) = [];
+            continuumProblemObjects = self.continuumProblem.optObjects;
+            trussProblemObjects = self.trussProblem.optObjects;
+            optBoundaries = continuumProblemObjects(cellfun('isclass', continuumProblemObjects, 'COptBoundaryMaster'));       
+            optTrussNodes = trussProblemObjects(cellfun('isclass', trussProblemObjects, 'OptNodeMaster'));
+            
+            hybridObjectNum = 0;
+
+            for i = 1:size(nodeWithinRadiusMap, 1)
+                connectedNodeNum = size(nodeWithinRadiusMap{i, 2}, 2);
+                edgeObjects = cell(connectedNodeNum, 1);
+                totalLinkedNodes = zeros(connectedNodeNum, 1);
+                addBoundaryNum = 1;
+                for j = 1:connectedNodeNum
+                    currentNode = nodeWithinRadiusMap{i, 2}(j);
+                    connectedExternalEdges = externalEdges(externalEdges(:, 2) == currentNode | externalEdges(:, 3) == currentNode, :);
+                    externalEdgeObjects = optBoundaries(connectedExternalEdges(:, end));
+                    connectedEdges = connectedExternalEdges(:, 1:end-1);
+
+                    linkedNodes = zeros(size(externalEdgeObjects, 1), 1);
+                    linkedNodes(connectedEdges(:, 2) == currentNode) = 1;
+                    linkedNodes(connectedEdges(:, 3) == currentNode) = 2;
+                    connectedEdgeNum = size(externalEdgeObjects, 1);
+                    edgeObjects(addBoundaryNum:addBoundaryNum + connectedEdgeNum - 1, 1) = externalEdgeObjects;
+                    totalLinkedNodes(addBoundaryNum:addBoundaryNum + connectedEdgeNum - 1, 1) = linkedNodes;
+                    addBoundaryNum = addBoundaryNum + connectedEdgeNum;
+                end
+                edgeObjects = edgeObjects(~cellfun('isempty', edgeObjects));
+                totalLinkedNodes = totalLinkedNodes(~cellfun('isempty', edgeObjects));
+                hybridNodeMaster = HybridNodeMaster(optTrussNodes{nodeWithinRadiusMap{i, 1}, 1}, edgeObjects, totalLinkedNodes);
+                hybridNodeSlaves = cell(loadCaseNum, 1);
+                for k = 1:loadCaseNum
+                    hybridNodeSlaves{k, 1} = HybridNodeSlave();
+                end
+                hybridNodeMaster.addSlaves(hybridNodeSlaves);
+                hybridObjectNum = hybridObjectNum + 1;
+                self.optObjects{hybridObjectNum, 1} = hybridNodeMaster;
+            end
+            
+        end
+        
         function createHybridElements(self, loadCaseNum)
 
             geoMesh = self.hybridMesh.geoMesh;
@@ -59,30 +110,12 @@ classdef HybridProblem < handle
             optFacets = continuumProblemObjects(cellfun('isclass', continuumProblemObjects, 'COptTriangularElementMaster'));  
             optTrussNodes = trussProblemObjects(cellfun('isclass', trussProblemObjects, 'OptNodeMaster'));
             
-            %newBoundaryObjects = cell(8*size(overlappingMap, 1), 1);
-            %newBoundaryObjectNum = 1;
             hybridObjectNum = 0;
 
             for i = 1:size(overlappingMap, 1)
                 currentNode = overlappingMap(i, 2);
                 connectedExternalEdges = externalEdges(externalEdges(:, 2) == currentNode | externalEdges(:, 3) == currentNode, :);
-%                 connectedIternalEdges = internalEdges(internalEdges(:, 2) == currentNode | internalEdges(:, 3) == currentNode, :);
                 externalEdgeObjects = optBoundaries(connectedExternalEdges(:, end));
-%                 internalEdgeObjects = cell(size(connectedIternalEdges, 1), 1);
-%                 for j = 1:size(connectedIternalEdges)
-%                     internalEdgeObjects{j, 1} = COptBoundaryMaster(geoMesh.meshEdges{connectedIternalEdges(j, 1)}, optFacets{connectedIternalEdges(j, 4)});
-%                     slaves = cell(loadCaseNum, 1);
-%                     for k = 1:loadCaseNum
-%                         slaves{k, 1} = COptBoundarySlave();
-%                     end
-%                     internalEdgeObjects{j, 1}.addSlaves(slaves);
-%                 end
-%                 
-%                 newBoundaryObjects(newBoundaryObjectNum:newBoundaryObjectNum + size(connectedIternalEdges) - 1, 1) = internalEdgeObjects;
-%                 newBoundaryObjectNum = newBoundaryObjectNum + size(connectedIternalEdges);
-                
-                %connectedEdges = [connectedExternalEdges(:, 1:end-1);connectedIternalEdges ];
-                %edgeObjects = [externalEdgeObjects; internalEdgeObjects];
                 connectedEdges = [connectedExternalEdges(:, 1:end-1)];
                 edgeObjects = [externalEdgeObjects];
 
@@ -112,9 +145,6 @@ classdef HybridProblem < handle
                 hybridObjectNum = hybridObjectNum + 1;
                 self.optObjects{hybridObjectNum, 1} = hybridNodeMaster;
             end
-            
-%             newBoundaryObjects = newBoundaryObjects(~cellfun('isempty', newBoundaryObjects));
-%             self.continuumProblem.optObjects = [self.continuumProblem.optObjects; newBoundaryObjects];
         end
     end
 end

@@ -46,8 +46,9 @@ continuumProblem.createProblem(mesh, edges, loadcases, [], solverOptions, thickn
 %% Build hybrid elements
 hybridGeoInfo = GeoHybridMesh(groundStructure, matlabMesh, mesh);
 hybridGeoInfo.findOverlappingNodes();
+hybridGeoInfo.findNodesWithinRadius(0.5);
 hybridProblem = HybridProblem(hybridGeoInfo, continuumProblem, trussProblem);
-hybridProblem.createHybridElements(size(loadcases, 1));
+hybridProblem.createHybridElementsWithinRadius(size(loadcases, 1));
 
 %% Build conic programming matrix and solve
 [coptConNum, coptVarNum, coptObjVarNum] = continuumProblem.getConAndVarNum();
@@ -58,6 +59,7 @@ result = mosekSolve(matrix, 1);
 matrix.feedBackResult(result);
 trussProblem.feedBackResult(1);
 continuumProblem.feedBackResult(1);
+groundStructure.calculateVolume()
 volume = mesh.calculateVolume(thickness) + groundStructure.calculateVolume();
 %% Plot results
 title = "Hybrid optimization - Load: " + 1 + " volume: " + volume;
