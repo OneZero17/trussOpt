@@ -83,11 +83,11 @@ function [x0,y0,iout,jout] = intersections(x1,y1,x2,y2,robust)
 % typical application, this technique will eliminate most of the potential
 % line segment pairs.
 % Input checks.
-if verLessThan('matlab','7.13')
-	error(nargchk(2,5,nargin)) %#ok<NCHKN>
-else
+% if verLessThan('matlab','7.13')
+% 	error(nargchk(2,5,nargin)) %#ok<NCHKN>
+% else
 	narginchk(2,5)
-end
+% end
 % Adjustments based on number of arguments.
 switch nargin
 	case 2
@@ -143,7 +143,7 @@ dxy2 = diff(xy2);
 % segments in each curve.  We want to avoid forming large matrices for
 % large numbers of line segments.  If the matrices are not too large,
 % choose the best method available for the MATLAB version.
-if n1 > 1000 || n2 > 1000 || verLessThan('matlab','7.4')
+if n1 > 1000 || n2 > 1000
 	% Determine which curve has the most line segments.
 	if n1 >= n2
 		% Curve 1 has more segments, loop over segments of curve 2.
@@ -181,13 +181,13 @@ if n1 > 1000 || n2 > 1000 || verLessThan('matlab','7.4')
 		j = ij(:,2);
 	end
 	
-elseif verLessThan('matlab','9.1')
-	% Use bsxfun.
-	[i,j] = find( ...
-		bsxfun(@le,mvmin(x1),mvmax(x2).') & ...
-		bsxfun(@ge,mvmax(x1),mvmin(x2).') & ...
-		bsxfun(@le,mvmin(y1),mvmax(y2).') & ...
-		bsxfun(@ge,mvmax(y1),mvmin(y2).'));
+% elseif verLessThan('matlab','9.1')
+% 	% Use bsxfun.
+% 	[i,j] = find( ...
+% 		bsxfun(@le,mvmin(x1),mvmax(x2).') & ...
+% 		bsxfun(@ge,mvmax(x1),mvmin(x2).') & ...
+% 		bsxfun(@le,mvmin(y1),mvmax(y2).') & ...
+% 		bsxfun(@ge,mvmax(y1),mvmin(y2).'));
 	
 else
 	% Use implicit expansion.
@@ -238,26 +238,20 @@ B = -[x1(i) x2(j) y1(i) y2(j)].';
 % pairs.
 if robust
 	overlap = false(n,1);
-	warning_state = warning('off','MATLAB:singularMatrix');
+	%warning_state = warning('off','MATLAB:singularMatrix');
 	% Use try-catch to guarantee original warning state is restored.
-	try
-		lastwarn('')
-		for k = 1:n
-			T(:,k) = AA(:,:,k)\B(:,k);
-			[unused,last_warn] = lastwarn; %#ok<ASGLU>
-			lastwarn('')
-			if strcmp(last_warn,'MATLAB:singularMatrix')
-				% Force in_range(k) to be false.
-				T(1,k) = NaN;
-				% Determine if these segments overlap or are just parallel.
-				overlap(k) = rcond([dxy1(i(k),:);xy2(j(k),:) - xy1(i(k),:)]) < eps;
-			end
-		end
-		warning(warning_state)
-	catch err
-		warning(warning_state)
-		rethrow(err)
-	end
+
+    for k = 1:n
+        T(:,k) = AA(:,:,k)\B(:,k);
+        %[unused,last_warn] = lastwarn; %#ok<ASGLU>
+        if abs(det(inv(AA(:,:,k))))<1e-15
+            % Force in_range(k) to be false.
+            T(1,k) = NaN;
+            % Determine if these segments overlap or are just parallel.
+            overlap(k) = rcond([dxy1(i(k),:);xy2(j(k),:) - xy1(i(k),:)]) < eps;
+        end
+    end
+
 	% Find where t1 and t2 are between 0 and 1 and return the corresponding
 	% x0 and y0 values.
 	in_range = (T(1,:) >= 0 & T(2,:) >= 0 & T(1,:) <= 1 & T(2,:) <= 1).';
