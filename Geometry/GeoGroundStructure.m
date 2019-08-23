@@ -179,7 +179,7 @@ classdef GeoGroundStructure < handle
             plotNodeNumber = p.Results.plotNodeNumber;
             plotMemberNumber = p.Results.plotMemberNumber;
             
-            figure(figureNo)
+            fig = figure(figureNo);
             hold on
             axis equal
             axis off

@@ -120,7 +120,7 @@ classdef Mesh < handle
                 maximumDensity = getMaximumDensity(self);
             end
             
-            figure(figureNo)
+            fig = figure(figureNo);
             facetNum = size(self.meshFacets, 1);
             axis equal;
             colormap hot;
@@ -132,7 +132,6 @@ classdef Mesh < handle
             end
             caxis([0 1]);
             cmap = colormap;
-            fig=figure(figureNo);
             mycmap = get(fig,'Colormap');
             set(fig,'Colormap',flipud(mycmap));
             xlim([0 xLimit])
