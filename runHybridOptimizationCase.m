@@ -155,4 +155,8 @@ function runHybridOptimizationCase(x, y, continuumSpacing, discreteSpacing, filt
     title4 = ['Hybrid_optimization_MK3_Case_', num2str(caseNo), '_Stage_4_Load_', num2str(InputLoads(1, end)), '_Radius_',  num2str(radius),  '_JointLength_', num2str(jointLength), '.png'] ;
     groundStructure.plotMembers('title', ['test:', 'Volume: ', num2str(volume)], 'figureNumber', 4);
     mesh.plotMesh('xLimit', x, 'yLimit', y, 'figureNumber', 4, 'fileName', title4); 
+    volume = mesh.calculateVolume(thickness, true) + groundStructure.calculateVolume();
+    title5 = ['Hybrid_optimization_MK3_Case_', num2str(caseNo), '_Stage_4_Load_', num2str(InputLoads(1, end)), '_Radius_',  num2str(radius),  '_JointLength_', num2str(jointLength),'_blackAndWhite_', '.png'] ;
+    groundStructure.plotMembers('title', ['test:', 'Volume: ', num2str(volume)], 'figureNumber', 5, 'blackAndWhite', true);
+    mesh.plotMesh('xLimit', x, 'yLimit', y, 'figureNumber', 5, 'fileName', title5, 'blackAndWhite', true); 
 end
