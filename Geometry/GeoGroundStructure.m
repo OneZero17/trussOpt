@@ -161,7 +161,7 @@ classdef GeoGroundStructure < handle
             p = inputParser;
             addOptional(p,'figureNumber',1, @isnumeric);
             addOptional(p,'force', false, @islogical);
-            addOptional(p,'title','', @isstring);
+            addOptional(p,'title','', @ischar);
             addOptional(p,'nodalForce', false, @islogical);
             addOptional(p,'nodalForcePlottingRatio', -1, @isnumeric);
             addOptional(p, 'blackAndWhite', false, @islogical);

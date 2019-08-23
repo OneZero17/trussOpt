@@ -92,8 +92,8 @@ classdef Mesh < handle
         function plotMesh(self, varargin)
             p = inputParser;
             addOptional(p,'figureNumber',1, @isnumeric);
-            addOptional(p,'title',"", @isstring);
-            addOptional(p,'fileName',"", @isstring);
+            addOptional(p,'title','', @ischar);
+            addOptional(p,'fileName','', @ischar);
             addOptional(p,'fixedMaximumDensity', true, @islogical);
             addOptional(p,'colorBarHorizontal', false, @islogical);
             addOptional(p,'xLimit', 1, @isnumeric);
@@ -137,7 +137,7 @@ classdef Mesh < handle
             set(fig,'Colormap',flipud(mycmap));
             xlim([0 xLimit])
             ylim([0 yLimit])
-            if titleText~= ""
+            if ~isempty(titleText)
                 title(titleText);
             end
             hold on
@@ -162,8 +162,8 @@ classdef Mesh < handle
                   
             end
             
-            if (fileName ~= "")
-                saveas(fig,"Results\"+fileName)
+            if (~isempty(fileName))
+                saveas(fig,['Results\', fileName])
                 close(figureNo)
             end
         end
