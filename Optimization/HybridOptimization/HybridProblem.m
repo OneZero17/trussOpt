@@ -28,6 +28,7 @@ classdef HybridProblem < handle
             end
             matrix.initialize();
             self.calcCoefficients(matrix);
+            self.deleteTrussNodeEquilibriumConstraints(matrix);
         end
         
         function calcCoefficients(self, matrix)
@@ -35,6 +36,56 @@ classdef HybridProblem < handle
                 self.optObjects{i, 1}.calcConstraint(matrix);
                 self.optObjects{i, 1}.calcObjective(matrix);
             end       
+        end
+        
+        function addJointLengthToHybridNodes(self, jointlength)
+            hybridTrussNodes = cell2mat(self.hybridMesh.nodeWithinRadiusMap(:, 1));
+            memberList = self.hybridMesh.groundStructure.getMembersConnectedToNodes(hybridTrussNodes);
+            trussProblemObjects = self.trussProblem.optObjects;
+            memberObjects = trussProblemObjects(cellfun('isclass', trussProblemObjects, 'OptMemberMaster'));
+            for i = 1:size(memberList, 1)
+                memberObjects{i, 1}.jointLength = jointlength;
+            end
+        end
+        
+        function deleteTrussNodeEquilibriumConstraints(self, matrix)
+%             overLappingMap = self.hybridMesh.overLappingMap;
+%             trussProblemObjects = self.trussProblem.optObjects;
+%             optTrussNodes = trussProblemObjects(cellfun('isclass', trussProblemObjects, 'OptNodeMaster'));           
+            for i = 1:size(self.optObjects)
+                trussNodeOptObject = self.optObjects{i, 1}.optNode;
+                slaveNum = size(trussNodeOptObject.slaves, 1);
+                for j = 1:size(slaveNum, 1)
+                    nodeSlave = trussNodeOptObject.slaves{j, 1};
+                    if nodeSlave.equilibriumConstraintX ~= -1
+                        matrix.constraints{nodeSlave.equilibriumConstraintX.index, 1} = [];
+                        nodeSlave.equilibriumConstraintX = -1;
+                    end
+                    
+                    if nodeSlave.equilibriumConstraintY ~= -1
+                        matrix.constraints{nodeSlave.equilibriumConstraintY.index, 1} = [];
+                        nodeSlave.equilibriumConstraintY = -1;
+                    end
+                end
+                
+            end           
+%             for i = 1:size(overLappingMap, 1)
+%                 trussNodeOptObject = optTrussNodes{overLappingMap(i, 1), 1};
+%                 slaveNum = size(trussNodeOptObject.slaves, 1);
+%                 
+%                 for j = 1:size(slaveNum, 1)
+%                     nodeSlave = trussNodeOptObject.slaves{j, 1};
+%                     if nodeSlave.equilibriumConstraintX ~= -1
+%                         matrix.constraints{nodeSlave.equilibriumConstraintX.index, 1} = [];
+%                         nodeSlave.equilibriumConstraintX = -1;
+%                     end
+%                     
+%                     if nodeSlave.equilibriumConstraintY ~= -1
+%                         matrix.constraints{nodeSlave.equilibriumConstraintY.index, 1} = [];
+%                         nodeSlave.equilibriumConstraintY = -1;
+%                     end
+%                 end
+%             end       
         end
         
         function createHybridElementsWithinRadius(self, loadCaseNum)

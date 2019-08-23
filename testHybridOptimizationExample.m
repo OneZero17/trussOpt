@@ -1,5 +1,5 @@
 clear
-for i = 1:1
+for i = 3:3
     for j = 1:1
     loadMagnitude = [0.05, 0.1, 0.2, 0.3];
     spacing = [1, 0.25; 0.5, 0.25];
@@ -62,8 +62,9 @@ function runHybridProblem(xStart, xEnd, yStart, yEnd, discreteSpacing, continuum
     %% Build hybrid elements
     hybridGeoInfo = GeoHybridMesh(groundStructure, matlabMesh, mesh);
     hybridGeoInfo.findOverlappingNodes();
+    hybridGeoInfo.findNodesWithinRadius(continuumSpacing * 2);
     hybridProblem = HybridProblem(hybridGeoInfo, continuumProblem, trussProblem);
-    hybridProblem.createHybridElements(size(loadcases, 1));
+    hybridProblem.createHybridElementsWithinRadius(size(loadcases, 1));
 
     %% Build conic programming matrix and solve
     [coptConNum, coptVarNum, coptObjVarNum] = continuumProblem.getConAndVarNum();

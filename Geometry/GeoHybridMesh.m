@@ -21,13 +21,16 @@ classdef GeoHybridMesh < handle
             end
         end
         
-        function findNodesWithinRadius(self, radius)
+        function findNodesWithinRadius(self, radius, loadedAndSupportedNodes)
             targetNodes =  self.overLappingMap(:, 1);
             gNodes = self.groundStructure.nodeGrid;
             nodeWithinRadiusMap = cell(size(targetNodes, 1), 2);
             for i = 1:size(targetNodes)
                 nodeWithinRadiusMap{i, 1} = targetNodes(i, 1);
-                nodeWithinRadiusMap{i, 2} = findNodesWithinDistance(self.mesh, gNodes(targetNodes(i, 1), 1), gNodes(targetNodes(i, 1), 2), radius);
+                
+                surroundingNodes= findNodesWithinDistance(self.mesh, gNodes(targetNodes(i, 1), 1), gNodes(targetNodes(i, 1), 2), radius);
+                surroundingNodes = setdiff(surroundingNodes, loadedAndSupportedNodes);
+                nodeWithinRadiusMap{i, 2} = unique([self.overLappingMap(i, 2),surroundingNodes]);
             end
             self.nodeWithinRadiusMap = nodeWithinRadiusMap;
         end

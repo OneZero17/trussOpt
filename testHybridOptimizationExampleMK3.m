@@ -1,28 +1,31 @@
 clear
-for i = 1:8
+warning('off','all')
+for i = 4:9
     clearvars -except i
-    casenum = 3;
+    casenum = 2;
     switch casenum  
         case 1
-            x = 10; y = 10; thickness = 1; setContinuumLevel = 0.3;
-            continuumSpacing = 0.1; discreteSpacing = 1;
-            loads = [x, x, y/2-0.5, y/2+0.5, -0.1 * i];
+            x = 20; y = 10; thickness = 1; setContinuumLevel = 0.3;
+            continuumSpacing = 0.5; discreteSpacing = 2;
+            loads = [x, x, y/2-0.75, y/2+0.75, -0.1 * i];
             supports = [0, 0, -0.001, y+0.001, 1, 1];
-            runHybridOptimizationCase(x, y, continuumSpacing, discreteSpacing, setContinuumLevel, loads, supports, casenum, 0.25);
-            runHybridOptimizationCase(x, y, continuumSpacing, discreteSpacing, setContinuumLevel, loads, supports, casenum, 0.5);
+            %runHybridOptimizationCase(x, y, continuumSpacing, discreteSpacing, setContinuumLevel, loads, supports, casenum, 0.5, 0.05);
+            %runHybridOptimizationCase(x, y, continuumSpacing, discreteSpacing, setContinuumLevel, loads, supports, casenum, 0.8, 0.05);
+            runHybridOptimizationCase(x, y, continuumSpacing, discreteSpacing, setContinuumLevel, loads, supports, casenum, 1.0, 0.0);
+            runHybridOptimizationCase(x, y, continuumSpacing, discreteSpacing, setContinuumLevel, loads, supports, casenum, 1.0, 0.1);
         case 2
             x = 10; y = 5; thickness = 1; setContinuumLevel = 0.3;
-            continuumSpacing = 0.1; discreteSpacing = 1;
+            continuumSpacing = 0.5; discreteSpacing = 1;
             loads = [x/2-0.3, x/2+0.3, 0, 0, -0.1*i];
             supports = [0, 0.6, 0, 0.0, 1, 1; x-0.6, x, 0, 0.0, 1, 1];
-            runHybridOptimizationCase(x, y, continuumSpacing, discreteSpacing, setContinuumLevel, loads, supports, casenum, 0.4);
+            runHybridOptimizationCase(x, y, continuumSpacing, discreteSpacing, setContinuumLevel, loads, supports, casenum, 0.4, 0);
         case 3
             x = 10; y = 5; thickness = 1; setContinuumLevel = 0.3;
-            continuumSpacing = 0.125; discreteSpacing = 0.5;
+            continuumSpacing = 0.125; discreteSpacing = 1.0;
             loads = [x/2-0.3, x/2+0.3, 0, 0, -0.1*i];
             supports = [0, 0.6, 0, 0.0, 1, 1; x-0.6, x, 0, 0.0, 0, 1];
-            runHybridOptimizationCase(x, y, continuumSpacing, discreteSpacing, setContinuumLevel, loads, supports, casenum, 0.25);
-            runHybridOptimizationCase(x, y, continuumSpacing, discreteSpacing, setContinuumLevel, loads, supports, casenum, 0.4);
+            runHybridOptimizationCase(x, y, continuumSpacing, discreteSpacing, setContinuumLevel, loads, supports, casenum, 0.5, 0.1);
+            %runHybridOptimizationCase(x, y, continuumSpacing, discreteSpacing, setContinuumLevel, loads, supports, casenum, 1.0, 0.1);
     end
 end
 
@@ -44,8 +47,7 @@ function [outputLoads, outputSupports] = addLoadsAndSupports(matlabMesh, loads, 
     end
 end
 
-
-function runHybridOptimizationCase(x, y, continuumSpacing, discreteSpacing, filterLevel, InputLoads, InputSupports, caseNo, radius)
+function runHybridOptimizationCase(x, y, continuumSpacing, discreteSpacing, filterLevel, InputLoads, InputSupports, caseNo, radius, jointLength)
     thickness = 1; setContinuumLevel = filterLevel;
     matlabMesh = createRectangularMeshMK2(x, y, continuumSpacing);
     edges = createMeshEdges(matlabMesh);
@@ -75,7 +77,7 @@ function runHybridOptimizationCase(x, y, continuumSpacing, discreteSpacing, filt
     mesh.plotMesh('title', "Test", 'xLimit', x, 'yLimit', y, 'figureNumber', 2, 'setLevel', setContinuumLevel, 'fileName', title2);
        
     %% Create continuum problem for Hybrid Optimization
-    clearvars -except mesh matlabMesh meshLoads meshSupports setContinuumLevel x y discreteSpacing caseNo InputLoads InputSupports solverOptions thickness continuumSpacing radius
+    clearvars -except mesh matlabMesh meshLoads meshSupports setContinuumLevel x y discreteSpacing caseNo InputLoads InputSupports solverOptions thickness continuumSpacing radius jointLength
     newMatlabMesh = mesh.createNewMeshWithSetLevel(matlabMesh, setContinuumLevel);
     edges = createMeshEdges(newMatlabMesh);
     boundaryList = determineExternalBoundaryList(newMatlabMesh.Nodes', edges, [0, 0, 0, y; 0, y, x, y; x, y, x, 0; x, 0, 0, 0]);
@@ -84,8 +86,22 @@ function runHybridOptimizationCase(x, y, continuumSpacing, discreteSpacing, filt
     mesh = Mesh(newMatlabMesh);
     mesh.createEdges(edges);
     
+    boundaryNodes = unique(reshape(edges(edges(:, 4)==0, 1:2), 1, []));
+    
+    mesh.plotMesh('title', "Test", 'xLimit', x, 'yLimit', y, 'figureNumber', 5,'plotGroundStructure', true);
+    
     [newMeshLoads, newMeshSupports] = addLoadsAndSupports(newMatlabMesh, InputLoads, InputSupports);
     unloadedPoints=[]; unLoadedPointIndices=[]; unSupportedPoints=[]; unSupportedIndices=[];
+    
+    loadedAndSupportedNodes = zeros(size(newMeshLoads, 1) + size(newMeshSupports, 1), 1);
+    for i = 1:size(newMeshLoads, 1)
+        loadedAndSupportedNodes(i, 1) = newMeshLoads{i, 1}.nodeIndex;
+    end
+    
+    for i = 1:size(newMeshSupports, 1)
+        loadedAndSupportedNodes(size(newMeshLoads, 1)+i, 1) = newMeshSupports{i, 1}.node;
+    end
+     
     if size(newMeshLoads, 1) ~= size(meshLoads, 1)
         loadX = meshLoads{1, 1}.loadX;
         loadY = meshLoads{1, 1}.loadY;
@@ -127,8 +143,9 @@ function runHybridOptimizationCase(x, y, continuumSpacing, discreteSpacing, filt
     groundStructure = GeoGroundStructure;
     groundStructure.createCustomizedNodeGrid(0, 0, x, y, discreteSpacing, discreteSpacing);
     
-    groundStructure.appendNodes(newMatlabMesh.Nodes');
     groundStructure.appendNodes([unloadedPoints; unSupportedPoints]);
+    groundStructure.appendNodes(newMatlabMesh.Nodes(:, boundaryNodes)');
+    groundStructure.continuumNodeNum = 0;
     
     groundStructure.createMemberListFromNodeGrid();
     tic
@@ -165,14 +182,14 @@ function runHybridOptimizationCase(x, y, continuumSpacing, discreteSpacing, filt
     end 
     
     trussProblem = OptProblem();
-    trussProblem.createProblem(groundStructure, loadcases, supports, solverOptions);
+    trussProblem.createProblem(groundStructure, loadcases, supports, solverOptions, 0);
 
     hybridGeoInfo = GeoHybridMesh(groundStructure, newMatlabMesh, mesh);
     hybridGeoInfo.findOverlappingNodes();
-    hybridGeoInfo.findNodesWithinRadius(radius);
+    hybridGeoInfo.findNodesWithinRadius(radius, loadedAndSupportedNodes);
     hybridProblem = HybridProblem(hybridGeoInfo, continuumProblem, trussProblem);
-    %hybridProblem.createHybridElements(size(loadcases, 1));
     hybridProblem.createHybridElementsWithinRadius(size(loadcases, 1));
+    hybridProblem.addJointLengthToHybridNodes(jointLength);
 
     [coptConNum, coptVarNum, coptObjVarNum] = continuumProblem.getConAndVarNum();
     [trussConNum, trussVarNum, trussObjVarNum] = trussProblem.getConAndVarNum();
@@ -184,7 +201,7 @@ function runHybridOptimizationCase(x, y, continuumSpacing, discreteSpacing, filt
     continuumProblem.feedBackResult(1);
     volume = mesh.calculateVolume(thickness) + groundStructure.calculateVolume();
     groundStructure.calculateVolume()
-    title4 = "Hybrid_optimization_MK3_Case_"+ caseNo+ "_Stage_4_Load_" + InputLoads(1, end)+"_Radius"+radius+ ".png" ;
+    title4 = "Hybrid_optimization_MK3_Case_"+ caseNo+ "_Stage_4_Load_" + InputLoads(1, end)+"_Radius_" + +radius + "_JointLength_" + jointLength + ".png" ;
     groundStructure.plotMembers('title', "test:"+"Volume: " + volume, 'figureNumber', 4);
     mesh.plotMesh('xLimit', x, 'yLimit', y, 'figureNumber', 4, 'fileName', title4); 
 end

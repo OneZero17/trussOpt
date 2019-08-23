@@ -29,7 +29,11 @@ classdef OptProblem < handle
             obj = size(groundStructure.members, 1) + size(groundStructure.nodes, 1);
         end
         
-        function obj = createProblem(self, groundStructure, loadCases, supports, solverOptions)
+        function obj = createProblem(self, groundStructure, loadCases, supports, solverOptions, jointLength)
+            if(nargin < 6)
+                jointLength = 0;
+            end
+            
             self.optObjects = cell(self.estimateOptObjectNumber(groundStructure, loadCases), 1);
             self.solverOptions = solverOptions;
             objectNum = 1;
@@ -63,7 +67,7 @@ classdef OptProblem < handle
             
 
             for i = 1:size(groundStructure.members, 1)
-                self.optObjects{objectNum, 1} = OptMemberMaster(groundStructure.members{i,1}, solverOptions.sigmaT, solverOptions.sigmaC);
+                self.optObjects{objectNum, 1} = OptMemberMaster(groundStructure.members{i,1}, solverOptions.sigmaT, solverOptions.sigmaC, jointLength);
                 memberSlaves = cell(size(loadCases, 1), 1);
                 for j = 1:size(loadCases, 1)
                     memberSlaves{j, 1} = OptMemberSlave();

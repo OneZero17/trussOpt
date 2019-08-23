@@ -101,6 +101,7 @@ classdef Mesh < handle
             addOptional(p,'plotFacetNumber', false, @islogical);
             addOptional(p,'setLevel', 0, @isnumeric);
             addOptional(p,'plotGroundStructure', false, @islogical);
+            addOptional(p,'blackAndWhite', false, @islogical);
             parse(p,varargin{:});
             titleText = p.Results.title;
             figureNo = p.Results.figureNumber;
@@ -112,6 +113,7 @@ classdef Mesh < handle
             plotFacetNumber = p.Results.plotFacetNumber;
             setLevel = p.Results.setLevel;
             plotGroundStructure = p.Results.plotGroundStructure;
+            blackAndWhite = p.Results.blackAndWhite;
             if fixedMaximumDensity
                 maximumDensity = 1;
             else
@@ -147,7 +149,7 @@ classdef Mesh < handle
                 elseif density < setLevel
                     density = 0;
                 end
-                if plotGroundStructure
+                if plotGroundStructure ||(blackAndWhite && density>0.05)
                     density = 1;
                 end
                 rgb = interp1( linspace(maximumDensity, 0, size(cmap, 1)), cmap, density);       

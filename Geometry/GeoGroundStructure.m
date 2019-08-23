@@ -5,6 +5,7 @@ classdef GeoGroundStructure < handle
         memberList
         nodes
         members
+        continuumNodeNum = 0;
     end
     
     methods
@@ -56,14 +57,25 @@ classdef GeoGroundStructure < handle
             memberList = zeros(nodeNum * (nodeNum - 1) / 2, 6);
             addedMemberNumber = 0;
             
-            for i = 1:nodeNum
+            for i = 1:(nodeNum-self.continuumNodeNum)
                 memberList(addedMemberNumber+1 : addedMemberNumber+nodeNum - i, 1) = repmat(i, nodeNum - i, 1);
                 memberList(addedMemberNumber+1 : addedMemberNumber+nodeNum - i, 2) = (i+1):nodeNum;
                 memberList(addedMemberNumber+1 : addedMemberNumber+nodeNum - i, 3:4) = repmat(nodes(i,:), nodeNum - i, 1);
                 memberList(addedMemberNumber+1 : addedMemberNumber+nodeNum - i, 5:6) = nodes(i+1:end, :);
                 addedMemberNumber = addedMemberNumber + nodeNum - i;
             end
-            self.memberList = memberList;
+            self.memberList = memberList(memberList(:, 1)~=0, :);
+        end
+        
+        function connectedMembers = getMembersConnectedToNodes(self, nodeList)
+            nodeNum = size(nodeList, 1);
+            connectedMembers = cell(nodeNum, 1);
+            memberIndex = (1:size(self.memberList, 1))';
+            for i = 1:nodeNum
+                connectedMembers{i, 1} = memberIndex(self.memberList(:, 1) == nodeList(i, 1) | self.memberList(:, 2) == nodeList(i, 1));
+            end
+            connectedMembers = cell2mat(connectedMembers);
+            connectedMembers = unique(connectedMembers);
         end
         
         function createNodesFromGrid(self)
@@ -154,6 +166,8 @@ classdef GeoGroundStructure < handle
             addOptional(p,'nodalForcePlottingRatio', -1, @isnumeric);
             addOptional(p, 'blackAndWhite', false, @islogical);
             addOptional(p, 'plotGroundStructure', false, @islogical);
+            addOptional(p,'plotNodeNumber', false, @islogical);
+            addOptional(p,'plotMemberNumber', false, @islogical);
             parse(p,varargin{:});
             plotForce = p.Results.force;
             titleText = p.Results.title;
@@ -162,6 +176,8 @@ classdef GeoGroundStructure < handle
             nodalForcePlottingRatio = p.Results.nodalForcePlottingRatio;
             plotGroundStructure = p.Results.plotGroundStructure;
             figureNo = p.Results.figureNumber;
+            plotNodeNumber = p.Results.plotNodeNumber;
+            plotMemberNumber = p.Results.plotMemberNumber;
             
             figure(figureNo)
             hold on
@@ -193,19 +209,29 @@ classdef GeoGroundStructure < handle
                     x1 = [self.members{i,1}.nodeA.x, self.members{i,1}.nodeB.x];
                     y1 = [self.members{i,1}.nodeA.y, self.members{i,1}.nodeB.y];
                     if plotGroundStructure
-                        width = 0.1;
+                        width = 0.001;
                     else
                         width = self.members{i,1}.area;
                     end
                     coordinates = getLineCornerCoordinates([x1;y1], self.members{i,1}.length, width);
                     %plot(x1, y1, 'Color', color, 'LineWidth', radius);
                     fill (coordinates(1,:), coordinates(2,:), color, 'EdgeColor', color);
+                    if plotMemberNumber
+                        text(mean(coordinates(1,:)), mean(coordinates(2,:)), sprintf('%d',i), 'FontSize',10, 'Color', [0,0,0]);
+                    end
                     if (plotForce ~=0)
                     	xText = x1(1) + (x1(2) -x1(1))/3; 
                         yText = y1(1) + (y1(2) -y1(1))/3; 
                         text(xText, yText, sprintf('%0.2g',self.members{i,1}.force), 'FontSize',15, 'Color', color);
                     end
                 end
+            end
+            
+            
+            if plotNodeNumber             
+                for i = 1:size(self.nodes)
+                        text(self.nodes{i, 1}.x, self.nodes{i, 1}.y, sprintf('%d',i), 'FontSize',10, 'Color', [0,0,0]);
+                end              
             end
             
             if nodalForce
