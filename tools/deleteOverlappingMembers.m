@@ -38,35 +38,35 @@ function deleteOverlappingMembers(groundStructure, mesh, meshSpacing)
     mBoundYMax = max(meshElementsY, [], 2);
     mIndex = (1:elementNum)';
     
-    polyshapes(elementNum, 1) = polyshape();
-    for i = 1:elementNum
-        polyshapes(i, 1) = polyshape(meshElementsX(i, :), meshElementsY(i, :));
-    end
-    totalPolyshape = union(polyshapes);
+%     polyshapes(elementNum, 1) = polyshape();
+%     for i = 1:elementNum
+%         polyshapes(i, 1) = polyshape(meshElementsX(i, :), meshElementsY(i, :));
+%     end
+%     totalPolyshape = union(polyshapes);
     
-    gNodes = groundStructure.nodeGrid;
-    nodeNum = size(gNodes, 1);
-    gNodes = [gNodes, zeros(nodeNum, 1)];
-    gNodesWithinBoundingBox = cell(nodeNum, 1);
-    
-    for i = 1:nodeNum
-        gNodesWithinBoundingBox{i, 1} = mIndex(mBoundXMin<=gNodes(i, 1) & mBoundXMax>=gNodes(i, 1)& mBoundYMin<=gNodes(i, 2) & mBoundYMax>=gNodes(i, 2));
-    end
-    
-    for i = 1:nodeNum
-        possibleContactElements = gNodesWithinBoundingBox{i, 1};
-        elementNum = size(possibleContactElements, 1);
-         if elementNum>0
-             [in, on] = isinterior(totalPolyshape, gNodes(i, 1), gNodes(i, 2));
-             if in && on
-                 gNodes(i, 3) = 2;
-             elseif in 
-                 gNodes(i, 3) = 1;
-             end
-         end
-    end
-    gNodeIndices = (1:nodeNum)';
-    inNodes = gNodeIndices(gNodes(:, 3)==1);
+%     gNodes = groundStructure.nodeGrid;
+%     nodeNum = size(gNodes, 1);
+%     gNodes = [gNodes, zeros(nodeNum, 1)];
+%     gNodesWithinBoundingBox = cell(nodeNum, 1);
+%     
+%     for i = 1:nodeNum
+%         gNodesWithinBoundingBox{i, 1} = mIndex(mBoundXMin<=gNodes(i, 1) & mBoundXMax>=gNodes(i, 1)& mBoundYMin<=gNodes(i, 2) & mBoundYMax>=gNodes(i, 2));
+%     end
+%     
+%     for i = 1:nodeNum
+%         possibleContactElements = gNodesWithinBoundingBox{i, 1};
+%         elementNum = size(possibleContactElements, 1);
+%          if elementNum>0
+%              [in, on] = isinterior(totalPolyshape, gNodes(i, 1), gNodes(i, 2));
+%              if in && on
+%                  gNodes(i, 3) = 2;
+%              elseif in 
+%                  gNodes(i, 3) = 1;
+%              end
+%          end
+%     end
+%     gNodeIndices = (1:nodeNum)';
+%     inNodes = gNodeIndices(gNodes(:, 3)==1);
 
     contactMap = cell(gElementNum, 2);
     for i = 1:gElementNum
@@ -83,11 +83,11 @@ function deleteOverlappingMembers(groundStructure, mesh, meshSpacing)
     
     for i = 1:contactMemberNum  
         memberNum = contactMap{i, 2};
-        if sum(inNodes== gElements(memberNum, 1)) + sum(inNodes== gElements(memberNum, 1)) > 0
-            existList(memberNum, 1) = 1;
-            contactMap{i, 1} = [];
-            continue;
-        end
+%         if sum(inNodes== gElements(memberNum, 1)) + sum(inNodes== gElements(memberNum, 1)) > 0
+%             existList(memberNum, 1) = 1;
+%             contactMap{i, 1} = [];
+%             continue;
+%         end
         elementList = contactMap{i, 1};
         memberX = memberXList(memberNum, :);
         memberY = memberYList(memberNum, :);
