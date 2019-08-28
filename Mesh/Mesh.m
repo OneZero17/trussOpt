@@ -39,7 +39,7 @@ classdef Mesh < handle
 
         end
         
-        function newMesh = createNewMeshWithSetLevel(self, matlabMesh, level)
+        function [newMesh, keepDensityList] = createNewMeshWithSetLevel(self, matlabMesh, level)
            oldNodes = matlabMesh.Nodes';
            oldElements = matlabMesh.Elements';
            facetNum = size(self.meshFacets, 1);
@@ -48,6 +48,7 @@ classdef Mesh < handle
                densityList(i, 1) = self.meshFacets{i, 1}.density;
            end
            keepList = oldElements(densityList > level, :);
+           keepDensityList = densityList(densityList > level, :);
            
            keepNode = reshape(keepList, [], 1);
            keepNode = unique(keepNode);

@@ -158,7 +158,7 @@ classdef HybridProblem < handle
             continuumProblemObjects = self.continuumProblem.optObjects;
             trussProblemObjects = self.trussProblem.optObjects;
             optBoundaries = continuumProblemObjects(cellfun('isclass', continuumProblemObjects, 'COptBoundaryMaster'));      
-            optFacets = continuumProblemObjects(cellfun('isclass', continuumProblemObjects, 'COptTriangularElementMaster'));  
+             
             optTrussNodes = trussProblemObjects(cellfun('isclass', trussProblemObjects, 'OptNodeMaster'));
             
             hybridObjectNum = 0;

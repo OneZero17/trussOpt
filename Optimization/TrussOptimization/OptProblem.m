@@ -220,6 +220,12 @@ classdef OptProblem < handle
             end       
         end
         
+        function calcObjectiveCoefficients(self, matrix)
+            for i = 1:size(self.optObjects, 1)
+                self.optObjects{i, 1}.calcObjective(matrix);
+            end       
+        end
+        
         function [obj, matrix] = initializeProblem(self, matrix)
             for i = 1:size(self.optObjects, 1)
                 self.optObjects{i, 1}.initialize(matrix);

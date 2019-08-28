@@ -111,6 +111,23 @@ classdef COptProblem < OptProblem
             
             self.optObjects = self.optObjects(~cellfun('isempty',self.optObjects));
         end
+        
+        
+        function updateDensityCoefficient(self)
+            optFacets = self.optObjects(cellfun('isclass', self.optObjects, 'COptTriangularElementMaster')); 
+            for i = 1:size(optFacets, 1)
+                currentFacet = optFacets{i, 1};
+                currentFacet.densityCoefficient = (currentFacet.densityVariable.value)^(1/2 - 1);
+            end
+        end
+        
+        function updateDensityCoefficientWithGivenValue(self, densityList)
+            optFacets = self.optObjects(cellfun('isclass', self.optObjects, 'COptTriangularElementMaster')); 
+            for i = 1:size(optFacets, 1)
+                currentFacet = optFacets{i, 1};
+                currentFacet.densityCoefficient = densityList(i, 1)^(1/2 - 1);
+            end
+        end
     end
 end
 

@@ -197,7 +197,7 @@ classdef GeoGroundStructure < handle
                 end
                 if coefficient > 1 / 1000                 
                     if blackAndWhite
-                        color = [1, 1, 1] -  coefficient^0.3 * [1, 1, 1];
+                        color = [0, 0, 0];
                     else
                         if (self.members{i,1}.force > 0)
                         color = [1, 1, 1] - coefficient^0.3 * [1, 1, 0];
