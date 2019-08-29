@@ -44,7 +44,7 @@ function runContinuumCase(caseNum, x, y, spacing, load, figureNum, vonMises)
         continuumProblem.feedBackResult(1);
         volume = mesh.calculateVolume();
     end
-    filename = "x_"+x+"_y_"+y+"_VonMises_"+vonMises+"_Load_" + load+".png";
+    filename = ['x_',num2str(x),'_y_',num2str(y),'_VonMises_',num2str(vonMises),'_Load_' , num2str(load), '.png'];
     title = ['VonMises: ',num2str(vonMises),' Load: ' , num2str(load) , ' volume: ' , num2str(volume)];
     mesh.plotMesh('title', title, 'figureNumber', figureNum, 'fixedMaximumDensity', false, 'colorBarHorizontal', x>y, 'xLimit', x, 'yLimit', y, 'fileName', filename);
 end
