@@ -92,10 +92,10 @@ classdef COptProblem < OptProblem
                     end
                     if (edgeTotalLength ~= 0)
                         if max(externalEdges(:, 2) == loadID & externalEdges(:, 6) == 1) ~= 0
-                        externalEdges(externalEdges(:, 2) == loadID & externalEdges(:, 6) == 1, 12:13) = [2 * loadcase.loads{i, 1}.loadX / edgeTotalLength, 2 * loadcase.loads{i, 1}.loadY / edgeTotalLength];
+                        externalEdges(externalEdges(:, 2) == loadID & externalEdges(:, 6) == 1, 12:13) = [2 * loadcase.loads{j, 1}.loadX / edgeTotalLength, 2 * loadcase.loads{j, 1}.loadY / edgeTotalLength];
                         end
                         if max(externalEdges(:, 3) == loadID & externalEdges(:, 6) == 1) ~= 0
-                        externalEdges(externalEdges(:, 3) == loadID & externalEdges(:, 6) == 1, 14:15) = [2 * loadcase.loads{i, 1}.loadX / edgeTotalLength, 2 * loadcase.loads{i, 1}.loadY / edgeTotalLength];
+                        externalEdges(externalEdges(:, 3) == loadID & externalEdges(:, 6) == 1, 14:15) = [2 * loadcase.loads{j, 1}.loadX / edgeTotalLength, 2 * loadcase.loads{j, 1}.loadY / edgeTotalLength];
                         end
                     end
                 end
