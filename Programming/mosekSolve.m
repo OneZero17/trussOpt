@@ -33,7 +33,7 @@ function [vars, result] = mosekSolve(matrix, output)
     else
         [r, res]=mosekopt('minimize',prob, param); 
     end
-    if (res.sol.itr.solsta == 'PRIMAL_INFEASIBLE')
+    if strcmp(res.sol.itr.solsta,'PRIMAL_INFEASIBLE')
         vars = -1;
         result = -1;
         return;
