@@ -24,7 +24,11 @@ function runHybridOptimizationCaseWithPenalty(x, y, continuumSpacing, discreteSp
     volume = mesh.calculateVolume(thickness);
     title1 = ['Hybrid_optimization_MK3_Case_', num2str(caseNo), '_Stage_1_Load_', num2str(InputLoads(1, end)), '.png' ];
     mesh.plotMesh('title', ['Test, Volume: ' , num2str(volume)], 'xLimit', x, 'yLimit', y, 'figureNumber', 1, 'fileName', title1);
-       
+    
+    if result == -1
+        return;
+    end
+    
     %% Create continuum problem for Hybrid Optimization
     clearvars -except mesh matlabMesh meshLoads meshSupports setContinuumLevel x y discreteSpacing caseNo InputLoads InputSupports solverOptions thickness continuumSpacing radius jointLength
     [newMatlabMesh, densityList] = mesh.createNewMeshWithSetLevel(matlabMesh, setContinuumLevel);
@@ -111,8 +115,8 @@ function runHybridOptimizationCaseWithPenalty(x, y, continuumSpacing, discreteSp
     if ~isempty(unloadedPoints)
         loads = cell(size(unloadedPoints, 1), 1);
         for i = 1:size(unloadedPoints, 1)
-            loadX = meshLoads{unLoadedPointIndices(i, 1), 1}.loadX;
-            loadY = meshLoads{unLoadedPointIndices(i, 1), 1}.loadY;
+            loadX = -meshLoads{unLoadedPointIndices(i, 1), 1}.loadX;
+            loadY = -meshLoads{unLoadedPointIndices(i, 1), 1}.loadY;
             loadIndex = groundStructure.findNodeIndex(unloadedPoints(i, 1), unloadedPoints(i, 2));
             loads{i, 1} = PhyLoad(loadIndex, loadX, loadY);
         end

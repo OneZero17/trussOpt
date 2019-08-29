@@ -96,8 +96,8 @@ classdef HybridProblem < handle
             meshEdges = [(1:size(meshEdges, 1))', meshEdges];
             externalEdges = meshEdges(meshEdges(:, 5) == 0, :);
             externalEdges = [externalEdges, (1:size(externalEdges))'];
-            
-            externalEdges(externalEdges(:,end-1)~=0, :)= [];
+%             
+%             externalEdges(externalEdges(:,end-1)~=0, :)= [];
             externalEdges(:, end - 1) = [];
             continuumProblemObjects = self.continuumProblem.optObjects;
             trussProblemObjects = self.trussProblem.optObjects;
@@ -151,10 +151,10 @@ classdef HybridProblem < handle
             meshNodes = self.hybridMesh.mesh.Nodes';
             internalEdges = meshEdges(meshEdges(:, 5) ~= 0, :);
             externalEdges = meshEdges(meshEdges(:, 5) == 0, :);
-            externalEdges = [externalEdges, (1:size(externalEdges))'];
-            
-            externalEdges(externalEdges(:,end-1)~=0, :)= [];
-            externalEdges(:, end - 1) = [];
+%             externalEdges = [externalEdges, (1:size(externalEdges))'];
+%             
+%             externalEdges(externalEdges(:,end-1)~=0, :)= [];
+%             externalEdges(:, end - 1) = [];
             continuumProblemObjects = self.continuumProblem.optObjects;
             trussProblemObjects = self.trussProblem.optObjects;
             optBoundaries = continuumProblemObjects(cellfun('isclass', continuumProblemObjects, 'COptBoundaryMaster'));      
