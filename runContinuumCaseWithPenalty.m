@@ -19,27 +19,38 @@ function runContinuumCaseWithPenalty(caseNum, x, y, spacing, load, figureNum, vo
     solverOptions.useVonMises = vonMises;
     continuumProblem = COptProblem();
     continuumProblem.createProblem(mesh, edges, loadcases, supports, solverOptions, 1);
-
+    time = 0;
     [conNum, varNum, objVarNum] = continuumProblem.getConAndVarNum();
     matrix = ProgMatrix(conNum, varNum, objVarNum);
     continuumProblem.initializeProblem(matrix);
+    tic
     result = mosekSolve(matrix, 1);
+    toc
+    time = time + toc;
     matrix.feedBackResult(result);
     
     continuumProblem.feedBackResult(1);
     volume = mesh.calculateVolume();
     %filename = "x_"+x+"_y_"+y+"_VonMises_"+vonMises+"_Load_" + load+".png";
-    
-    step = 10;
+    oldVolume = volume;
+    step = 50;
     for i = 2:step
         continuumProblem.updateDensityCoefficient();
         continuumProblem.calcObjectiveCoefficients(matrix);
+        tic
         result = mosekSolve(matrix, 1);
+        toc
+        time = time + toc;
         matrix.feedBackResult(result);
         continuumProblem.feedBackResult(1);
         volume = mesh.calculateVolume();
+        if abs(volume - oldVolume) / oldVolume < 0.01
+            break
+        else
+            oldVolume = volume;
+        end
     end
     filename = ['x_',num2str(x),'_y_',num2str(y),'_VonMises_',num2str(vonMises),'_Load_' , num2str(load), '.png'];
-    title = ['VonMises: ',num2str(vonMises),' Load: ' , num2str(load) , ' volume: ' , num2str(volume)];
+    title = ['VonMises: ',num2str(vonMises),' Load: ' , num2str(load) , ' volume: ' , num2str(volume), ' time: ', num2str(time)];
     mesh.plotMesh('title', title, 'figureNumber', figureNum, 'fixedMaximumDensity', false, 'colorBarHorizontal', x>y, 'xLimit', x, 'yLimit', y, 'fileName', filename);
 end
