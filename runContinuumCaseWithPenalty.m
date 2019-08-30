@@ -51,6 +51,6 @@ function runContinuumCaseWithPenalty(caseNum, x, y, spacing, load, figureNum, vo
         end
     end
     filename = ['x_',num2str(x),'_y_',num2str(y),'_VonMises_',num2str(vonMises),'_Load_' , num2str(load), '.png'];
-    title = ['VonMises: ',num2str(vonMises),' Load: ' , num2str(load) , ' volume: ' , num2str(volume), ' time: ', num2str(time)];
+    title = ['VonMises: ',num2str(vonMises),' Load: ' , num2str(load) , ' volume: ' , num2str(volume), ' time: ', num2str(time), ' iterationNum:', num2str(i)];
     mesh.plotMesh('title', title, 'figureNumber', figureNum, 'fixedMaximumDensity', false, 'colorBarHorizontal', x>y, 'xLimit', x, 'yLimit', y, 'fileName', filename);
 end
