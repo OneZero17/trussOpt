@@ -28,7 +28,7 @@ classdef GeoHybridMesh < handle
             for i = 1:size(targetNodes)
                 nodeWithinRadiusMap{i, 1} = targetNodes(i, 1);
                 
-                surroundingNodes= findNodesWithinDistance(self.mesh, gNodes(targetNodes(i, 1), 1), gNodes(targetNodes(i, 1), 2), radius);
+                surroundingNodes= findNodesWithinDistance(self.mesh.Nodes, gNodes(targetNodes(i, 1), 1), gNodes(targetNodes(i, 1), 2), radius);
                 surroundingNodes = setdiff(surroundingNodes, loadedAndSupportedNodes);
                 nodeWithinRadiusMap{i, 2} = unique([self.overLappingMap(i, 2),surroundingNodes]);
             end

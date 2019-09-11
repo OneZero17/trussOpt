@@ -15,7 +15,7 @@ classdef OptObjectMaster < OptObject
         
         function matrix = calcSlavesConstraints(self, matrix)
             for i = 1: size(self.slaves)
-                matrix = self.slaves{i, 1}.calcConstraint(matrix);
+                self.slaves{i, 1}.calcConstraint(matrix);
             end
         end
         
