@@ -11,7 +11,7 @@ classdef MLOptBoundaryMaster < OptObjectMaster
     end
     
     methods
-        function obj = MLOptBoundaryMaster(boundaryCellNodeMaster, boundaryEndNodesMasters, boundaryLength, boundaryNormal, supportingDomainCoefficients)
+        function obj = MLOptBoundaryMaster(boundaryCellNodeMaster, boundaryEndNodesMasters, boundaryLength, boundaryNormal, supportingDomainCoefficients, fixedX, fixedY)
             if nargin > 0
                 obj.boundaryCellNodeMaster = boundaryCellNodeMaster;
             end
@@ -26,6 +26,12 @@ classdef MLOptBoundaryMaster < OptObjectMaster
             end
             if nargin > 4
                 obj.supportingDomainCoefficients = supportingDomainCoefficients;
+            end
+            if nargin > 5
+                obj.xSupported = fixedX == 1;
+            end
+            if nargin > 6
+                obj.ySupported = fixedY == 1;
             end
         end
         

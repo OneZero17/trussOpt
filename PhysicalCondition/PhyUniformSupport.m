@@ -24,7 +24,7 @@ classdef PhyUniformSupport < handle
         end
         
         function createSupports(self, mesh)
-            nodeIDs = findNodesInBox(mesh,self.range(1,:),self.range(2,:));
+            nodeIDs = findNodesInBox(mesh.Nodes, self.range(1,:), self.range(2,:));
             nodeNum = size(nodeIDs, 2);
             self.supports = cell(nodeNum, 1);
             for i = 1:nodeNum

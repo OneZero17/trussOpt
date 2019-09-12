@@ -60,15 +60,24 @@ classdef MLOptProblem < OptProblem
                     cellNodeSupportDomain{j, 2} = supportCoefficients';
                 end
                 centralNode = optNodes(boundaries(i, 3));
-                self.optObjects{objectNum, 1} = MLOptBoundaryMaster(centralNode, cellNodeSupportDomain(:, 1), boundaries(i, 4), boundaryNormals(i, :), cellNodeSupportDomain(:, 2));
+                self.optObjects{objectNum, 1} = MLOptBoundaryMaster(centralNode, cellNodeSupportDomain(:, 1), boundaries(i, 4), boundaryNormals(i, :), cellNodeSupportDomain(:, 2), boundaries(i, 7), boundaries(i, 8));
+                
                 boundarySlaves = cell(loadcaseNum, 1);
                 for j = 1:loadcaseNum
-                    boundarySlaves{j, 1} = MLOptBoundarySlave();
+                    boundarySlaves{j, 1} = MLOptBoundarySlave(boundaries(i, 5), boundaries(i, 6));
                 end
                 self.optObjects{objectNum, 1}.addSlaves(boundarySlaves);
                 objectNum = objectNum + 1;
             end
-            
+        end
+        
+        function densityList = generateDensityList(self)
+            optNodes = self.optObjects(cellfun('isclass', self.optObjects, 'MLOptNodeMaster')); 
+            nodeNum = size(optNodes, 1);
+            densityList = zeros(nodeNum, 1);
+            for i = 1:nodeNum
+                densityList(i, 1) = optNodes{i, 1}.densityVariable.value;
+            end
         end
     end
 end
