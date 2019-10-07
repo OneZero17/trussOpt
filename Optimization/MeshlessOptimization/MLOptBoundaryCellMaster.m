@@ -4,10 +4,11 @@ classdef MLOptBoundaryCellMaster < MLOptCellMaster
         boundaryNormal
         xSupported = false;
         ySupported = false;
+        sinCos
     end
     
     methods
-        function obj = MLOptBoundaryCellMaster(cellNodes, cellLengths, supportingDomainCoefficients, area, boundaryNormal, fixedX, fixedY)
+        function obj = MLOptBoundaryCellMaster(cellNodes, cellLengths, supportingDomainCoefficients, area, boundaryNormal, fixedX, fixedY, sinCos, cellNormals)
             if nargin > 0
                 obj.cellNodeMasters = cellNodes;
             end
@@ -28,6 +29,12 @@ classdef MLOptBoundaryCellMaster < MLOptCellMaster
             end
             if nargin > 6
                 obj.ySupported = fixedY == 1;
+            end
+            if nargin > 7
+                obj.sinCos = sinCos;
+            end
+            if nargin > 8
+                obj.cellNormals = cellNormals;
             end
         end
     end

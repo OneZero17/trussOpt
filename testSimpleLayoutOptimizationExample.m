@@ -1,6 +1,6 @@
-function obj = testSimpleLayoutOptimizationExample()
+function groundStructure = testSimpleLayoutOptimizationExample()
     groundStructure = GeoGroundStructure;
-    x=10;y=20;
+    x=10;y=15;
     groundStructure.createCustomizedNodeGrid(0, 0, x, y, 1, 1);
     groundStructure.createNodesFromGrid();
     loadcase = PhyLoadCase();
@@ -17,11 +17,11 @@ function obj = testSimpleLayoutOptimizationExample()
         support = PhySupport(supportNodeIndex);
         supports{i, 1} = support;
     end
-%    support1NodeIndex = groundStructure.findOrAppendNode(0, 0);
-%     support2NodeIndex = groundStructure.findOrAppendNode(9, 0);
-%     support1 = PhySupport(support1NodeIndex);
-%     support2 = PhySupport(support2NodeIndex,0,1);
-%     supports = {support1; support2};
+%   support1NodeIndex = groundStructure.findOrAppendNode(0, 0);
+%   support2NodeIndex = groundStructure.findOrAppendNode(9, 0);
+%   support1 = PhySupport(support1NodeIndex);
+%   support2 = PhySupport(support2NodeIndex,0,1);
+%   supports = {support1; support2};
     groundStructure.createGroundStructureFromNodeGrid();
     solverOptions = OptOptions();
     
@@ -34,5 +34,7 @@ function obj = testSimpleLayoutOptimizationExample()
     result = mosekSolve(matrix, 1);
     matrix.feedBackResult(result);
     trussProblem.feedBackResult(1);
-    groundStructure.plotMembers();
+    %groundStructure.plotMembers();
+    structure = groundStructure.createOptimizedStructureList();
+    generatePrintPlan(structure, [0, 0; 10, 0], {1:0.1:18;1:0.1:17}, x, y);
 end

@@ -156,8 +156,27 @@ classdef GeoGroundStructure < handle
                self.members{i, 1} = GeoMember(self.nodes{self.memberList(i, 1),1}, self.nodes{self.memberList(i, 2),1}, i);
            end
        end
+       
+               
+       function structure = createOptimizedStructureList(self)
+           memberNum = size(self.members, 1);
+           structure = zeros(memberNum, 5);
+           addedMemberNo = 0;
+           maxArea = 0;
+           for i = 1:size(self.members)
+               maxArea = max(maxArea, self.members{i,1}.area);
+           end
+           for i = 1:size(self.members)
+               coefficient = self.members{i,1}.area / maxArea;
+               if coefficient > 1 / 1000 
+                   addedMemberNo = addedMemberNo + 1;
+                   structure(addedMemberNo, :) = [self.members{i,1}.nodeA.x, self.members{i,1}.nodeA.y, self.members{i,1}.nodeB.x, self.members{i,1}.nodeB.y, self.members{i,1}.area];
+               end
+           end
+           structure(addedMemberNo+1:end, :) = [];
+       end
         
-        function plotMembers(self, varargin)
+       function plotMembers(self, varargin)
             p = inputParser;
             addOptional(p,'figureNumber',1, @isnumeric);
             addOptional(p,'force', false, @islogical);

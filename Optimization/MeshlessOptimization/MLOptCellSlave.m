@@ -41,8 +41,8 @@ classdef MLOptCellSlave < OptObjectSlave
                 firstT = [firstNormal(1) 0              firstNormal(2)
                           0              firstNormal(2) firstNormal(1)];
                       
-                lastT = [lastNormal(1) 0              lastNormal(2)
-                          0              lastNormal(2) lastNormal(1)];  
+                lastT = [lastNormal(1) 0             lastNormal(2)
+                          0            lastNormal(2) lastNormal(1)];  
                       
                 area = self.master.area;      
                 for j = 1:size(currentPoint, 1)

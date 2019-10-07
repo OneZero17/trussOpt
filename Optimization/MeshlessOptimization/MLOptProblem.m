@@ -11,7 +11,7 @@ classdef MLOptProblem < OptProblem
             obj = size(groundStructure.members, 1) + size(groundStructure.nodes, 1);
         end
         
-        function createProblem(self, nodes, cellIndices, cellLengths, cellNormals, cellAreas, supportingDomainMap, boundaries, boundaryNormals, loadcaseNum)
+        function createProblem(self, nodes, cellIndices, cellLengths, cellNormals, cellAreas, supportingDomainMap, boundaries, boundaryNormals, boundarySinCos, loadcaseNum)
             
             objectiveNum = size(nodes, 1) + size(cellIndices, 1) + size(boundaries, 1);
             self.optObjects = cell(objectiveNum, 1);
@@ -42,19 +42,12 @@ classdef MLOptProblem < OptProblem
                     cellNodeSupportDomain{j, 1} = supportNodeObjects;
                     cellNodeSupportDomain{j, 2} = supportCoefficients';
                 end
-                self.optObjects{objectNum, 1} = MLOptCellMaster(cellNodeSupportDomain(:, 1), cellLengths{i, 1}, cellNodeSupportDomain(:, 2), cellAreas(i, 1), cellNormals{i, 1});
-                cellSlaves = cell(loadcaseNum, 1);
-                for j = 1:loadcaseNum
-                    cellSlaves{j, 1} = MLOptCellSlave();
-                end
-                self.optObjects{objectNum, 1}.addSlaves(cellSlaves);
-                objectNum = objectNum + 1;
                 
                 % add optBoundaryCells               
                 boundariesCellNormals = boundaryNormals(boundaries(:, 3)==i, :);
                 boundaryFixedCondition = boundaries(boundaries(:, 3)==i, 7:8);
                 for j = 1:size(boundariesCellNormals, 1)
-                    self.optObjects{objectNum, 1} = MLOptBoundaryCellMaster(cellNodeSupportDomain(:, 1), cellLengths{i, 1}, cellNodeSupportDomain(:, 2), cellAreas(i, 1), boundariesCellNormals(j, :), boundaryFixedCondition(j, 1), boundaryFixedCondition(j, 2));
+                    self.optObjects{objectNum, 1} = MLOptBoundaryCellMaster(cellNodeSupportDomain(:, 1), cellLengths{i, 1}, cellNodeSupportDomain(:, 2), cellAreas(i, 1), boundariesCellNormals(j, :), boundaryFixedCondition(j, 1), boundaryFixedCondition(j, 2), boundarySinCos(j, :), cellNormals{i, 1});
                     boundaryCellSlaves = cell(loadcaseNum, 1);
                     for k = 1:loadcaseNum
                         boundaryCellSlaves{k, 1} = MLOptBoundaryCellSlave();
@@ -62,9 +55,17 @@ classdef MLOptProblem < OptProblem
                     self.optObjects{objectNum, 1}.addSlaves(boundaryCellSlaves);
                     objectNum = objectNum + 1;
                 end
+                
+                %if size(boundariesCellNormals, 1) == 0
+                    self.optObjects{objectNum, 1} = MLOptCellMaster(cellNodeSupportDomain(:, 1), cellLengths{i, 1}, cellNodeSupportDomain(:, 2), cellAreas(i, 1), cellNormals{i, 1});
+                    cellSlaves = cell(loadcaseNum, 1);
+                    for j = 1:loadcaseNum
+                        cellSlaves{j, 1} = MLOptCellSlave();
+                    end
+                    self.optObjects{objectNum, 1}.addSlaves(cellSlaves);
+                    objectNum = objectNum + 1;
+                %end
             end
-            
-
             
             % add optBoundaries
             for i = 1:size(boundaries, 1)
