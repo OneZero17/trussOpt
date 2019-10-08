@@ -9,6 +9,11 @@ function [vars, result] = mosekSolve(matrix, output)
     constraintBoundary = matrix.getConstraintBoundary();
     prob.blc = constraintBoundary(:,1);
     prob.buc = constraintBoundary(:,2);
+    if size(prob.a, 1) == 0
+       prob.a = zeros(1, size(prob.c, 1));
+       prob.blc = 0;
+       prob.buc = 0;
+    end
     % All cones
     [FQ, gQ, cQ] = matrix.getCoefficientOfConicConstraints();
     [rcode, res] = mosekopt('symbcon echo(0)');

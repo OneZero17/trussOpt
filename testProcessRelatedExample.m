@@ -133,7 +133,6 @@ end
 
 function existList = intersectionWithHorizontalLine(members)
     memebrNum = size(members, 1);
-    intersections = cell(memebrNum, 1);
     slope = (members(:, 4) - members(:, 2))./(members(:, 3) - members(:, 1));
     
     existList = ones(memebrNum, 1);
