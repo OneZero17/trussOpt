@@ -1,14 +1,14 @@
 clear
 groundStructure = GeoGroundStructure;
 x=10;y=10;
-xSpacing = 1; ySpacing = 1;
+xSpacing = 0.5; ySpacing = 0.5;
 groundStructure.createCustomizedNodeGrid(0, 0, x, y, xSpacing, ySpacing);
 groundStructure.createMemberListFromNodeGrid();
 groundStructure.createNodesFromGrid();
 loadcase = PhyLoadCase();
-load1NodeIndex = groundStructure.findOrAppendNode(x, y/2);
+load1NodeIndex = groundStructure.findOrAppendNode(x/2, y);
 %load2NodeIndex = groundStructure.findOrAppendNode(x, y);
-load1 = PhyLoad(load1NodeIndex, 0.0, -0.2);
+load1 = PhyLoad(load1NodeIndex, 0.2, -0.0);
 %load2 = PhyLoad(load2NodeIndex, 0.1, 0);
 loadcase.loads = {load1};
 loadcases = {loadcase};
@@ -20,13 +20,13 @@ loadcases = {loadcase};
 %     supports{i, 1} = support;
 % end
 support1NodeIndex = groundStructure.findOrAppendNode(0, 0);
-support2NodeIndex = groundStructure.findOrAppendNode(5, 0);
+support2NodeIndex = groundStructure.findOrAppendNode(10, 0);
 support1 = PhySupport(support1NodeIndex, 1, 1);
-support2 = PhySupport(support2NodeIndex, 0, 1);
+support2 = PhySupport(support2NodeIndex, 1, 1);
 supports = {support1; support2};
 
-existList = intersectionWithHorizontalLine(groundStructure.memberList(:, 3:end));
-groundStructure.memberList = groundStructure.memberList(existList ==1, :);
+% existList = intersectionWithHorizontalLine(groundStructure.memberList(:, 3:end));
+% groundStructure.memberList = groundStructure.memberList(existList ==1, :);
 
 groundStructure.createGroundStructureFromMemberList();
 solverOptions = OptOptions();
@@ -43,7 +43,7 @@ trussProblem.feedBackResult(1);
 groundStructure.plotMembers();
 structure = groundStructure.createOptimizedStructureList();
 
-splitedZones = 0:1:10;
+splitedZones = 0:0.1:10;
 splitedStructures = splitSector(structure, splitedZones);
 printPlanProblem = PPOptProblem;
 printPlanProblem.createProblem(splitedStructures, splitedZones);
@@ -64,13 +64,13 @@ groundStructure.createNodesFromGrid();
 groundStructure.createGroundStructureFromMemberList();
 
 loadcase = PhyLoadCase();
-load1NodeIndex = groundStructure.findOrAppendNode(x, y/2);
-load1 = PhyLoad(load1NodeIndex, 0.0, -0.2);
+load1NodeIndex = groundStructure.findOrAppendNode(x/2, y);
+load1 = PhyLoad(load1NodeIndex, 0.2, -0.0);
 loadcase.loads = {load1};
 loadcases = {loadcase};
 
 support1NodeIndex = groundStructure.findOrAppendNode(0, 0);
-support2NodeIndex = groundStructure.findOrAppendNode(5, 0);
+support2NodeIndex = groundStructure.findOrAppendNode(10, 0);
 support1 = PhySupport(support1NodeIndex, 1, 1);
 support2 = PhySupport(support2NodeIndex, 1, 1);
 supports = {support1; support2};

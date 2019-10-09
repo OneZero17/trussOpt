@@ -4,10 +4,10 @@ classdef PPSlope < OptObject
         angles
         weights 
         angleVariable
-        diffVariable1
-        diffVariable2
-        angleConstraint1
-        angleConstraint2
+        diffVariables1
+        diffVariables2
+        angleConstraints1
+        angleConstraints2
     end
     
     methods
@@ -21,40 +21,54 @@ classdef PPSlope < OptObject
         end
 
         function [matrix, obj] = initialize(self, matrix)
+            memberNum = size(self.angles, 1);
             self.angleVariable = matrix.addVariable(0, pi);
-            self.diffVariable1 = matrix.addVariable(0, inf);
-            self.diffVariable2 = matrix.addVariable(0, inf);
-            self.angleConstraint1 = matrix.addConicConstraint(size(self.angles, 1));
-            self.angleConstraint2 = matrix.addConicConstraint(size(self.angles, 1));
+            self.diffVariables1 = cell(memberNum, 1);
+            self.diffVariables2 = cell(memberNum, 1);
+            self.angleConstraints1 = cell(memberNum, 1);
+            self.angleConstraints2 = cell(memberNum, 1);
+            
+            for i = 1:memberNum
+                self.diffVariables1{i, 1} = matrix.addVariable(0, inf);
+                self.diffVariables2{i, 1} = matrix.addVariable(0, inf);
+                self.angleConstraints1{i, 1} = matrix.addConicConstraint(1);
+                self.angleConstraints2{i, 1} = matrix.addConicConstraint(1);
+            end
             obj = self;
         end
         
         function [matrix] = calcConstraint(self, matrix)
             memberNum = size(self.angles, 1);
-            rhsCone1 = ProgCone(1, self.diffVariable1, 1);
-            rhsCone2 = ProgCone(1, self.diffVariable2, 1);
-            self.angleConstraint1.addRHSCone(rhsCone1);
-            self.angleConstraint2.addRHSCone(rhsCone2);
+            
             for i = 1 : memberNum
+                rhsCone1 = ProgCone(1, self.diffVariables1{i, 1}, 1);
                 lhsCone1 = ProgCone(1, self.angleVariable, self.weights(i));
                 lhsCone1.addConstant(-(self.angles(i, 1) - 0.977)* self.weights(i));
-                self.angleConstraint1.addLHSCone(lhsCone1);
+                self.angleConstraints1{i, 1}.addRHSCone(rhsCone1);
+                self.angleConstraints1{i, 1}.addLHSCone(lhsCone1);
                 
+                rhsCone2 = ProgCone(1, self.diffVariables2{i, 1}, 1);
                 lhsCone2 = ProgCone(1, self.angleVariable, self.weights(i));
-                lhsCone2.addConstant(-(self.angles(i, 1) + 0.977)* self.weights(i) );
-                self.angleConstraint2.addLHSCone(lhsCone2);
-            end   
+                lhsCone2.addConstant(-(self.angles(i, 1) + 0.977)* self.weights(i));
+                self.angleConstraints2{i, 1}.addLHSCone(lhsCone2);
+                self.angleConstraints2{i, 1}.addRHSCone(rhsCone2);
+            end  
+             
         end
         
         function calcObjective(self, matrix)
-            matrix.objectiveFunction.addVariable(self.diffVariable1, 1);
-            matrix.objectiveFunction.addVariable(self.diffVariable2, 1);
+            memberNum = size(self.angles, 1);
+            for i = 1 : memberNum
+                matrix.objectiveFunction.addVariable(self.diffVariables1{i, 1}, 1);
+                matrix.objectiveFunction.addVariable(self.diffVariables2{i, 1}, 1);
+            end
         end
         
         function [conNum, varNum, objVarNum] = getConAndVarNum(self)
-            conNum = 2;
-            varNum = 3;
-            objVarNum = 2;
+            memberNum = size(self.angles, 1);
+            conNum = 2*memberNum;
+            varNum = 2*memberNum + 1;
+            objVarNum = 2*memberNum;
         end
     end
 end
