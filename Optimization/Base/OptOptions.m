@@ -6,6 +6,8 @@ classdef OptOptions < handle
         sigmaC = 1
         cellOptimization = 0;
         useVonMises = true;
+        nodalSpacing = 0;
+        memberAddingBeta = 0.1;
     end
     
     methods

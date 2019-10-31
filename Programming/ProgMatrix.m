@@ -24,16 +24,23 @@ classdef ProgMatrix < handle
             end
         end
         
-        function obj = feedBackResult(self, result)
+        function feedBackResult(self, result, dualValues)
             for i = 1:size(self.variables)
                 self.variables{i, 1}.value = result(i);
             end
-            obj = self;
+            if nargin > 2
+                for i = 1:size(self.constraints)
+                    self.constraints{i, 1}.dualValue = dualValues(i, 1);
+                end
+            end
         end
         
         function matrix = getJacobianObjective(self)
             matrix = zeros(size(self.variables, 1), 1);
             for i = 1:size(self.objectiveFunction.variables)
+                if isempty(self.objectiveFunction.variables{i, 1})
+                    continue;
+                end
                 matrix(self.objectiveFunction.variables{i,1}.index, 1) = self.objectiveFunction.coefficients(i);
             end
         end

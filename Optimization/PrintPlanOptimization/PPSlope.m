@@ -8,16 +8,21 @@ classdef PPSlope < OptObject
         diffVariables2
         angleConstraints1
         angleConstraints2
+        nozzleMaxAngle
     end
     
     methods
-        function obj = PPSlope(inputAngles, inputWeights)
+        function obj = PPSlope(inputAngles, inputWeights, nozzleMaxAngle)
             if nargin > 0
                 obj.angles = inputAngles;
             end
             if nargin > 1
                 obj.weights = inputWeights;
             end
+            if nargin > 2
+                obj.nozzleMaxAngle = nozzleMaxAngle;
+            end
+            
         end
 
         function [matrix, obj] = initialize(self, matrix)
@@ -39,21 +44,19 @@ classdef PPSlope < OptObject
         
         function [matrix] = calcConstraint(self, matrix)
             memberNum = size(self.angles, 1);
-            
             for i = 1 : memberNum
                 rhsCone1 = ProgCone(1, self.diffVariables1{i, 1}, 1);
                 lhsCone1 = ProgCone(1, self.angleVariable, self.weights(i));
-                lhsCone1.addConstant(-(self.angles(i, 1) - 0.977)* self.weights(i));
+                lhsCone1.addConstant(-(self.angles(i, 1) - self.nozzleMaxAngle)* self.weights(i));
                 self.angleConstraints1{i, 1}.addRHSCone(rhsCone1);
                 self.angleConstraints1{i, 1}.addLHSCone(lhsCone1);
                 
                 rhsCone2 = ProgCone(1, self.diffVariables2{i, 1}, 1);
                 lhsCone2 = ProgCone(1, self.angleVariable, self.weights(i));
-                lhsCone2.addConstant(-(self.angles(i, 1) + 0.977)* self.weights(i));
+                lhsCone2.addConstant(-(self.angles(i, 1) + self.nozzleMaxAngle)* self.weights(i));
                 self.angleConstraints2{i, 1}.addLHSCone(lhsCone2);
                 self.angleConstraints2{i, 1}.addRHSCone(rhsCone2);
             end  
-             
         end
         
         function calcObjective(self, matrix)

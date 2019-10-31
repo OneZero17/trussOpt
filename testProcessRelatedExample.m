@@ -18,8 +18,8 @@ function testProcessRelatedExample()
         
         finalAngle = zeros(memebrNum, 1);
         for i = 1 : memebrNum  
-            [minDistance, point1Index] = min([distance(i, 1),distance(i, 3)]);
-            [minDistance, point2Index] = min([distance(i, 2),distance(i, 4)]);
+            [minDistance, point1Index] = min([distance(i, 1), distance(i, 3)]);
+            [minDistance, point2Index] = min([distance(i, 2), distance(i, 4)]);
             finalAngle(i, 1) = max([angle(i, 2 * point1Index - 1), angle(i, 2 * point2Index)]);
         end
         groundStructure.memberList = groundStructure.memberList(finalAngle < 0.977, :);

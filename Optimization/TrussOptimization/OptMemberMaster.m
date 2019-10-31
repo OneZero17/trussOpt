@@ -27,7 +27,7 @@ classdef OptMemberMaster < OptObjectMaster
         end
         
         function [matrix, obj] = initialize(self, matrix)
-            self.areaVariable = matrix.addVariable(0,self.geoMember.length /5);
+            self.areaVariable = matrix.addVariable(0, self.geoMember.length /5);
             self.tensionStressConstraints = cell(size(self.slaves, 1), 1);
             self.compressionStressConstraints = cell(size(self.slaves, 1), 1);
             for i =1:size(self.slaves, 1)

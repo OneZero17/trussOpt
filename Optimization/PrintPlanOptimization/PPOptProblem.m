@@ -6,7 +6,7 @@ classdef PPOptProblem < OptProblem
         function obj = PPOptProblem()
         end
         
-        function createProblem(self, splitedMembers, splitedZones)
+        function createProblem(self, splitedMembers, nozzleMaxAngle)
             zoneNumber = size(splitedMembers, 1);
             self.optObjects = cell(zoneNumber, 1);
             for i = 1:zoneNumber
@@ -19,7 +19,7 @@ classdef PPOptProblem < OptProblem
                     angles(angles==0) = angles(angles==0) + pi;
                 end
                 weights = zoneMembers(:, 5) .* length;
-                self.optObjects{i, 1} = PPSlope(angles, weights);
+                self.optObjects{i, 1} = PPSlope(angles, weights, nozzleMaxAngle);
             end
         end
         

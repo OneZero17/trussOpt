@@ -168,7 +168,7 @@ classdef GeoGroundStructure < handle
            end
            for i = 1:size(self.members)
                coefficient = self.members{i,1}.area / maxArea;
-               if coefficient > 1 / 1000 
+               if coefficient > 1 / 50
                    addedMemberNo = addedMemberNo + 1;
                    structure(addedMemberNo, :) = [self.members{i,1}.nodeA.x, self.members{i,1}.nodeA.y, self.members{i,1}.nodeB.x, self.members{i,1}.nodeB.y, self.members{i,1}.area];
                end

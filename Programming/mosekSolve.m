@@ -1,4 +1,4 @@
-function [vars, result] = mosekSolve(matrix, output)
+function [vars, result, dualValues] = mosekSolve(matrix, output)
     matrix.deleteEmptyCells();
     matrix.initialize();
     prob.c = matrix.getJacobianObjective();
@@ -13,6 +13,9 @@ function [vars, result] = mosekSolve(matrix, output)
        prob.a = zeros(1, size(prob.c, 1));
        prob.blc = 0;
        prob.buc = 0;
+    end
+    if size(prob.a, 2) ~= size(prob.c, 1)
+       prob.a = [prob.a, zeros(size(prob.a, 1), size(prob.c, 1) - size(prob.a, 2))];
     end
     % All cones
     [FQ, gQ, cQ] = matrix.getCoefficientOfConicConstraints();
@@ -46,6 +49,7 @@ function [vars, result] = mosekSolve(matrix, output)
     
     vars = res.sol.itr.xx;
     result = res.sol.itr.pobjval;
+    dualValues = res.sol.itr.slc - res.sol.itr.suc;
 end
 
 
