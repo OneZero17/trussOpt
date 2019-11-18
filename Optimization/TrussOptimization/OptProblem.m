@@ -11,6 +11,7 @@ classdef OptProblem < handle
         
         function [conNum, varNum, objVarNum] = getConAndVarNum(self)
             conNum = 0; varNum = 0; objVarNum= 0;
+            self.optObjects = self.optObjects(~cellfun('isempty', self.optObjects));
             for i = 1:size(self.optObjects, 1)
                 [conNumToAdd, varNumToAdd, objVarNumToAdd] = self.optObjects{i, 1}.getConAndVarNum();
                 conNum = conNum + conNumToAdd;

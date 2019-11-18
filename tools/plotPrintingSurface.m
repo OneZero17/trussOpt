@@ -3,14 +3,16 @@ function [printPlanGrid, normalVectors] = plotPrintingSurface(angles, xSplitLine
         figNum = 1;
     end
     figure(figNum)
+    hold on
     zGrid = cell(size(angles, 1)+1, size(angles, 2)+1);
     normalVectors = cell(size(angles, 1), size(angles, 2));
+   
     for i = 1:size(angles, 1)
         currentXStart = xSplitLine(i);
         currentXEnd = xSplitLine(i+1);
-        for j = 1:size(angles, 2)
+        for j = 1:size(angles, 2)    
             currentYStart = ySplitLine(j);
-            currentYEnd = ySplitLine(j + 1);
+            currentYEnd = ySplitLine(j+1);
             currentAngles = angles{i, j};
             length1 = 1 / tan(currentAngles(1));
             length2 = 1 / tan(currentAngles(2));
@@ -23,6 +25,7 @@ function [printPlanGrid, normalVectors] = plotPrintingSurface(angles, xSplitLine
             else
                 zConstant = z4;
             end
+            normalVector = normalVectors{i, j};
             x1 = currentXStart;
             y1 = currentYStart;
             z1 = zConstant;

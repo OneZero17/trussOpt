@@ -27,8 +27,8 @@ support1 = PhySupport(support1NodeIndex, 1, 1);
 support2 = PhySupport(support2NodeIndex, 0, 1);
 supports = {support1; support2};
 
-existList = intersectionWithHorizontalLine(groundStructure.memberList(:, 3:end));
-groundStructure.memberList = groundStructure.memberList(existList ==1, :);
+% existList = intersectionWithHorizontalLine(groundStructure.memberList(:, 3:end));
+% groundStructure.memberList = groundStructure.memberList(existList ==1, :);
 
 groundStructure.createGroundStructureFromMemberList();
 solverOptions = OptOptions();

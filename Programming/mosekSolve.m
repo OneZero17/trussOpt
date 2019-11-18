@@ -19,6 +19,7 @@ function [vars, result, dualValues] = mosekSolve(matrix, output)
     end
     % All cones
     [FQ, gQ, cQ] = matrix.getCoefficientOfConicConstraints();
+    
     [rcode, res] = mosekopt('symbcon echo(0)');
     cQ = [res.symbcon.MSK_CT_QUAD*ones(size(cQ, 1), 1), cQ];
     recQ = zeros(1, size(cQ, 1)*size(cQ, 2));
@@ -26,16 +27,22 @@ function [vars, result, dualValues] = mosekSolve(matrix, output)
         recQ(i*2-1:i*2)=cQ(i,:);
     end
     if size(recQ, 2) > 0
-        prob.f = FQ;
+        if size(FQ,2) ~= size(prob.a,2)
+            prob.f = [FQ, zeros(size(FQ, 1), size(prob.a,2)-size(FQ,2))];
+        else
+            prob.f = FQ;
+        end
         prob.g = gQ;
         prob.cones = recQ;
     end
+    
     %prob = optimizeMatrix(prob);
     % Select interior-point optimizer... (integer parameter)
     
     param.MSK_IPAR_INFEAS_REPORT_AUTO  = 'MSK_OFF';
     % ... without basis identification (integer parameter)
     %param.MSK_IPAR_INTPNT_BASIS = 'MSK_BI_NEVER';
+    %mosekopt('write(datafile.mps)',prob);
     if (output == 0)
         [r, res]=mosekopt('minimize echo(0)',prob, param);   
     else

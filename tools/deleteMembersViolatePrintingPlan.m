@@ -1,9 +1,11 @@
-function newMemberList = deleteMembersViolatePrintingPlan(memberList, splitedZones, zoneAngles, nozzleMaxAngle)
+function [newMemberList, toBeDeletedMemberList] = deleteMembersViolatePrintingPlan(memberList, splitedZones, zoneAngles, nozzleMaxAngle)
     slope = (memberList(:, 6) - memberList(:, 4)) ./ (memberList(:, 5) - memberList(:, 3));
     angles = atan(slope);
     angles(angles<0) = angles(angles<0) + pi;
     memberList = [(1:size(memberList, 1))', memberList, angles];
     zoneNum = size(zoneAngles, 1);
+    toBeDeletedMemberList(size(memberList, 1), 1) = 0;
+    addedDeletedMember = 1;
     for i = 1:zoneNum
         zoneAngle = zoneAngles(i);
         zoneStart = splitedZones(i);
@@ -22,8 +24,11 @@ function newMemberList = deleteMembersViolatePrintingPlan(memberList, splitedZon
         
         contactMembers = [contactMembersPart1; contactMembersPart2; contactMembersPart3; contactMembersPart4; contactMembersPart5; contactMembersPart6];
         toBeDeletedMembers = contactMembers(abs(contactMembers(:, end) - zoneAngle) > nozzleMaxAngle, :);
+        toBeDeletedMemberList(addedDeletedMember:addedDeletedMember+size(toBeDeletedMembers, 1) - 1, :) = toBeDeletedMembers(:, end - 1);
+        addedDeletedMember = addedDeletedMember + size(toBeDeletedMembers, 1);
         memberList = setdiff(memberList, toBeDeletedMembers, 'rows');
     end
+    toBeDeletedMemberList = toBeDeletedMemberList(toBeDeletedMemberList ~= 0);
     newMemberList = memberList(:, 2:7);
 end
 
