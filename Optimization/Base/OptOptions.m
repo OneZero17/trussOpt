@@ -8,6 +8,9 @@ classdef OptOptions < handle
         useVonMises = true;
         nodalSpacing = 0;
         memberAddingBeta = 0.1;
+        sectionModulus = [0 0 0];
+        jointLength = 0;
+        allowExistingBeamVolume = 0;
     end
     
     methods
