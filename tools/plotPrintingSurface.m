@@ -1,4 +1,4 @@
-function [printPlanGrid, normalVectors] = plotPrintingSurface(angles, xSplitLine, ySplitLine, startingZ, figNum)
+function [printPlanGrid, normalVectors, surface] = plotPrintingSurface(angles, xSplitLine, ySplitLine, startingZ, figNum)
     if nargin < 5
         figNum = 1;
     end
@@ -51,7 +51,10 @@ function [printPlanGrid, normalVectors] = plotPrintingSurface(angles, xSplitLine
             nodez(i, j) = zGrid{i, j}(3);
         end
     end
-    s = surf(nodex, nodey, nodez, 'FaceAlpha',0.5);
-    s.EdgeColor = 'none';
+    T = delaunay(nodex,nodey);
+    surface = triangulation(T,nodex(:),nodey(:),nodez(:));
+    trisurf(surface, 'FaceAlpha',0.5, 'EdgeColor', 'none');
+%     surface = surf(nodex, nodey, nodez, 'FaceAlpha',0.5);
+%     surface.EdgeColor = 'none';
 end
 

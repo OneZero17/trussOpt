@@ -13,8 +13,8 @@ function plotStructure3D(structure, figNum, color)
 %         else
 %         color = [1, 1, 1] - coefficient^0.3 * [0, 1, 1];
 %         end
-        width = 2 * coefficient;
-        [X,Y,Z] = cylinder2P(width, 20,structure(i, 1:3),structure(i, 4:6));
+        width = 1 * coefficient;
+        [X,Y,Z] = cylinder2P(width, 20, structure(i, 1:3),structure(i, 4:6));
         s = surf(X,Y,Z);
         s.EdgeColor = 'none';
         s.FaceColor = color;
