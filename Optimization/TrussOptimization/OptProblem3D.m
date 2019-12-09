@@ -8,9 +8,12 @@ classdef OptProblem3D < OptProblem
         function obj = OptProblem3D()
         end
         
-        function obj = createProblem(self, groundStructure, loadCases, supports, solverOptions, jointLength)
-            if(nargin < 6)
+        function obj = createProblem(self, groundStructure, loadCases, supports, solverOptions, jointLength, totalPenaltyList)
+            if nargin < 6
                 jointLength = 0;
+            end
+            if nargin < 7
+                totalPenaltyList = zeros(size(groundStructure.members, 1), 1);
             end
             
             self.optObjects = cell(self.estimateOptObjectNumber(groundStructure, loadCases), 1);
@@ -47,7 +50,7 @@ classdef OptProblem3D < OptProblem
             end
             
             for i = 1:size(groundStructure.members, 1)
-                self.optObjects{objectNum, 1} = OptMemberMaster3D(groundStructure.members(i,:), solverOptions.sigmaT, solverOptions.sigmaC, jointLength);
+                self.optObjects{objectNum, 1} = OptMemberMaster3D(groundStructure.members(i,:), solverOptions.sigmaT, solverOptions.sigmaC, jointLength, totalPenaltyList(i, 1));
                 memberSlaves = cell(size(loadCases, 1), 1);
                 for j = 1:size(loadCases, 1)
                     memberSlaves{j, 1} = OptMemberSlave3D();
@@ -70,6 +73,14 @@ classdef OptProblem3D < OptProblem
             for i = 1:memberNum
                 forceList(i, 1) = optMembers{i, 1}.slaves{loadCaseNum, 1}.forceVariable.value;
             end
+        end
+        
+        function volume = calculateVoluem(self)
+            optMembers = self.optObjects(cellfun('isclass', self.optObjects, 'OptMemberMaster3D')); 
+            memberNum = size(optMembers, 1);
+            volume = 0;
+            % To BE CONTINUE
+            
         end
     end
 end

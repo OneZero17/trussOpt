@@ -11,6 +11,11 @@ classdef OptOptions < handle
         sectionModulus = [0 0 0];
         jointLength = 0;
         allowExistingBeamVolume = 0;
+        outputMosek = false;
+        
+        %% print plan options
+        useCosAngleValue = false;
+        useAngleTurnConstraint = true;
     end
     
     methods

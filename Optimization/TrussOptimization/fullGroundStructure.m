@@ -1,6 +1,6 @@
-function [forceList, obj] = fullGroundStructure(groundStructure, loadcases, supports, solverOptions)
+function [forceList, obj] = fullGroundStructure(groundStructure, loadcases, supports, solverOptions, totalPenaltyList)
     trussProblem3D = OptProblem3D();
-    trussProblem3D.createProblem(groundStructure, loadcases, supports, solverOptions);
+    trussProblem3D.createProblem(groundStructure, loadcases, supports, solverOptions, 0, totalPenaltyList);
     [conNum, varNum, objVarNum] = trussProblem3D.getConAndVarNum();
     matrix = ProgMatrix(conNum, varNum, objVarNum);
     trussProblem3D.initializeProblem(matrix);

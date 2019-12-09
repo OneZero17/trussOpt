@@ -77,11 +77,7 @@ function points = getPrintCornerPoints(startingPoint, endPoint, memberRadius, la
        
         if memberVector(1)~=0
             tempX = (memberVector(1) * currentCenter(1) + memberVector(2) * currentCenter(2) + memberVector(3) * currentCenter(3) - 2 * memberVector(2) - 2 * memberVector(3)) / memberVector(1);
-            tempPoint = [tempX 2 2];
-%             if currentCenter == [0 0 0]  
-%                 tempX = (memberVector(1) * currentCenter(1) + memberVector(2) * currentCenter(2) + memberVector(3) * currentCenter(3) - memberVector(2) - memberVector(3)) / memberVector(1);
-%                 tempPoint = [tempX 1 1];
-%             end    
+            tempPoint = [tempX 2 2]; 
         elseif memberVector(3)~=0
             tempZ = (memberVector(1) * currentCenter(1) + memberVector(2) * currentCenter(2) + memberVector(3) * currentCenter(3)) / memberVector(3);
             tempPoint = [0 0 tempZ];

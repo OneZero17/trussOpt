@@ -10,7 +10,11 @@ function [forceList, potentialMemberList, volume] = memberAdding(groundStructure
         [conNum, varNum, objVarNum] = trussProblem3D.getConAndVarNum();
         matrix = ProgMatrix(conNum, varNum, objVarNum);
         trussProblem3D.initializeProblem(matrix);
-        [variables, obj, dualValues] = mosekSolve(matrix, 0);
+        if solverOptions.outputMosek
+            [variables, obj, dualValues] = mosekSolve(matrix, 1);
+        else
+            [variables, obj, dualValues] = mosekSolve(matrix, 0);
+        end
         volume = obj;
         matrix.feedBackResult(variables, dualValues);
         if iterationNum ==0

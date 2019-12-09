@@ -1,4 +1,4 @@
-function [printPlanGrid, normalVectors, surface] = plotPrintingSurface(angles, xSplitLine, ySplitLine, startingZ, figNum)
+function [printPlanGrid, normalVectors, surface] = plotPrintingSurface(angles, xSplitLine, ySplitLine, startingZ, splitedStructures, figNum)
     if nargin < 5
         figNum = 1;
     end
@@ -6,11 +6,11 @@ function [printPlanGrid, normalVectors, surface] = plotPrintingSurface(angles, x
     hold on
     zGrid = cell(size(angles, 1)+1, size(angles, 2)+1);
     normalVectors = cell(size(angles, 1), size(angles, 2));
-   
+    plotCells = cell(size(angles, 1), size(angles, 2));
     for i = 1:size(angles, 1)
         currentXStart = xSplitLine(i);
         currentXEnd = xSplitLine(i+1);
-        for j = 1:size(angles, 2)    
+        for j = 1:size(angles, 2)
             currentYStart = ySplitLine(j);
             currentYEnd = ySplitLine(j+1);
             currentAngles = angles{i, j};
@@ -37,6 +37,9 @@ function [printPlanGrid, normalVectors, surface] = plotPrintingSurface(angles, x
             zGrid{i + 1, j} = [currentXEnd, currentYStart, z2]; 
             zGrid{i    , j + 1} = [currentXStart, currentYEnd, z4]; 
             zGrid{i + 1, j + 1} = [currentXEnd, currentYEnd, z3]; 
+            if ~isempty(splitedStructures{i, 1}{j, 1})
+                plotCells{i, j} = [currentXStart, currentYStart, z1; currentXStart, currentYEnd, z4; currentXEnd, currentYEnd, z3; currentXEnd, currentYStart, z2];
+            end
         end
     end
     printPlanGrid = zGrid;
@@ -51,9 +54,24 @@ function [printPlanGrid, normalVectors, surface] = plotPrintingSurface(angles, x
             nodez(i, j) = zGrid{i, j}(3);
         end
     end
-    T = delaunay(nodex,nodey);
-    surface = triangulation(T,nodex(:),nodey(:),nodez(:));
+%     toBePlot = reshape(plotCells, [], 1);
+%     toBePlot = toBePlot(~cellfun('isempty', toBePlot));
+%     for i = 1:size(toBePlot, 1)
+%         T = delaunay(toBePlot{i, 1}(:, 1:2));
+%         surface = triangulation(T,toBePlot{i, 1});
+%         trisurf(surface, 'FaceAlpha',0.5, 'EdgeColor', 'none');
+%     end
+    T = delaunay(nodex, nodey);
+    surface = triangulation(T,nodex(:), nodey(:), nodez(:));
     trisurf(surface, 'FaceAlpha',0.5, 'EdgeColor', 'none');
+    
+%     outerBoarder = [xSplitLine(1), ySplitLine(1); xSplitLine(1), ySplitLine(end); xSplitLine(end),  ySplitLine(end); xSplitLine(end), ySplitLine(1)];
+%     innerBorder = reshape(plotCells, [], 1);
+%     innerBorder = innerBorder(~cellfun('isempty', innerBorder));
+%     primary = [reshape(nodex, [], 1), reshape(nodey, [], 1), reshape(nodez, [], 1)];
+%     secondary = [outerBoarder; innerBorder([19], 1)];
+%     [DT, xyz, ~] = delaunayConstrained(primary,secondary,'mesh');
+%     trisurf(DT.ConnectivityList(isInterior(DT),:),xyz(:,1),xyz(:,2),xyz(:,3), 'FaceAlpha',0.5, 'EdgeColor', 'none');
 %     surface = surf(nodex, nodey, nodez, 'FaceAlpha',0.5);
 %     surface.EdgeColor = 'none';
 end

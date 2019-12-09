@@ -8,10 +8,11 @@ classdef OptMemberMaster3D < OptObjectMaster
         areaVariable;
         tensionStressConstraints;
         compressionStressConstraints;
+        penalty = 0;
     end
     
     methods
-        function obj = OptMemberMaster3D(geoMember, sigmaT, sigmaC, jointLength)
+        function obj = OptMemberMaster3D(geoMember, sigmaT, sigmaC, jointLength, penalty)
             if nargin > 0
                 obj.geoMember = geoMember;
             end
@@ -21,8 +22,11 @@ classdef OptMemberMaster3D < OptObjectMaster
             if nargin > 2
                 obj.sigmaC = sigmaC;
             end
-            if nargin > 4
+            if nargin > 3
                 obj.jointLength = jointLength;
+            end
+            if nargin > 4
+                obj.penalty = penalty;
             end
         end
         
@@ -51,7 +55,7 @@ classdef OptMemberMaster3D < OptObjectMaster
         end
         
         function calcObjective(self, matrix)
-            matrix.objectiveFunction.addVariable(self.areaVariable, self.geoMember(9) + 2*self.jointLength);
+            matrix.objectiveFunction.addVariable(self.areaVariable, self.geoMember(9) + 2*self.jointLength + self.penalty);
         end    
         
         function [conNum, varNum, objVarNum] = getConAndVarNum(self)

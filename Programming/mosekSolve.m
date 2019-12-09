@@ -56,7 +56,7 @@ function [vars, result, dualValues] = mosekSolve(matrix, output)
     
     vars = res.sol.itr.xx;
     result = res.sol.itr.pobjval;
-    dualValues = res.sol.itr.slc - res.sol.itr.suc;
+    dualValues = res.sol.itr.y;
 end
 
 
