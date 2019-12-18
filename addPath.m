@@ -6,6 +6,8 @@ addpath('/home/ci1hlu/trussOpt2/trussOpt/Optimization/CellOptimization');
 addpath('/home/ci1hlu/trussOpt2/trussOpt/Optimization/ContinuumOptimization');
 addpath('/home/ci1hlu/trussOpt2/trussOpt/Optimization/HybridOptimization');
 addpath('/home/ci1hlu/trussOpt2/trussOpt/Optimization/TrussOptimization');
+addpath('/home/ci1hlu/trussOpt2/trussOpt/Optimization/BeamOptimization');
+addpath('/home/ci1hlu/trussOpt2/trussOpt/Optimization/Examples/BeamFormulation');
 addpath('/home/ci1hlu/trussOpt2/trussOpt/PhysicalCondition');
 addpath('/home/ci1hlu/trussOpt2/trussOpt/Programming');
 addpath('/home/ci1hlu/trussOpt2/trussOpt/tools');
