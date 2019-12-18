@@ -29,7 +29,7 @@ classdef OptBeamNodeSlave < OptObjectSlave
             end
             
             if (self.fixedMoment == 0)
-                self.momentConstraint = matrix.addConstraint(self.fixedMoment, self.fixedMoment, self.master.connectedMemberNum, 'equilibriumConstraintMoment');
+                self.momentConstraint = matrix.addConstraint(self.loadMoment, self.loadMoment, self.master.connectedMemberNum, 'equilibriumConstraintMoment');
             else
                 self.momentConstraint = -1;
             end

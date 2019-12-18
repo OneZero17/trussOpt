@@ -33,6 +33,24 @@ classdef GeoGroundStructure < handle
             self.nodeGrid = unique(self.nodeGrid, 'rows');
         end
         
+        function memberIndices = findMembersInRange(self, range)
+            nodesInRange = self.findNodesInRange(range);
+            memberIndices = zeros(size(self.memberList, 1), 1);
+            for i = 1 : size(self.memberList, 1)
+                currentMember = self.memberList(i, :);
+                node1InRange = sum(nodesInRange == currentMember(1));
+                node2InRange = sum(nodesInRange == currentMember(2));
+                if node1InRange==1 && node2InRange == 1
+                    memberIndices(i, 1) = 1;
+                end
+            end
+        end
+        
+        function nodesInRange = findNodesInRange(self, range)
+            nodeIndices = 1:size(self.nodes, 1);
+            nodesInRange = nodeIndices(self.nodeGrid(:, 1)>=range(1) & self.nodeGrid(:, 1)<=range(2) & self.nodeGrid(:, 2)>=range(3) & self.nodeGrid(:, 2)<=range(4));
+        end
+        
         function createCustomizedNodeGrid(self, xStart, yStart, xEnd, yEnd, xSpacing, ySpacing)
             xSpacingNumber = floor((xEnd-xStart)/xSpacing);
             ySpacingNumber = floor((yEnd-yStart)/ySpacing);
@@ -158,7 +176,10 @@ classdef GeoGroundStructure < handle
        end
        
                
-       function structure = createOptimizedStructureList(self)
+       function structure = createOptimizedStructureList(self, ratio)
+           if nargin < 2
+               ratio = 1/50;
+           end
            memberNum = size(self.members, 1);
            structure = zeros(memberNum, 5);
            addedMemberNo = 0;
@@ -168,7 +189,7 @@ classdef GeoGroundStructure < handle
            end
            for i = 1:size(self.members)
                coefficient = self.members{i,1}.area / maxArea;
-               if coefficient > 1 / 50
+               if coefficient > ratio
                    addedMemberNo = addedMemberNo + 1;
                    structure(addedMemberNo, :) = [self.members{i,1}.nodeA.x, self.members{i,1}.nodeA.y, self.members{i,1}.nodeB.x, self.members{i,1}.nodeB.y, self.members{i,1}.area];
                end

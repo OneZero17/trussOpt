@@ -19,21 +19,22 @@ function [vars, result, dualValues] = mosekSolve(matrix, output)
     end
     % All cones
     [FQ, gQ, cQ] = matrix.getCoefficientOfConicConstraints();
-    
-    [rcode, res] = mosekopt('symbcon echo(0)');
-    cQ = [res.symbcon.MSK_CT_QUAD*ones(size(cQ, 1), 1), cQ];
-    recQ = zeros(1, size(cQ, 1)*size(cQ, 2));
-    for i = 1:size(cQ)
-        recQ(i*2-1:i*2)=cQ(i,:);
-    end
-    if size(recQ, 2) > 0
-        if size(FQ,2) ~= size(prob.a,2)
-            prob.f = [FQ, zeros(size(FQ, 1), size(prob.a,2)-size(FQ,2))];
-        else
-            prob.f = FQ;
+    if ~isempty(FQ)
+        [rcode, res] = mosekopt('symbcon echo(0)');
+        cQ = [res.symbcon.MSK_CT_QUAD*ones(size(cQ, 1), 1), cQ];
+        recQ = zeros(1, size(cQ, 1)*size(cQ, 2));
+        for i = 1:size(cQ)
+            recQ(i*2-1:i*2)=cQ(i,:);
         end
-        prob.g = gQ;
-        prob.cones = recQ;
+        if size(recQ, 2) > 0
+            if size(FQ,2) ~= size(prob.a,2)
+                prob.f = [FQ, zeros(size(FQ, 1), size(prob.a,2)-size(FQ,2))];
+            else
+                prob.f = FQ;
+            end
+            prob.g = gQ;
+            prob.cones = recQ;
+        end
     end
     
     %prob = optimizeMatrix(prob);

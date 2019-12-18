@@ -6,10 +6,7 @@ classdef OptBeamProblem < OptProblem
         function obj = OptBeamProblem()
         end
         
-        function obj = createProblem(self, groundStructure, loadCases, supports, solverOptions)
-            if(nargin < 6)
-                jointLength = 0;
-            end
+        function obj = createProblem(self, groundStructure, loadCases, supports, solverOptions, preExistingBeam)
             
             self.optObjects = cell(self.estimateOptObjectNumber(groundStructure, loadCases), 1);
             self.solverOptions = solverOptions;
@@ -44,8 +41,21 @@ classdef OptBeamProblem < OptProblem
                 objectNum = objectNum+1;
             end
             
+            memberExisting = [];
+            if ~isempty(preExistingBeam) 
+                memberExisting = zeros(size(groundStructure.memberList, 1), size(preExistingBeam, 1));
+                for i = 1:size(preExistingBeam, 1)
+                    memberExisting(:, i) = groundStructure.findMembersInRange(preExistingBeam(i, 1:4));
+                end
+            end
+            
             for i = 1:size(groundStructure.memberList, 1)
-                self.optObjects{objectNum, 1} = OptBeamMemberMaster(groundStructure.memberList(i,:), solverOptions.sigmaT, solverOptions.jointLength, solverOptions.allowExistingBeamVolume>0);
+                minArea = 0;
+                if ~isempty(memberExisting) && sum(memberExisting(i, :))~=0
+                    minArea = preExistingBeam(find(memberExisting(i, :), 1, 'first'), 5);
+                end
+                
+                self.optObjects{objectNum, 1} = OptBeamMemberMaster(groundStructure.memberList(i,:), solverOptions.sigmaT, solverOptions.jointLength, solverOptions.allowExistingBeamVolume>0, minArea);
                 memberSlaves = cell(size(loadCases, 1), 1);
                 for j = 1:size(loadCases, 1)
                     memberSlaves{j, 1} = OptBeamMemberSlave(solverOptions.sectionModulus);
@@ -79,9 +89,21 @@ classdef OptBeamProblem < OptProblem
        function addBeamVolumeConstraint(self, matrix, allowExistingBeamVolume)
            optMembers = self.optObjects(cellfun('isclass', self.optObjects, 'OptBeamMemberMaster')); 
            memberNum = size(optMembers, 1);
-           beamVolumeConstraint = matrix.addConstraint(0, allowExistingBeamVolume, memberNum, 'beamVolumeConstraint');
+           beamVolumeConstraint = matrix.addConstraint(allowExistingBeamVolume, inf, memberNum, 'beamVolumeConstraint');
            for i = 1:memberNum
                beamVolumeConstraint.addVariable(optMembers{i, 1}.slaves{1, 1}.momentAreaVariable, 1);
+           end
+       end
+       
+       function updateSectionModulus(self)
+           optMembers = self.optObjects(cellfun('isclass', self.optObjects, 'OptBeamMemberMaster')); 
+           memberNum = size(optMembers, 1);
+           for i = 1:memberNum
+               currentBeamMaster = optMembers{i, 1};
+               for j = 1:size(currentBeamMaster.slaves)
+                   currentSlave = currentBeamMaster.slaves{j, 1};
+                   currentSlave.updateSectionModulus();
+               end
            end
        end
     end

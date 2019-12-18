@@ -23,6 +23,15 @@ classdef OptBeamMemberSlave < OptObjectSlave
             end
         end
         
+        function updateSectionModulus(self)
+            an = self.forceAreaVariable.value / 1e6;
+            am = self.momentAreaVariable.value / 1e6;
+            [z0, dzdan, dzdam] = calculateBeamAlphas(an, am, 'hollowSquare');
+            self.sectionModulus(1) = z0;
+            self.sectionModulus(2) = dzdan;
+            self.sectionModulus(3) = dzdam;
+        end
+        
         function [matrix, obj] = initialize(self, matrix)
             self.forceAreaVariable = matrix.addVariable(0, inf);
             self.momentAreaVariable = matrix.addVariable(0, inf);

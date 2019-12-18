@@ -7,10 +7,11 @@ classdef OptBeamMemberMaster < OptObjectMaster
         totalAreaVariable;
         totalAreaConstraints;
         preExistingBeamVolume = false;
+        minArea = 0;
     end
     
     methods
-        function obj = OptBeamMemberMaster(geoMember, sigma, jointLength, preExistingBeamVolume)
+        function obj = OptBeamMemberMaster(geoMember, sigma, jointLength, preExistingBeamVolume, minArea)
             if nargin > 0
                 obj.geoMember = geoMember;
             end
@@ -23,10 +24,13 @@ classdef OptBeamMemberMaster < OptObjectMaster
             if nargin > 3
                 obj.preExistingBeamVolume = preExistingBeamVolume;
             end
+            if nargin > 4
+                obj.minArea = minArea;
+            end
         end
         
         function [matrix, obj] = initialize(self, matrix)
-            self.totalAreaVariable = matrix.addVariable(0, inf);
+            self.totalAreaVariable = matrix.addVariable(self.minArea, inf);
             self.totalAreaConstraints = cell(size(self.slaves, 1), 1);
             for i = 1:size(self.slaves, 1)
                 self.totalAreaConstraints{i, 1} = matrix.addConstraint(0, inf, 3, 'totalAreaConstraint');
