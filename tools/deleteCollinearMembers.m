@@ -11,7 +11,10 @@ function newMemberList = deleteCollinearMembers(nodes, memberList)
         localMemberList = (1:size(currentMembers, 1))';
         if ~isempty(currentMembers)
             memberVectors = currentMembers(:, 6:8) - currentMembers(:, 3:5);
-            normalizedMemberVectors = memberVectors ./ vecnorm(memberVectors')';
+            normalizedMemberVectors = memberVectors;
+            for j = 1:size(memberVectors, 1)
+                normalizedMemberVectors(j, :) = normalizedMemberVectors(j, :) / norm(normalizedMemberVectors(j, :));
+            end
             sortedVectors = sortrows(normalizedMemberVectors);
             uniqueVectors = unique(sortedVectors, 'rows');
             toBeDeleteMemberCells = cell(size(uniqueVectors, 1), 1);
