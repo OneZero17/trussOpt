@@ -129,4 +129,4 @@ plotBeamStructure(groundStructure.memberList, beamSolution, 2, x, y, 1/1000, 1);
 % plotStructure(trussSolution, 1, x, y, true);
 max(beamSolution(:, 1))
 maximumSectionSize = sqrt(max(beamSolution(:, 1)/(0.19*pi)));
-fprintf("maximum section length is %.4f mm* %.4f mm\n",maximumSectionSize, maximumSectionSize)
+sprintf('maximum section length is %.4f mm* %.4f mm\n',maximumSectionSize, maximumSectionSize)
