@@ -20,10 +20,7 @@ switch caseNo
         loadcase1.loads = {load1};
         loadcases = {loadcase1};
 
-        supportNodes = unique([groundStructure.findNodesInRange([0, x, 0, 0]); 
-                           groundStructure.findNodesInRange([0, 0, 0, y]);
-                           groundStructure.findNodesInRange([x, x, 0, y]);
-                           groundStructure.findNodesInRange([0, x, y, y])]);
+        supportNodes = unique([groundStructure.findNodesInRange([0, x, 0, 0]);groundStructure.findNodesInRange([0, 0, 0, y]);groundStructure.findNodesInRange([x, x, 0, y]);groundStructure.findNodesInRange([0, x, y, y])]);
         supports = cell(size(supportNodes, 1), 1);
         for i = 1:size(supportNodes, 1)
             support = PhySupport(supportNodes(i, 1), 1, 1, 1);
