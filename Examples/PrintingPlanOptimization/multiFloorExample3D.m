@@ -1,5 +1,5 @@
 clear
-caseNo = 2;
+caseNo = 3;
 solverOptions = OptOptions();
 switch caseNo
     case 1
@@ -90,6 +90,37 @@ switch caseNo
     support3 = PhySupport3D(support3NodeIndex, 1, 1, 1);
     supports = {support1; support2; support3};  
     solverOptions.nodalSpacing = spacing * 1.75;
+    case 4
+    x=100; y=100; z=62.5;
+    startCoordinates = [0, 0, 0];
+    endCoordinates = [x, y, z];
+    spacing = 12.5;
+    groundStructure = GeoGroundStructure3D;
+    groundStructure.createCustomizedNodeGrid([0,0,0], [x, y, z], [spacing, spacing, spacing]);
+    groundStructure.createMembersFromNodes(); 
+    groundStructure.deleteNearHorizontalMembers(0);
+    groundStructure.members = deleteCollinearMembers(groundStructure.nodes, groundStructure.members);
+    loadcase1 = PhyLoadCase();
+    load1NodeIndex = groundStructure.findNodeIndex([x/2, y/2, 0]);
+    load1 = PhyLoad3D(load1NodeIndex, 0.0, 0.0, -20.0);
+    loadcase1.loads = {load1};
+
+    loadcase2 = PhyLoadCase();
+    load2NodeIndex = groundStructure.findNodeIndex([x/2, y/2, z]);
+    load2 = PhyLoad3D(load1NodeIndex, 5.0, 0.0, 0.0);
+    loadcase2.loads = {load2};
+    loadcases = {loadcase1};
+
+    support1NodeIndex = groundStructure.findNodeIndex([0, 0, 0]);
+    support2NodeIndex = groundStructure.findNodeIndex([x, y, 0]);
+    support3NodeIndex = groundStructure.findNodeIndex([x, 0, 0]);
+    support4NodeIndex = groundStructure.findNodeIndex([0, y, 0]);
+    support1 = PhySupport3D(support1NodeIndex, 1, 1, 1);
+    support2 = PhySupport3D(support2NodeIndex, 0, 0, 1);
+    support3 = PhySupport3D(support3NodeIndex, 0, 0, 1);
+    support4 = PhySupport3D(support4NodeIndex, 0, 0, 1);
+    supports = {support1; support2; support3; support4};
+    solverOptions.nodalSpacing = spacing * 1.75;    
 end
 
 [forceList, potentialMemberList, initialVolume] = memberAdding(groundStructure, loadcases, supports, solverOptions);
@@ -97,24 +128,33 @@ end
 %
 structure = groundStructure.createOptimizedStructureList(forceList);
 structure = mergeCollinear(structure);
-% plotStructure3D(structure, 1);
-%toRhino('rhinoFiles', 'truss', structure);
+plotStructure3D(structure, 1);
+toRhino('rhinoFiles', 'truss', structure);
 plotStructure3D(structure, 10);
 %
 shrinkLength = 0;
 structureTools = OptStructureTools;
 outputPath = '..\vtkPython\polydatas\';
+%%
 structureTools.outputStructureFiles(structure, outputPath)
 %%
 structureTools.outputConnectivity(structure, outputPath);
 %structure = structureTools.shrinkTwoEnds(structure, repmat(shrinkLength, size(structure, 1), 1));
 %% Building sectors
 checkingMaxAngle = 0.977;
-floorSpacing = 6.25;
+floorSpacing = 12.5;
 splineSpacing = 1;
 floorLineZ = 0:floorSpacing:z;
-splintLineX = startCoordinates(1):splineSpacing:endCoordinates(1);
-splintLineY = startCoordinates(2):splineSpacing:endCoordinates(2);
+boxStart = startCoordinates;
+boxStart(1) = boxStart(1) - 5;
+boxStart(2) = boxStart(2) - 5;
+boxEnd = endCoordinates;
+boxEnd(1) = boxEnd(1) + 5;
+boxEnd(2) = boxEnd(2) + 5;
+structureTools.outputLevelBoxes(floorLineZ, boxStart, boxEnd, '..\vtkPython\levelBoxes\');
+%%
+splintLineX = startCoordinates(1)-5:splineSpacing:endCoordinates(1)+5;
+splintLineY = startCoordinates(2)-5:splineSpacing:endCoordinates(2)+5;
 [cuttingSurfaces, splitedStructureEachFloor, anglesForEachFloor, printable, zGrids] = findPrintingPlan(structure, splintLineX, splintLineY, floorLineZ, checkingMaxAngle, false, [], floorSpacing);
 %%
 outputPath = '..\vtkPython\polydatas\';
@@ -134,56 +174,57 @@ end
 
 %%
 %for floorNum = 1 : size(membersInEachFloor, 1)
-membersInEachFloor = splitSector3DInZ(structure, floorLineZ);
+tempStructure = [structure, (1:size(structure, 1))'];
+membersInEachFloor = splitSector3DInZ(tempStructure, floorLineZ);
+
 for floorNum = 1 : size(membersInEachFloor, 1)
     %surfaceCurrent = cuttingSurfaces{floorNum, 1};
-    printSpacing = 0.5;
+    stlFileFolder = sprintf('..\\vtkPython\\booleanResults\\level%i\\', floorNum);
+    printSpacing = 0.25;
     figure(1)
     view([ 1 1 1]);
     axis equal
     hold on
-    [F,V] = stlread(sprintf('SplitedMeshes\\STLExport%i.stl', floorNum));
-    testSurface = triangulation(F, V);
-    %trisurf(testSurface, 'EdgeColor', 'none', 'FaceAlpha',0.2);
-    %trisurf(surfaceCurrent);
-    
+
+    %trisurf(surfaceCurrent);    
     structureSurfaceMin = min(testSurface.Points(:, 3));
     structureSurfaceMax = max(testSurface.Points(:, 3));
-    %divideNum = 1;
-    %divideSpacing = (floorSpacing + cuttingSurfaceGap) /divideNum;
     currentStructure = membersInEachFloor{floorNum, 1};
     currentZGrid = zGrids{floorNum, 1};
     
     for i = 1:size(currentStructure, 1)
+        memberFileName = [stlFileFolder, sprintf('cutCylinder%i.stl', currentStructure(i, end)-1)];
+        [F,V] = stlread(memberFileName);
+        memberBoundingBox = boundingBox3d(V);
+        %testSurface = triangulation(F, V);
+        %trisurf(testSurface, 'EdgeColor', 'none', 'FaceAlpha',0.2);
         currentMember = currentStructure(i, :);
         memberZmin = min(currentMember(3), currentMember(6))-2;
         memberZmax = max(currentMember(3), currentMember(6))+4;
-        plotStructure3D(currentMember, 10);
-        surfaceCurrent = getSurfaceForMember(currentMember, currentZGrid, splintLineX, splintLineY);
-        cuttingSurfaceMin = min(surfaceCurrent.Points(:, 3));
-        cuttingSurfaceMax = max(surfaceCurrent.Points(:, 3));
-        cuttingSurfaceGap = cuttingSurfaceMax - cuttingSurfaceMin;
+%         hold on
+%         axis equal
+%         plotStructure3D(currentMember, 10);
+        surfaceCurrent = getSurfaceForMember(memberBoundingBox, currentZGrid, splintLineX, splintLineY);
+%         trisurf(surfaceCurrent, 'EdgeColor', 'none', 'FaceAlpha',0.2);
+        %cuttingSurfaceMin = min(surfaceCurrent.Points(:, 3));
+        %cuttingSurfaceMax = max(surfaceCurrent.Points(:, 3));
+        [cuttingSurfaceMin, cuttingSurfaceMax] = getHeightBoundPointsInSurface(currentMember, currentZGrid, splintLineX, splintLineY);
+        cuttingSurfaceGap = abs(cuttingSurfaceMax - cuttingSurfaceMin);
         divideSpacing = memberZmax - memberZmin+ cuttingSurfaceGap;
-        
-        figure(2)
+
         hold on
         axis equal
         view([ 1 1 1]);
         surface1.vertices = V;
         surface1.faces = F;
         memberVector = currentMember([4, 5, 6]) - currentMember([1, 2, 3]);
-%         if memberVector(3)<0
-%             memberVector = -memberVector;
-%         end
-%         angle = angleBetweenVectors([0 0 1], memberVector);
-%         increasedDistance = divideSpacing / cos(angle);
         memberLength = norm(memberVector);
         increasedSpacingNumber = floor(memberLength/printSpacing);
         tempDivideSpacing = divideSpacing / increasedSpacingNumber;
         
         for printNum = 1:increasedSpacingNumber
             surface2.vertices = surfaceCurrent.Points;
-            surface2.vertices(:, 3) = surface2.vertices(:, 3) - (cuttingSurfaceMax - memberZmin) + tempDivideSpacing * (printNum-1);
+            surface2.vertices(:, 3) = surface2.vertices(:, 3) - (max(cuttingSurfaceMin, cuttingSurfaceMax) - memberZmin) + tempDivideSpacing * (printNum-1);
             surface2.faces = surfaceCurrent.ConnectivityList;
             [intersect12, Surf12] = SurfaceIntersection(surface1, surface2);
             S=Surf12; 
@@ -294,7 +335,7 @@ function [cuttingSurfaces,  splitedStructureEachFloor, anglesForEachFloor, print
             s.EdgeColor = 'none';
             s.FaceColor = [0.6 0.6 0.6];
             view([1 0.5 0.5])
-            textheight = floorLineZ(floorNum + 1) + (floorNum - 1) * floorGap - floorSpacing/2;
+%            textheight = floorLineZ(floorNum + 1) + (floorNum - 1) * floorGap - floorSpacing/2;
             %text(0, 150, textheight, sprintf('Level %i', floorNum),'Rotation',+15);
             plotStructure3D(currentFloor, 1);
 %             figure(2)
@@ -347,7 +388,7 @@ function [cuttingSurfaces,  splitedStructureEachFloor, anglesForEachFloor, print
             if ~isempty(unprintableMember)
                 printable = false;
             end
-%             plotStructure3D(unprintableMember, 1, [1 0 0])
+            plotStructure3D(unprintableMember, 1, [1 0 0])
             if reRunTurnedOn
                 membersInEachFloor{floorNum, 1} = membersInEachFloor{floorNum, 1}(memberExist==1, :);
             else

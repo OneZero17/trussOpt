@@ -14,7 +14,10 @@ function [memberExist, penaltyValue] = deleteMembersViolatePrintingPlan3D(member
         for j = 1 : ySplitNum
             currentAngles = zoneAngles{i, j};
             if isempty(currentAngles)
-                continue;
+                checkingAngle = 1.4835;
+                currentAngles = [pi/2, pi/2];
+            else
+                checkingAngle = nozzleMaxAngle;
             end
             currentNormal = [1 / tan(currentAngles(1)), 1 / tan(currentAngles(2)), 1];
             
@@ -35,8 +38,8 @@ function [memberExist, penaltyValue] = deleteMembersViolatePrintingPlan3D(member
                 intersectionAngles(k, 1) = atan2(norm(cross(currentNormal,currentMemberVector)),dot(currentNormal,currentMemberVector));
             end
             
-            toBeDeletedMembers1 = toBeCheckedMembers(intersectionAngles > nozzleMaxAngle, end);
-            angleViolation = intersectionAngles - nozzleMaxAngle;
+            toBeDeletedMembers1 = toBeCheckedMembers(intersectionAngles > checkingAngle, end);
+            angleViolation = intersectionAngles - checkingAngle;
             
             if ~isempty(toBeDeletedMembers1)
                 penaltyValue(toBeDeletedMembers1) = angleViolation(angleViolation>0);

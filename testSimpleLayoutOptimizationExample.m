@@ -36,5 +36,4 @@ function groundStructure = testSimpleLayoutOptimizationExample()
     trussProblem.feedBackResult(1);
     %groundStructure.plotMembers();
     structure = groundStructure.createOptimizedStructureList();
-    generatePrintPlan(structure, [0, 0; 10, 0], {1:0.1:18;1:0.1:17}, x, y);
 end

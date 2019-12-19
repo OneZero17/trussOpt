@@ -1,14 +1,5 @@
 function outputStructureFiles(self, structure, path)
     memberNum = size(structure, 1);
-    for i = 1 : memberNum
-        currentMember = structure(i, :);
-        currentCylinder = self.generateTriangulatedCylinder(currentMember, 1, 20);
-        pointsFileName = [path, '\cp', int2str(i)];
-        connectionsFileName = [path, '\cc', int2str(i)];
-        writematrix(currentCylinder.Points, pointsFileName, 'Delimiter', ',');
-        writematrix(currentCylinder.ConnectivityList - 1, connectionsFileName, 'Delimiter', ',');
-    end
-    
     [Cn, Nd] = self.generateCnAndNdList(structure);
     radius = sqrt(structure(:, 7) / pi);
     nodeRadiusList = zeros(size(Nd, 1), 1);
@@ -24,6 +15,21 @@ function outputStructureFiles(self, structure, path)
     
     nodesFileName = [path, '\sp'];
     writematrix([Nd, nodeRadiusList], nodesFileName, 'Delimiter', ',');
+
+    for i = 1 : memberNum
+        currentMember = structure(i, :);
+        shrinkLength1 = sqrt(nodeRadiusList(Cn(i, 1))^2 - radius(i, 1)^2);
+        currentMember = self.shrinkFirstEnd(currentMember, shrinkLength1);
+        shrinkLength2 = sqrt(nodeRadiusList(Cn(i, 2))^2 - radius(i, 1)^2);
+        currentMember = self.shrinkSecondEnd(currentMember, shrinkLength2);
+        currentMember(:, 7) = currentMember(:, 7) * 1.01;
+        currentCylinder = self.generateTriangulatedCylinder(currentMember, 1, 100);
+        pointsFileName = [path, '\cp', int2str(i)];
+        connectionsFileName = [path, '\cc', int2str(i)];
+        writematrix(round(currentCylinder.Points, 3), pointsFileName, 'Delimiter', ',');
+        writematrix(currentCylinder.ConnectivityList - 1, connectionsFileName, 'Delimiter', ',');
+    end
+    
 %     nodeNum = size(Nd, 1);
 %     for i = 1 : nodeNum
 %         currentSphere = self.generateTriangulatedSphere(Nd(i, :), nodeRadiusList(i));

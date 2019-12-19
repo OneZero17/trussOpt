@@ -13,6 +13,7 @@ function outputConnectivity(self, structure, path)
     
     nodeMemberList = zeros(nodeNum, maximumMemberPerNode);
     
+    
     for i = 1:nodeNum
         currentConnection = nodeConnectionList{i, 1};
         for j = 1:size(currentConnection, 2)
@@ -20,10 +21,27 @@ function outputConnectivity(self, structure, path)
         end
     end
     
+    memberAreaList = zeros(nodeNum, maximumMemberPerNode);
+    for i = 1:nodeNum
+        for j = 1:size(currentConnection, 2)
+            if nodeMemberList(i, j)== 0
+                memberAreaList(i, j) = -1;
+            else
+                memberAreaList(i, j) = Cn(nodeMemberList(i, j), 3);
+            end
+        end
+    end
+    
+    for i = 1:nodeNum
+        currentMatrix = [nodeMemberList(i, :); memberAreaList(i, :)]';
+        currentMatrix = sortrows(currentMatrix, 2, 'descend'); 
+        nodeMemberList(i, :) = currentMatrix(:, 1)';
+    end
+    
+    
     memberNodeFileName = [path, '\memberNode'];
     nodeMemberFileName = [path, '\nodeMember'];
     
     writematrix(Cn(:, [1 2]) - 1, memberNodeFileName, 'Delimiter', ',');
     writematrix(nodeMemberList - 1, nodeMemberFileName, 'Delimiter', ',');
 end
-

@@ -70,7 +70,7 @@ switch caseNo
         groundStructure = GeoGroundStructure;
         x=5;y=5;
         xSpacing = 0.5; ySpacing = 0.5;
-        spaceHeight = 0;
+        spaceHeight = 4;
 
         groundStructure.createCustomizedNodeGrid(0, spaceHeight, x, y, xSpacing, ySpacing);
         groundStructure.createMemberListFromNodeGrid();
@@ -115,7 +115,7 @@ switch caseNo
         support1 = PhySupport(support1NodeIndex, 1, 1, 1);
         support2 = PhySupport(support2NodeIndex, 1, 1, 1);
         supports = {support1; support2};
-        preExistingMembers = [0, x, y, y, 0];
+        preExistingMembers = [0, x, y, y, 1000];
 end
 
 solverOptions = OptOptions();
