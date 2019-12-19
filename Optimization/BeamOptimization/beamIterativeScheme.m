@@ -20,7 +20,7 @@ function beamSolution = beamIterativeScheme(groundStructure, loadcases, supports
         else
             beamProblem.updateSectionModulus();
         end
-        fprintf("new volume:%.4f, old volume:%.4f, difference:%.2f %%\n", newSolution, oldSolution, difference*100)
+        sprintf('new volume:%.4f, old volume:%.4f, difference:%.2f %%\n', newSolution, oldSolution, difference*100)
         oldSolution = newSolution;
     end
     
