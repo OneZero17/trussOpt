@@ -6,7 +6,10 @@ function plotBeamStructure(structure, areaAndForceList, figNum, xLimit, yLimit, 
     ylim([0 yLimit])
     
     memberVectors = structure(:, 5:6) - structure(:, 3:4);
-    memberLengths = vecnorm(memberVectors')';
+    memberLengths = zeros(size(memberVectors, 1), 1);
+    for i = 1:size(memberVectors, 1)
+        memberLengths(i) = norm(memberVectors(i, :));
+    end
     totalArea = areaAndForceList(:, 1);
     maximumArea = max(totalArea);
     for i = 1:size(areaAndForceList, 1)
