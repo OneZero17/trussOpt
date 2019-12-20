@@ -30,7 +30,7 @@ function  runBeamMomentLoadCaseOnIceBerg(sideLength, spacingNumber, momentLoad)
         beamSolution = beamIterativeScheme(groundStructure, loadcases, supports, solverOptions, 0.1, existingVolume, preExistingMembers);
         fileName = sprintf('Size_%i_Spacing_%i_Load_%i',sideLength, spacingNumber, momentLoad);
         plotBeamStructure(groundStructure.memberList, beamSolution, 2, x, y, 1/1000, 1, fileName);
-        save(['BeamResults/', fileName], 'beamSolution');
+        save(['BeamResults/', fileName], 'beamSolution', 'groundStructure', 'x', 'y');
         max(beamSolution(:, 1))
         maximumSectionSize = sqrt(max(beamSolution(:, 1)/(0.19*pi)));
         sprintf('maximum section length is %.4f mm* %.4f mm\n',maximumSectionSize, maximumSectionSize)
