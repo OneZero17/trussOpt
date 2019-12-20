@@ -30,7 +30,7 @@ function plotBeamStructure(structure, areaAndForceList, figNum, xLimit, yLimit, 
     end
     
     if nargin > 7
-        saveas(fig, ['BeamResults', filename])
+        saveas(fig, ['BeamResults/', filename])
         close(figNum)
     end
 end
