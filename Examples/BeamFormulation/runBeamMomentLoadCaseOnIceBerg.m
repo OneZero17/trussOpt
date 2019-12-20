@@ -3,7 +3,7 @@ function  runBeamMomentLoadCaseOnIceBerg(sideLength, spacingNumber, momentLoad)
         x = sideLength; y = sideLength;
         xSpacing = x/spacingNumber; ySpacing = y/spacingNumber;
 
-        groundStructure.createCustomizedNodeGrid(0, spaceHeight, x, y, xSpacing, ySpacing);
+        groundStructure.createCustomizedNodeGrid(0, 0, x, y, xSpacing, ySpacing);
         groundStructure.createMemberListFromNodeGrid();
         groundStructure.createNodesFromGrid();
         groundStructure.memberList = deleteCollinearMembers([groundStructure.nodeGrid, zeros(size(groundStructure.nodeGrid, 1), 1)], [groundStructure.memberList(:, 1:4), zeros(size(groundStructure.memberList, 1), 1), groundStructure.memberList(:, 5:6), zeros(size(groundStructure.memberList, 1), 1)]);
