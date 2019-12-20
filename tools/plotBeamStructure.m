@@ -1,5 +1,6 @@
-function plotBeamStructure(structure, areaAndForceList, figNum, xLimit, yLimit, plotLimit, scaleFactor)
-    figure(figNum);
+function plotBeamStructure(structure, areaAndForceList, figNum, xLimit, yLimit, plotLimit, scaleFactor, filename)
+    
+    fig = figure(figNum);
     hold on
     axis equal
     xlim([0 xLimit])
@@ -26,5 +27,10 @@ function plotBeamStructure(structure, areaAndForceList, figNum, xLimit, yLimit, 
                 fill (coordinates(1,:), coordinates(2,:), 'b', 'EdgeColor', 'none');
             end
         end
+    end
+    
+    if nargin > 7
+        saveas(fig,filename)
+        close(figNum)
     end
 end
