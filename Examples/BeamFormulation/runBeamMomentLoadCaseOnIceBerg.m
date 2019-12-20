@@ -1,5 +1,4 @@
 function  runBeamMomentLoadCaseOnIceBerg(sideLength, spacingNumber, momentLoad)
-        addPath
         groundStructure = GeoGroundStructure;
         x = sideLength; y = sideLength;
         xSpacing = x/spacingNumber; ySpacing = y/spacingNumber;
