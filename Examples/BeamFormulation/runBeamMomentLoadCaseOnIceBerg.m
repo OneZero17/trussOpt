@@ -12,7 +12,7 @@ function  runBeamMomentLoadCaseOnIceBerg(sideLength, spacingNumber, momentLoad)
 
         loadcase1 = PhyLoadCase();
         load1NodeIndex = groundStructure.findOrAppendNode(x/2, y/2);
-        load1 = PhyLoad(load1NodeIndex, 0, 0, momentLoad*1e4);
+        load1 = PhyLoad(load1NodeIndex, 0, 0, momentLoad*1e3);
         loadcase1.loads = {load1};
         loadcases = {loadcase1};
 
