@@ -1,4 +1,8 @@
-function splitedMembers = splitSector3DInX(members, splitLine)
+function splitedMembers = splitSector3DInX(inputMembers, splitLine)
+
+    members = inputMembers(~(inputMembers(:, 1)==inputMembers(:, 4) & inputMembers(:, 2)==inputMembers(:, 5)), :);
+    verticalMembers = inputMembers(inputMembers(:, 1)==inputMembers(:, 4) & inputMembers(:, 2)==inputMembers(:, 5), :);
+    
     memberNum = size(members, 1);
     sectorNum = size(splitLine, 2) - 1;
     tempMembers = members;
@@ -57,6 +61,15 @@ function splitedMembers = splitSector3DInX(members, splitLine)
         tempSplitedMembers(addedNum + toBeAddedNum:end, :) = [];
         tempMembers = [tempMembers; newMembers];
         splitedMembers{i, 1} = tempSplitedMembers;
+    end
+    
+    for i = 1:sectorNum
+        sectorStart = splitLine(i);
+        sectorEnd = splitLine(i + 1); 
+        fullyWithinMembers = verticalMembers(verticalMembers(:, 1)>=sectorStart & verticalMembers(:, 1)<=sectorEnd & verticalMembers(:, 4)<=sectorEnd & verticalMembers(:, 4)>=sectorStart, :);
+        if ~isempty(fullyWithinMembers)
+            splitedMembers{i, 1} = [splitedMembers{i, 1}; fullyWithinMembers];
+        end
     end
 end
 

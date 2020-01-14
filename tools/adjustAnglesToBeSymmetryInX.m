@@ -6,8 +6,10 @@ function angles = adjustAnglesToBeSymmetryInX(angles)
         end
     end
     
-    for j = 1:size(angles, 2)
-        angles{ceil(size(angles, 1)/2), j}(1) = pi/2;
+    if mod(size(angles, 1), 2) == 1
+        for j = 1:size(angles, 2)
+            angles{ceil(size(angles, 1)/2), j}(1) = pi/2;
+        end
     end
 end
 

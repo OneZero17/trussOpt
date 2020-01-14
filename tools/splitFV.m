@@ -45,7 +45,7 @@ currentSet = 0;
 
 while any(fSets==0)
     currentSet = currentSet + 1;
-    fprintf('Connecting set #%d vertices...',currentSet);
+    %fprintf('Connecting set #%d vertices...',currentSet);
     nextAvailFace = find(fSets==0,1,'first');
     openVertices = f(nextAvailFace,:);
     while ~isempty(openVertices)
@@ -54,7 +54,7 @@ while any(fSets==0)
         fSets(availFaceInds(availFaceSub)) = currentSet;
         openVertices = f(availFaceInds(availFaceSub),:);
     end
-    fprintf(' done! Set #%d has %d faces.\n',currentSet,nnz(fSets==currentSet));
+    %fprintf(' done! Set #%d has %d faces.\n',currentSet,nnz(fSets==currentSet));
 end
 numSets = currentSet;
 

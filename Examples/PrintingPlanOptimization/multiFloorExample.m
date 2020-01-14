@@ -1,6 +1,6 @@
 clear
 groundStructure = GeoGroundStructure;
-x=10;y=10;
+x=18;y=4;
 xSpacing = 1; ySpacing = 1;
 nozzleMaxAngle = 0.9773884;
 %nozzleMaxAngle = 0.80;
@@ -14,7 +14,7 @@ loadcase.loads = {load1};
 loadcases = {loadcase};
 
 support1NodeIndex = groundStructure.findOrAppendNode(0, 0);
-support2NodeIndex = groundStructure.findOrAppendNode(10, 0);
+support2NodeIndex = groundStructure.findOrAppendNode(x, 0);
 support1 = PhySupport(support1NodeIndex, 1, 1);
 support2 = PhySupport(support2NodeIndex, 0, 1);
 supports = {support1; support2};
@@ -36,7 +36,7 @@ groundStructure.plotMembers('blackAndWhite', true);
 %% Print Plan optimization
 structure = groundStructure.createOptimizedStructureList();
 maxTurnAngle = 0.6;
-splitedFloors = 0:2:y;
+splitedFloors = 0:1:y;
 splitedMembers = splitFloors(structure, splitedFloors);
 floorAngles = cell(size(splitedFloors, 2)-1, 1);
 splitedZones = 0:xSpacing:x;

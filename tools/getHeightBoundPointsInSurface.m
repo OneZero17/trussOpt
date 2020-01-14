@@ -1,13 +1,15 @@
-function [lowerBound, upperBound] = getHeightBoundPointsInSurface(member, zGrid, splintLineX, splintLineY)
-   if  member(3) <= member(6) 
-       point1 = member(1:3);
-       point2 = member(4:6);
-   else
-       point1 = member(4:6);
-       point2 = member(1:3);       
-   end
+function [lowerBound, upperBound] = getHeightBoundPointsInSurface(box, zGrid, splintLineX, splintLineY)
+   point1 = box([1 3 5]);
+   point2 = box([2 4 6]);
+%    if member(3) <= member(6)
+%        point1 = member(1:3);
+%        point2 = member(4:6);
+%    else
+%        point1 = member(4:6);
+%        point2 = member(1:3);      
+%    end
 
-   
+
    for i = 1:size(splintLineX, 2)-1
        if splintLineX(i+1)>= point1(1) && splintLineX(i)<= point1(1)
            point1xLocation = i;
