@@ -1,5 +1,12 @@
 function outputLevelBoxes(self, structure, zSplitLine, startingPoint, EndPoint, path)
-radius = sqrt(structure(:, 7) / pi) ;
+radius = sqrt(abs(structure(:, 7) / pi));
+
+designDomainStartPoint = [-30 -30 -1]
+designDomainEndPoint = [80 180 80]
+[F, V] = generateCuboid(designDomainStartPoint, designDomainEndPoint);
+fileName = [path, sprintf('designDomainBox.stl')];
+stlwrite(fileName, F, V);
+
 for memberNum = 1:size(structure, 1)
     currentMember = structure(memberNum, :);
     

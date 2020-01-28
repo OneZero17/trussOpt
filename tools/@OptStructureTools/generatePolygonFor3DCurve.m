@@ -16,7 +16,7 @@ function polygon = generatePolygonFor3DCurve(self, curve)
         end
     end
     tempEdges(toBeRemove==1, :) = [];
-    
+    tempEdges = unique(tempEdges, 'rows');
     if ~isempty(tempEdges)
         while keepRunning
             nextOne = tempEdges(tempEdges(:, 1) == currentBegin, 2);

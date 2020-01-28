@@ -1,8 +1,9 @@
-function [customizedSurface, zGrid] = getCustomizedZGridForMember(currentMember, memberBoundingBox, splintLineX, splintLineY, angles)
+function [customizedSurface, zGrid, calibrationPoint, angleMatrix] = getCustomizedZGridForMember(currentMember, memberBoundingBox, splintLineX, splintLineY, angles)
     memberMinX = min([currentMember(1); currentMember(4)]);
     memberMaxX = max([currentMember(1); currentMember(4)]);
     memberMinY = min([currentMember(2); currentMember(5)]);
     memberMaxY = max([currentMember(2); currentMember(5)]);
+    calibrationPoint = [(memberMinX + memberMaxX)/2, (memberMinY + memberMaxY)/2];
     indicesForMember = getIndicesInSplitLinesWithoutBound([memberMinX, memberMaxX, memberMinY, memberMaxY], splintLineX, splintLineY);
     indicesForBoundingBox = getIndicesInSplitLinesWithBound(memberBoundingBox, splintLineX, splintLineY);
         
@@ -19,37 +20,37 @@ function [customizedSurface, zGrid] = getCustomizedZGridForMember(currentMember,
     expandNumInXStart = max(indicesForMember(3) - indicesForBoundingBox(3), 0);
     expandNumInXEnd = max(indicesForBoundingBox(4) - indicesForMember(4), 0);
     
-    initialMatrix = angles(indicesForMember(1):indicesForMember(2)-1, indicesForMember(3):indicesForMember(4)-1);
-    expandInXStart = cell(size(initialMatrix, 1), expandNumInXStart);
+    angleMatrix = angles(indicesForMember(1):indicesForMember(2) - 1, indicesForMember(3):indicesForMember(4)-1);
+    expandInXStart = cell(size(angleMatrix, 1), expandNumInXStart);
     for i = 1:expandNumInXStart
-        expandInXStart(:, i) = initialMatrix(:, 1);
+        expandInXStart(:, i) = angleMatrix(:, 1);
     end
-    initialMatrix = [expandInXStart, initialMatrix];
+    angleMatrix = [expandInXStart, angleMatrix];
     
-    expandInXEnd = cell(size(initialMatrix, 1), expandNumInXEnd);
+    expandInXEnd = cell(size(angleMatrix, 1), expandNumInXEnd);
     for i = 1:expandNumInXEnd
-        expandInXEnd(:, i) = initialMatrix(:, end);
+        expandInXEnd(:, i) = angleMatrix(:, end);
     end
-    initialMatrix = [initialMatrix, expandInXEnd];
+    angleMatrix = [angleMatrix, expandInXEnd];
     
-    expandInYStart = cell(expandNumInYStart, size(initialMatrix, 2));
+    expandInYStart = cell(expandNumInYStart, size(angleMatrix, 2));
     for i = 1:expandNumInYStart
-        expandInYStart(i, :) = initialMatrix(1, :);
+        expandInYStart(i, :) = angleMatrix(1, :);
     end
-    initialMatrix = [expandInYStart; initialMatrix];
+    angleMatrix = [expandInYStart; angleMatrix];
     
-    expandInYEnd = cell(expandNumInYEnd, size(initialMatrix, 2));
+    expandInYEnd = cell(expandNumInYEnd, size(angleMatrix, 2));
     for i = 1:expandNumInYEnd
-        expandInYEnd(i, :) = initialMatrix(end, :);
+        expandInYEnd(i, :) = angleMatrix(end, :);
     end
-   initialMatrix = [initialMatrix; expandInYEnd];
+   angleMatrix = [angleMatrix; expandInYEnd];
 %     zGrid = calculateZGridBasedOnAngles(initialMatrix, splintLineX(indicesForMember(1):indicesForMember(2)), splintLineY(indicesForMember(3):indicesForMember(4)));
-    zGrid = calculateZGridBasedOnAngles(initialMatrix, splintLineX(min(indicesForMember(1), indicesForBoundingBox(1)):max(indicesForMember(2), indicesForBoundingBox(2)))...
+    zGrid = calculateZGridBasedOnAngles(angleMatrix, splintLineX(min(indicesForMember(1), indicesForBoundingBox(1)):max(indicesForMember(2), indicesForBoundingBox(2)))...
                                                     , splintLineY(min(indicesForMember(3), indicesForBoundingBox(3)):max(indicesForMember(4), indicesForBoundingBox(4))));
     
-    nodex = zeros(size(initialMatrix, 1)+1, size(initialMatrix, 2)+1);
-    nodey = zeros(size(initialMatrix, 1)+1, size(initialMatrix, 2)+1);
-    nodez = zeros(size(initialMatrix, 1)+1, size(initialMatrix, 2)+1);
+    nodex = zeros(size(angleMatrix, 1)+1, size(angleMatrix, 2)+1);
+    nodey = zeros(size(angleMatrix, 1)+1, size(angleMatrix, 2)+1);
+    nodez = zeros(size(angleMatrix, 1)+1, size(angleMatrix, 2)+1);
     for i = 1:size(zGrid, 1)
         for j = 1:size(zGrid, 2)
             nodex(i, j) = zGrid{i, j}(1);

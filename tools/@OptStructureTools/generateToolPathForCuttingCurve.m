@@ -31,9 +31,10 @@ function curvePaths = generateToolPathForCuttingCurve(self, curve, surface, vert
     end
     
     curves = splitFV(curve.faces, curve.vertices);
+    
     curvePaths = [];
     for curveNum = 1:size(curves, 1)
-        toolPaths = self.infillPolygonWithToolPaths(curves(curveNum), toolPathes);
+        [toolPaths, polygonPath] = self.infillPolygonWithToolPaths(curves(curveNum), toolPathes);
         threeDToolPaths = cell(size(toolPaths, 1), 1);
 
         for i = 1:size(toolPaths, 1)
@@ -41,8 +42,9 @@ function curvePaths = generateToolPathForCuttingCurve(self, curve, surface, vert
             threeDToolPaths{i, 1} = self.transform2Dto3DToolPath(toolPaths{i, 1}, surface);
             end
         end
+        
         threeDToolPaths = threeDToolPaths(~cellfun('isempty',threeDToolPaths));
-        curvePaths = [curvePaths; threeDToolPaths];
+        curvePaths = [curvePaths; threeDToolPaths; polygonPath];
     end
     
 

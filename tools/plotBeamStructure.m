@@ -1,11 +1,11 @@
-function plotBeamStructure(structure, areaAndForceList, figNum, xLimit, yLimit, plotLimit, scaleFactor, filename)
+function existList = plotBeamStructure(structure, areaAndForceList, figNum, xLimit, yLimit, plotLimit, scaleFactor, filename)
     
     fig = figure(figNum);
     hold on
     axis equal
     xlim([0 xLimit])
     ylim([0 yLimit])
-    
+    existList = zeros(size(structure, 1), 1);
     memberVectors = structure(:, 5:6) - structure(:, 3:4);
     memberLengths = zeros(size(memberVectors, 1), 1);
     for i = 1:size(memberVectors, 1)
@@ -14,6 +14,7 @@ function plotBeamStructure(structure, areaAndForceList, figNum, xLimit, yLimit, 
     totalArea = areaAndForceList(:, 1);
     maximumArea = max(totalArea);
     for i = 1:size(areaAndForceList, 1)
+        existList(i, 1) = 1;
         coefficient = areaAndForceList(i, 1) / maximumArea;
         if coefficient > plotLimit
             coordinates = getLineCornerCoordinates([structure(i, [3 5]); structure(i, [4 6])], memberLengths(i, 1), scaleFactor * sqrt(totalArea(i, 1)/(0.19 * pi))/1000);

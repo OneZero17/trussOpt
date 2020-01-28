@@ -16,6 +16,10 @@ classdef PPFacet < OptObject
         yAngleConstraints2
         useCosAngleValue
         knownAngleValue = [];
+        xVerticalVariable
+        yVerticalVariable
+        xVerticalConstraint
+        yVerticalConstraint
     end
     
     methods
@@ -76,6 +80,10 @@ classdef PPFacet < OptObject
                 end
             end
             obj = self;
+            self.xVerticalConstraint = matrix.addConicConstraint(1);
+            self.yVerticalConstraint = matrix.addConicConstraint(1);
+            self.xVerticalVariable = matrix.addVariable(0, inf);
+            self.yVerticalVariable = matrix.addVariable(0, inf);
         end
         
         function [matrix] = calcConstraint(self, matrix)
@@ -146,6 +154,18 @@ classdef PPFacet < OptObject
                     self.yAngleConstraints2{i, 1}.addLHSCone(YlhsCone2);
                 end
             end  
+            
+            xVerticalConeRHS = ProgCone(1, self.xVerticalVariable, 1);
+            xVerticalConeLHS = ProgCone(1, self.xAngleVariable, 1);
+            xVerticalConeLHS.addConstant(-pi/2);
+            self.xVerticalConstraint.addRHSCone(xVerticalConeRHS);
+            self.xVerticalConstraint.addLHSCone(xVerticalConeLHS);
+            
+            yVerticalConeRHS = ProgCone(1, self.yVerticalVariable, 1);
+            yVerticalConeLHS = ProgCone(1, self.yAngleVariable, 1);
+            yVerticalConeLHS.addConstant(-pi/2);
+            self.yVerticalConstraint.addRHSCone(yVerticalConeRHS);
+            self.yVerticalConstraint.addLHSCone(yVerticalConeLHS);
         end
         
        function calcObjective(self, matrix)
@@ -160,13 +180,15 @@ classdef PPFacet < OptObject
                     matrix.objectiveFunction.addVariable(self.yDiffVariables2{i, 1}, 1);      
                 end
             end
+            matrix.objectiveFunction.addVariable(self.xVerticalVariable, 0.5);
+            matrix.objectiveFunction.addVariable(self.yVerticalVariable, 0.5);
        end
         
        function [conNum, varNum, objVarNum] = getConAndVarNum(self)
             memberNum = size(self.angles, 1);
-            conNum = 4*memberNum;
-            varNum = 4*memberNum + 2;
-            objVarNum = 4*memberNum;
+            conNum = 4*memberNum + 2;
+            varNum = 4*memberNum + 4;
+            objVarNum = 4*memberNum + 2;
         end
         
     end

@@ -6,6 +6,9 @@ spacing = 25;
 solverOptions = OptOptions();
 solverOptions.nodalSpacing = spacing * 1.75;
 groundStructure.createCustomizedNodeGrid([0,0,0], [x, y, z], [spacing, spacing, spacing]);
+groundStructure.createMembersFromNodes();
+groundStructure.members = deleteCollinearMembers(groundStructure.nodes, groundStructure.members);
+groundStructure.deleteNearHorizontalMembers(0);
 
 loadcase = PhyLoadCase();
 load1NodeIndex = groundStructure.findNodeIndex([x/2, y, z]);
@@ -24,9 +27,9 @@ support3 = PhySupport3D(support3NodeIndex);
 support4 = PhySupport3D(support4NodeIndex);
 supports = {support1; support2; support3; support4};
  
-groundStructure.createMembersFromNodes();
-
 [forceList, potentialMemberList] = memberAdding(groundStructure, loadcases, supports, solverOptions);
+structure = groundStructure.createOptimizedStructureList(forceList);
+plotStructure3D(structure, 10);
 %groundStructure.plotMembers(forceList);
 
 %% Building sectors

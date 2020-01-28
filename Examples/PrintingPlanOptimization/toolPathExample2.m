@@ -1,156 +1,106 @@
 clear
-solverOptions = OptOptions();
-x=50; y=150; z=50;
-startCoordinates = [0, 0, 0];
-endCoordinates = [x, y, z];
-spacing = 12.5;   
 groundStructure = GeoGroundStructure3D;
+x=100; y=100; z=250;
+spacing = 25;
+%nozzleMaxAngle = 0.9773884;
+solverOptions = OptOptions();
+solverOptions.nodalSpacing = spacing * 1.75;
 groundStructure.createCustomizedNodeGrid([0,0,0], [x, y, z], [spacing, spacing, spacing]);
 groundStructure.createMembersFromNodes();
 groundStructure.members = deleteCollinearMembers(groundStructure.nodes, groundStructure.members);
-groundStructure.deleteNearHorizontalMembers(0);
-%   groundStructure.deleteHorizontalMembers();
-loadcase1 = PhyLoadCase();
-load1NodeIndex = groundStructure.findNodeIndex([x/2, y, 0]);
-load1 = PhyLoad3D(load1NodeIndex, 0.0, 00.0, -20.0);
-loadcase1.loads = {load1};    
+%groundStructure.deleteNearHorizontalMembers(0);
 
-loadcases = {loadcase1};
-support1NodeIndex = groundStructure.findNodeIndex([x/2, 0, 0]);
-support2NodeIndex = groundStructure.findNodeIndex([0, 50, 0]);
-support3NodeIndex = groundStructure.findNodeIndex([x, 50, 0]);
-support1 = PhySupport3D(support1NodeIndex, 1, 1, 1);
-support2 = PhySupport3D(support2NodeIndex, 1, 1, 1);
-support3 = PhySupport3D(support3NodeIndex, 1, 1, 1);
-supports = {support1; support2; support3};  
-solverOptions.nodalSpacing = spacing * 1.75; 
-
+loadcase = PhyLoadCase();
+load1NodeIndex = groundStructure.findNodeIndex([x/2, y, z]);
+load1 = PhyLoad3D(load1NodeIndex, 0.0, 5.0, 0.0);
+% %load2 = PhyLoad(load2NodeIndex, 0.1, 0);
+loadcase.loads = {load1};
+loadcases = {loadcase};
+ 
+support1NodeIndex = groundStructure.findNodeIndex([0, 0, 0]);
+support2NodeIndex = groundStructure.findNodeIndex([x, y, 0]);
+support3NodeIndex = groundStructure.findNodeIndex([x, 0, 0]);
+support4NodeIndex = groundStructure.findNodeIndex([0, y, 0]);
+support1 = PhySupport3D(support1NodeIndex);
+support2 = PhySupport3D(support2NodeIndex);
+support3 = PhySupport3D(support3NodeIndex);
+support4 = PhySupport3D(support4NodeIndex);
+supports = {support1; support2; support3; support4};
+ 
 [forceList, potentialMemberList, initialVolume] = memberAdding(groundStructure, loadcases, supports, solverOptions);
-%groundStructure.plotMembers(forceList);
-%
 structure = groundStructure.createOptimizedStructureList(forceList);
-structure = mergeCollinear(structure);
-tempStructure = structure;
-tempStructure(:, 2) = structure(:, 3);
-tempStructure(:, 3) = structure(:, 2);
-tempStructure(:, 5) = structure(:, 6);
-tempStructure(:, 6) = structure(:, 5);
-structure = tempStructure;
 plotStructure3D(structure, 10);
+%groundStructure.plotMembers(forceList);
 
-x=50; y=50; z=150;
+%% Building sectors
 startCoordinates = [0, 0, 0];
 endCoordinates = [x, y, z];
-%plotStructure3D(structure, 1);
-%toRhino('rhinoFiles', 'truss', structure);
-%plotStructure3D(structure, 10);
-%
-%shrinkLength = 0;
-structureTools = OptStructureTools;
-outputPath = '..\vtkPython\polydatas\';
-
-%%
-structure = rotateStructureInYZPlane(structure,0.1745, [25, 0, 0]);
-plotStructure3D(structure, 10);
-%%
-structureTools.outputStructureFiles(structure, outputPath)
-%%
-structureTools.outputConnectivity(structure, outputPath);
-%% Building sectors
 checkingMaxAngle = 0.977;
 floorSpacing = 6.25;
 splineSpacing = 5;
 %floorLineZ = 0:floorSpacing:z;
-floorLineZ = unique([structure(:, 3); structure(:, 6)])';
+%floorLineZ = unique([structure(:, 3); structure(:, 6)])';
+floorLineZ = [0,250]
 boxStart = startCoordinates;
 boxStart(1) = boxStart(1) - 5;
 boxStart(2) = boxStart(2) - 5;
 boxEnd = endCoordinates;
 boxEnd(1) = boxEnd(1) + 5;
 boxEnd(2) = boxEnd(2) + 5;
-structureTools.outputLevelBoxes(structure, floorLineZ, boxStart, boxEnd, '..\vtkPython\levelBoxes\');
-%%
-splintLineX = startCoordinates(1)-5:splineSpacing:endCoordinates(1)+5;
-splintLineY = startCoordinates(2)-40:splineSpacing:endCoordinates(2)+5;
+%structureTools.outputLevelBoxes(structure, floorLineZ, boxStart, boxEnd, '..\vtkPython\levelBoxes\');
+
 [cuttingSurfaces, splitedStructureEachFloor, anglesForEachFloor, printable, zGrids] = findPrintingPlan(structure, splintLineX, splintLineY, floorLineZ, checkingMaxAngle, false, [], floorSpacing);
 
-%% cutSupports
-totalSupportNum = 4;
-figure(1)
-view([ 1 1 1]);
-axis equal
-hold on
-printSpacing = 0.5;
-toolPathSpacing = 0.1;
-for supportNum = 1:totalSupportNum
-    currentSupportFile = sprintf('..\\vtkPython\\additionalSupports\\support%i.stl', supportNum);
-    [F,V] = stlread(currentSupportFile);
-    supportBox = boundingBox3d(V);
-    [surfaceCurrent, surfaceCoordinates] = getHorizontalCuttingSurfaceForComponents(supportBox, splineSpacing);
-    surfaceZLevel = structureTools.getZCoordinateOnSurface(supportBox(1), supportBox(3), surfaceCoordinates);
-    cuttingNum = ceil((supportBox(6) - supportBox(5)) / printSpacing);
-    surface1.vertices = V;
-    surface1.faces = F;
-%     figure(3)
-%     axis equal 
-%     hold on
-%     surfacePlot = triangulation(surface1.faces, surface1.vertices);
-%     trisurf(surfacePlot, 'EdgeColor', 'r', 'FaceColor', 'r');
-%     view([ 1 1 1]);
+%% Delete violating members in potential member list
+checkingMaxAngle = 0.977;
+[newStructure, newGroundStructure] = reoptimization(groundStructure.nodes, potentialMemberList, loadcases, supports, solverOptions, splintLineX, splintLineY, floorLineZ, anglesForEachFloor, initialVolume, checkingMaxAngle);
 
-    for i = 0:cuttingNum*1.5
-        verticalShift = supportBox(5) - surfaceZLevel + i * printSpacing-0.001;
-        surface2.vertices = surfaceCurrent.Points;
-        surface2.vertices(:, 3) = surface2.vertices(:, 3) + verticalShift;
-        surface2.faces = surfaceCurrent.ConnectivityList;
-%         figure(3)
-%         surfacePlot = triangulation(surface2.faces, surface2.vertices);
-%         trisurf(surfacePlot, 'EdgeColor', 'none', 'FaceAlpha',0.2);
-%         view([ 1 1 1]);
-        [intersect12, S] = SurfaceIntersection(surface1, surface2);
-       
-        if isempty(S.faces) 
-            continue;
-        end
-        
-        figure(1)
-        trisurf(S.faces, S.vertices(:,1),S.vertices(:,2),S.vertices(:,3),'EdgeColor', 'r', 'FaceColor', 'r');
-        toolPathes = structureTools.generateToolPathForCuttingCurve(S, surfaceCoordinates, verticalShift, toolPathSpacing);
-%         nozzleDirections = cell(size(toolPathes, 1), 1);
-%         for pathNum = 1:size(toolPathes, 1)
-%             currectNozzleDirection = zeros(size(toolPathes{pathNum, 1}, 1), 3);
-%             for segmentNum = 1:size(toolPathes{pathNum, 1}, 1)
-%                 nozzleDirection = [0 0 1];
-%                 currectNozzleDirection(segmentNum, :) = nozzleDirection;
-%                 plot3(toolPathes{pathNum, 1}(segmentNum, [1 4]), toolPathes{pathNum, 1}(segmentNum, [2 5]), toolPathes{pathNum, 1}(segmentNum, [3 6]), '-g');
-%                 middlePoint = (toolPathes{pathNum, 1}(segmentNum, 1:3) + toolPathes{pathNum, 1}(segmentNum, 4:6))/2;
-%                 endPoint = middlePoint + nozzleDirection*0.5;
-%                 
-%                 %plot3([middlePoint(1), endPoint(1)], [middlePoint(2), endPoint(2)], [middlePoint(3), endPoint(3)], '-b');
-%             end
-%             nozzleDirections{pathNum, 1} = currectNozzleDirection;
-%         end
-    end
-end
 %%
-tempStructure = [structure, (1:size(structure, 1))'];
+structureTools = OptStructureTools;
+floorLineZ = unique([newStructure(:, 3); newStructure(:, 6)])';
+boxStart = startCoordinates;
+boxStart(1) = boxStart(1) - 20;
+boxStart(2) = boxStart(2) - 20;
+boxEnd = endCoordinates;
+boxEnd(1) = boxEnd(1) + 20;
+boxEnd(2) = boxEnd(2) + 20;
+tempStructure = newStructure;
+tempStructure(:, end) = abs(tempStructure(:, end) * 50);
+structureTools.outputLevelBoxes(tempStructure, floorLineZ, boxStart, boxEnd, '..\vtkPython\levelBoxes\');
+
+%% floorLineZ = [0,200/3,100,125,225,250]
+splintLineX = startCoordinates(1)-10:splineSpacing:endCoordinates(1)+20;
+splintLineY = startCoordinates(2)-10:splineSpacing:endCoordinates(2)+20;
+[cuttingSurfaces, splitedStructureEachFloor, anglesForEachFloor, printable, zGrids] = findPrintingPlan(newStructure, splintLineX, splintLineY, floorLineZ, checkingMaxAngle, false, [], floorSpacing);
+
+%%
+newStructure(4, end) = newStructure(4, end) * 20;
+newStructure(8, end) = newStructure(8, end) * 20;
+outputPath = '..\vtkPython\polydatas\';
+structureTools = OptStructureTools;
+outputStructure = newStructure;
+outputStructure(:, end) = abs(newStructure(:, end) * 50);
+structureTools.outputStructureFiles(outputStructure, outputPath);
+structureTools.outputConnectivity(outputStructure, outputPath);
+%%
+tempStructure = [newStructure, (1:size(newStructure, 1))'];
 membersInEachFloor = splitSector3DInZ(tempStructure, floorLineZ);
-printSpacing = 1.5;
-levelSpacing = 5.0;
+printSpacing = 1.3;
+levelSpacing = 2.5;
 maximumOverhangAngle = 0.262;
 totalPieces = cell(1, 1);
 addedPieceNum = 1;
 maximumOverhang = 0;
-maximumB = 43;
-for floorNum = 2
-%for floorNum = 1
+maximumB = 45;
+% for floorNum = 1:size(membersInEachFloor, 1)
+for floorNum = 1
     %surfaceCurrent = cuttingSurfaces{floorNum, 1};
     currentZStart = floorLineZ(floorNum);
     stlFileFolder = sprintf('..\\vtkPython\\booleanResults\\level%i\\', floorNum);
-%     figure(1)
-%     view([ 1 1 1]);
-%     axis equal
-%     hold on
+    figure(1)
+    view([ 1 1 1]);
+    axis equal
+    hold on
     currentStructure = membersInEachFloor{floorNum, 1};
     currentZGrid = zGrids{floorNum, 1};
     memberStartingLevel = zeros(size(currentStructure, 1), 1);
@@ -168,8 +118,10 @@ for floorNum = 2
     
     while floorFinished    
         currentLevel = currentLevel + levelSpacing;
-        for i = 1:size(currentStructure, 1)
-%      for i = 7
+        currentStructure(:, 7) = abs(currentStructure(:, 7));
+        currentStructure = sortrows(currentStructure, 7, 'descend');
+       for i = 1:size(currentStructure, 1)
+       %for i = 2
 %      if floorNum==1 && i==6
 %          continue;
 %      end
@@ -186,7 +138,8 @@ for floorNum = 2
 %           hold on
 %           axis equal
            testSurface = triangulation(F, V);
-           %trisurf(testSurface, 'EdgeColor', 'none', 'FaceAlpha',0.2);
+%            trisurf(testSurface, 'EdgeColor', 'none', 'FaceAlpha',0.2);
+%            aa=0.0;
             currentMember = currentStructure(i, :);
 %             plotStructure3D(currentMember, 10);
             [surfaceCurrent, surfaceCoordinates, calibrationPoint, surfaceAngles] = getCustomizedZGridForMember(currentMember, memberBoundingBox, splintLineX, splintLineY, anglesForEachFloor{floorNum, 1});
@@ -225,7 +178,9 @@ for floorNum = 2
             surface1.faces = F;
             memberVector = currentMember([4, 5, 6]) - currentMember([1, 2, 3]);
             memberLength = norm(memberVector);
-            increasedSpacingNumber = floor(memberLength/printSpacing);
+            boundingBoxDiagonal = norm(memberBoundingBox([4 5 6]) - memberBoundingBox([1 2 3]));
+            memberLengthInBox = getMemberLengthInBox(currentMember, memberBoundingBox);
+            increasedSpacingNumber = floor(memberLengthInBox/printSpacing);
             tempDivideSpacing = divideSpacing / increasedSpacingNumber;
             
 %             figure(3)
@@ -241,7 +196,7 @@ for floorNum = 2
             piecePath = cell(1, 1);
             piecePathNum = 1;
                 for printNum = memberStartingLevel(i, 1):increasedSpacingNumber*2
-                    verticalShift = - (max(cuttingSurfaceMin, cuttingSurfaceMax) - memberBoundingBox(5)) + tempDivideSpacing * (printNum-1);
+                    verticalShift = - (max(cuttingSurfaceMin, cuttingSurfaceMax) - memberBoundingBox(5)) + tempDivideSpacing * (printNum-1) +0.001;
                     
                     if currentCalibrationLevel + verticalShift > calibrationLevel
                         memberStartingLevel(i, 1) = printNum;
@@ -269,16 +224,16 @@ for floorNum = 2
                     elseif ~memberstarted(i, 1)
                         memberstarted(i, 1) = true;
                     end
-                    %figure(1)
-                    %trisurf(S.faces, S.vertices(:,1),S.vertices(:,2),S.vertices(:,3),'EdgeColor', 'r', 'FaceColor', 'r');
+%                     figure(1)
+%                     trisurf(S.faces, S.vertices(:,1),S.vertices(:,2),S.vertices(:,3),'EdgeColor', 'r', 'FaceColor', 'r');
 
                     toolPathes = structureTools.generateToolPathForCuttingCurve(S, surfaceCoordinates, verticalShift, toolPathSpacing);
 
-                    figure(4)
-                    clf
-                    hold on
-                    axis equal
-                    view([ 1 1 1]);
+%                     figure(4)
+%                     clf
+%                     hold on
+%                     axis equal
+%                     view([ 1 1 1]);
     %                 trisurf(surfacePlot, 'EdgeColor', 'none', 'FaceAlpha',0.2);
 %                     trisurf(S.faces, S.vertices(:,1),S.vertices(:,2),S.vertices(:,3),'EdgeColor', 'r', 'FaceColor', 'r');
                     nozzleDirections = cell(size(toolPathes, 1), 1);
@@ -290,10 +245,10 @@ for floorNum = 2
                                 maximumOverhang = abs(overhangAngle);
                             end
                             currectNozzleDirection(segmentNum, :) = nozzleDirection;
-                            plot3(toolPathes{pathNum, 1}(segmentNum, [1 4]), toolPathes{pathNum, 1}(segmentNum, [2 5]), toolPathes{pathNum, 1}(segmentNum, [3 6]), '-g');
+                            %plot3(toolPathes{pathNum, 1}(segmentNum, [1 4]), toolPathes{pathNum, 1}(segmentNum, [2 5]), toolPathes{pathNum, 1}(segmentNum, [3 6]), '-g');
                             middlePoint = (toolPathes{pathNum, 1}(segmentNum, 1:3) + toolPathes{pathNum, 1}(segmentNum, 4:6))/2;
                             endPoint = middlePoint + nozzleDirection*0.5;
-                            plot3([middlePoint(1), endPoint(1)], [middlePoint(2), endPoint(2)], [middlePoint(3), endPoint(3)], '-b');
+                            %plot3([middlePoint(1), endPoint(1)], [middlePoint(2), endPoint(2)], [middlePoint(3), endPoint(3)], '-b');
                         end
                         nozzleDirections{pathNum, 1} = currectNozzleDirection;
                     end
@@ -328,7 +283,38 @@ save('toolPaths.mat', 'totalPieces');
 
 %% output2GCode
 structureTools = OptStructureTools;
-structureTools.toGCode(totalPieces);
+structureTools.toGCode(totalPieces, 0);
+%%
+function [newStructure, newGroundStructure] = reoptimization(nodes, members, loadcases, supports, solverOptions, splintLineX, splintLineY, floorLineZ, anglesForEachFloor, initialVolume, checkingMaxAngle)
+    newGroundStructure = GeoGroundStructure3D;
+    newGroundStructure.nodes = nodes;
+    newGroundStructure.members = members;
+    newGroundStructure.members = deleteCollinearMembers(newGroundStructure.nodes, newGroundStructure.members);
 
-
-
+    potentialMemberList = newGroundStructure.members;
+    totalMemberList = [potentialMemberList(:, 3:9), potentialMemberList(:, 1:2), (1:size(potentialMemberList, 1))'];
+    totalMembersInEachFloor = splitSector3DInZ(totalMemberList, floorLineZ);
+    memberExistList = ones(size(potentialMemberList, 1), 1);
+    totalPenaltyList = zeros(size(potentialMemberList, 1), 1);
+    memberNumList = (1:size(potentialMemberList, 1))';
+    for floorNum = 1:size(floorLineZ, 2)-1
+        currentAngle = anglesForEachFloor{floorNum, 1};
+        currentList = totalMembersInEachFloor{floorNum, 1}(:, end);
+        tempList = zeros(size(potentialMemberList, 1), 1);
+        tempList(currentList, :) = 1;
+        checkList = memberExistList==1 & tempList==1;
+        tempMemberNumList = memberNumList(checkList);
+        [memberExist, penaltyValue] = deleteMembersViolatePrintingPlan3D(potentialMemberList(checkList, :), splintLineX, splintLineY, currentAngle, checkingMaxAngle);
+        memberExistList(tempMemberNumList(memberExist == 0)) = 0;
+        totalPenaltyList(tempMemberNumList(memberExist == 0)) = penaltyValue(penaltyValue~=0);
+    end
+        newMembers = potentialMemberList(memberExistList == 1, :); 
+        
+    penaltyFactor = 0;
+    newGroundStructure.members = newMembers;
+    [newForceList, finalVolume] = fullGroundStructure(newGroundStructure, loadcases, supports, solverOptions, penaltyFactor*totalPenaltyList);
+    newStructure = newGroundStructure.createOptimizedStructureList(newForceList);
+    plotStructure3D(newStructure, size(floorLineZ, 2)+1);
+    view([1 1 1])
+    fprintf("Volume Increase is %.2f%% \n", 100*(finalVolume - initialVolume) / initialVolume);
+end

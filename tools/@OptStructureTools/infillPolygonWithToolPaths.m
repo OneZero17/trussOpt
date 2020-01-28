@@ -1,11 +1,11 @@
-function connectedToolPaths = infillPolygonWithToolPaths(self, curves, toolPathLines)
-    shrinkLength = 0.05;
+function [connectedToolPaths, polygonPath] = infillPolygonWithToolPaths(self, curves, toolPathLines)
+    shrinkLength = 1.1;
 %     figure(4)
 %     clf
 %     axis equal
 %     hold on
     polygon = self.generatePolygonFor3DCurve(curves);
-%     plot(polyshape(polygon(:, 1:2)));
+%      plot(polyshape(polygon(:, 1:2)));
     toolpaths = [];
     if ~isempty(polygon)
         for i = 1:size(toolPathLines)
@@ -13,7 +13,7 @@ function connectedToolPaths = infillPolygonWithToolPaths(self, curves, toolPathL
            for j = 1:size(toolPathLines{i, 1}, 1)
                currentSegment = toolPathLines{i, 1}(j, :);
                [xi, yi] = intersections(polygon(:, 1)', polygon(:, 2)', currentSegment([1 4]), currentSegment([2 5]));
-    %            plot(currentSegment([1 4]), currentSegment([2 5]), '-r');
+%                 plot(currentSegment([1 4]), currentSegment([2 5]), '-r');
                if ~isempty(xi)
                    exist= true(size(xi, 1), 1);
                    for k = 1:size(xi, 1)
@@ -34,10 +34,17 @@ function connectedToolPaths = infillPolygonWithToolPaths(self, curves, toolPathL
                            currentMiddlePoint = (linePoints(k, :) + linePoints(k + 1, :)) / 2;
                            isInside = inpolygon(currentMiddlePoint(1), currentMiddlePoint(2), polygon(:, 1), polygon(:, 2));
                            if isInside
-    %                            plot([linePoints(k, 1), linePoints(k + 1, 1)], [linePoints(k, 2), linePoints(k + 1, 2)], '-g');
+%                              plot([linePoints(k, 1), linePoints(k + 1, 1)], [linePoints(k, 2), linePoints(k + 1, 2)], '-g');
                                toolpaths = [toolpaths; [linePoints(k, :),  linePoints(k + 1, :)]];
                            end
                        end
+                   end
+               else
+                   currentMiddlePoint = (currentSegment([1 2]) + currentSegment([4 5]))/2;
+                   isInside = inpolygon(currentMiddlePoint(1), currentMiddlePoint(2), polygon(:, 1), polygon(:, 2));
+                   if isInside
+%                        plot([currentSegment(1), currentSegment(4)], [currentSegment(2), currentSegment(5)], '-g');
+                       toolpaths = [toolpaths; currentSegment([1 2 4 5])];
                    end
                end
            end
@@ -62,7 +69,9 @@ function connectedToolPaths = infillPolygonWithToolPaths(self, curves, toolPathL
     else
         connectedToolPaths{1, 1} = [];
     end
-    
+
+    polygonPath = [polygon(1:end-1, :), polygon(2:end, :)];
+%     connectedToolPaths{size(connectedToolPaths, 1)+1, 1} = polygonPath;
 %     connectedToolPaths = cell2mat(connectedToolPaths);
     
 %     for i = 1:size(connectedToolPaths, 1)
