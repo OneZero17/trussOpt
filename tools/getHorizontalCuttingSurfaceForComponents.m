@@ -1,11 +1,11 @@
-function [surface, zGrid] = getHorizontalCuttingSurfaceForComponents(boundingBox, splitSpacing)
+function [surface, zGrid, angleMatrix] = getHorizontalCuttingSurfaceForComponents(boundingBox, splitSpacing)
     
     xSplitLineStart = floor(boundingBox(1) / splitSpacing) * splitSpacing;
     xSplitLineEnd = ceil(boundingBox(2) / splitSpacing) * splitSpacing;
     ySplitLineStart = floor(boundingBox(3) / splitSpacing) * splitSpacing;
     ySplitLineEnd = ceil(boundingBox(4) / splitSpacing) * splitSpacing;
-    xSplitLine = xSplitLineStart:splitSpacing:xSplitLineEnd;
-    ySplitLine = ySplitLineStart:splitSpacing:ySplitLineEnd;
+    xSplitLine = xSplitLineStart-splitSpacing:splitSpacing:xSplitLineEnd+splitSpacing;
+    ySplitLine = ySplitLineStart-splitSpacing:splitSpacing:ySplitLineEnd+splitSpacing;
     
     xCellNum = size(xSplitLine, 2) - 1;
     yCellNum = size(ySplitLine, 2) - 1;

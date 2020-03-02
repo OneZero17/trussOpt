@@ -7,6 +7,7 @@ function plotStructure3D(structure, figNum, color)
        color = [0.3, 0.3, 0.3];
     end
     for i = 1:size(structure, 1)
+%        text((structure(i, 1) + structure(i, 4))/2, (structure(i, 2) + structure(i, 5))/2, (structure(i, 3) + structure(i, 6))/2, int2str(i));
         coefficient = (abs(structure(i, end)) / maximumArea)^0.2; 
 %         if (structure(i, end) > 0)
 %         color = [1, 1, 1] - coefficient^0.3 * [1, 1, 0];

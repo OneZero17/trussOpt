@@ -1,6 +1,8 @@
 clear
+close all
+
 groundStructure = GeoGroundStructure;
-x=18;y=4;
+x=10;y=10;
 xSpacing = 1; ySpacing = 1;
 nozzleMaxAngle = 0.9773884;
 %nozzleMaxAngle = 0.80;
@@ -8,15 +10,15 @@ groundStructure.createCustomizedNodeGrid(0, 0, x, y, xSpacing, ySpacing);
 groundStructure.createMemberListFromNodeGrid();
 groundStructure.createNodesFromGrid();
 loadcase = PhyLoadCase();
-load1NodeIndex = groundStructure.findOrAppendNode(x/2, 0);
-load1 = PhyLoad(load1NodeIndex, 0.0, -0.2);
-loadcase.loads = {load1};
+load1NodeIndex = groundStructure.findOrAppendNode(x/2, y);
+load1 = PhyLoad(load1NodeIndex, 0.2, 0.0);
+loadcase.loads = {load1};   
 loadcases = {loadcase};
 
-support1NodeIndex = groundStructure.findOrAppendNode(0, 0);
-support2NodeIndex = groundStructure.findOrAppendNode(x, 0);
+support1NodeIndex = groundStructure.findOrAppendNode(4, 0);
+support2NodeIndex = groundStructure.findOrAppendNode(6, 0);
 support1 = PhySupport(support1NodeIndex, 1, 1);
-support2 = PhySupport(support2NodeIndex, 0, 1);
+support2 = PhySupport(support2NodeIndex, 1, 1);
 supports = {support1; support2};
 
 groundStructure.createGroundStructureFromMemberList();

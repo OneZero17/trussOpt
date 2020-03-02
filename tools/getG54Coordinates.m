@@ -5,6 +5,9 @@ function G54coordinates = getG54Coordinates(point, direction)
     
     angleXZ = atan(direction(3) / sqrt(direction(1)^2 + direction(2)^2));
     angleYZ = atan(direction(2) / direction(1));
+    if direction(1)==0
+        angleYZ=0;
+    end
     B = -abs(pi/2 - angleXZ);
     
     if direction(1) <=0 && direction(2)>=0

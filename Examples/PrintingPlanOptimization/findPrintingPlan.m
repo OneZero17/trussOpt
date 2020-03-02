@@ -17,7 +17,7 @@ function [cuttingSurfaces,  splitedStructureEachFloor, anglesForEachFloor, print
     hold on
     %tiledlayout(2,2);
     figure(2)
-    t = tiledlayout(3, 3, 'TileSpacing','compact');
+    t = tiledlayout(2, 3, 'TileSpacing','compact');
     cuttingSurfaces = cell(size(membersInEachFloor, 1), 1);
     splitedStructureEachFloor = cell(size(membersInEachFloor, 1), 1);
     zGrids = cell(size(membersInEachFloor, 1), 1);
@@ -42,17 +42,18 @@ function [cuttingSurfaces,  splitedStructureEachFloor, anglesForEachFloor, print
             s.EdgeColor = 'none';
             s.FaceColor = [0.6 0.6 0.6];
             view([1 0.5 0.5])
-%            textheight = floorLineZ(floorNum + 1) + (floorNum - 1) * floorGap - floorSpacing/2;
-            %text(0, 150, textheight, sprintf('Level %i', floorNum),'Rotation',+15);
+            textheight = floorLineZ(floorNum + 1) + (floorNum - 1) * floorGap - floorSpacing/2;
+            text(0, 150, textheight, sprintf('Level %i', floorNum),'Rotation',+15);
             plotStructure3D(currentFloor, 1);
-%             figure(2)
-%             nexttile(t)
-            
+             figure(2)
+             nexttile(t)
             hold on
             
-            plotStructure3D(currentFloor, floorNum+1);
+            plotStructure3D(currentFloor, 2);
             axis off
-            %title(sprintf('Level %i', floorNum));
+            title(sprintf('Level %i', floorNum));
+            ax = gca;
+            ax.FontSize = 10;
             members = splitSector3DInX(membersInEachFloor{floorNum, 1}, splintLineX);
             splitedStructures = cell(size(splintLineX, 2) - 1, 1);
             for i = 1:size(members, 1)
@@ -82,7 +83,7 @@ function [cuttingSurfaces,  splitedStructureEachFloor, anglesForEachFloor, print
 %                 anglesForEachFloor{floorNum, 1} = getAnglesForFilledFacets(angles, splitedStructures, []);
 %             end
             anglesForEachFloor{floorNum, 1} = angles;
-            [printPlanGrid, normalVectors, surface] = plotPrintingSurface(angles, splintLineX, splintLineY, floorLineZ(floorNum), splitedStructures, floorNum+1);
+            [printPlanGrid, normalVectors, surface] = plotPrintingSurface(angles, splintLineX, splintLineY, floorLineZ(floorNum), splitedStructures, 2);
             zGrids{floorNum, 1} = printPlanGrid;
             view([1 1 1])
             cuttingSurfaces{floorNum, 1} = surface;

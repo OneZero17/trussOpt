@@ -1,4 +1,4 @@
-function outputConnectivity(self, structure, path)
+function nodeMemberList = outputConnectivity(self, structure, path)
     [Cn, Nd] = self.generateCnAndNdList(structure);
     nodeNum = size(Nd, 1);
     nodeConnectionList = cell(nodeNum, 1);
@@ -38,10 +38,11 @@ function outputConnectivity(self, structure, path)
         nodeMemberList(i, :) = currentMatrix(:, 1)';
     end
     
-    
-    memberNodeFileName = [path, '\memberNode'];
-    nodeMemberFileName = [path, '\nodeMember'];
-    
-    writematrix(Cn(:, [1 2]) - 1, memberNodeFileName, 'Delimiter', ',');
-    writematrix(nodeMemberList - 1, nodeMemberFileName, 'Delimiter', ',');
+    if ~isempty(path)
+        memberNodeFileName = [path, '\memberNode'];
+        nodeMemberFileName = [path, '\nodeMember'];
+
+        writematrix(Cn(:, [1 2]) - 1, memberNodeFileName, 'Delimiter', ',');
+        writematrix(nodeMemberList - 1, nodeMemberFileName, 'Delimiter', ',');
+    end
 end

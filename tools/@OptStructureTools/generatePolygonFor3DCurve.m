@@ -1,5 +1,13 @@
 function polygon = generatePolygonFor3DCurve(self, curve)
     tempEdges = curve.faces(:, 1:2);
+    toBeRemove = zeros(size(tempEdges, 1), 1);
+    for i = 1:size(tempEdges, 1)
+        if tempEdges(i, 1) == tempEdges(i, 2)
+            toBeRemove(i, 1) = 1;
+        end
+    end
+    tempEdges(toBeRemove==1, :) = [];
+    tempEdges = unique(tempEdges, 'rows');
     nodeNum = size(tempEdges, 1);
     polygon = zeros(nodeNum, 3);
     polygon(1, :) = curve.vertices(tempEdges(1, 1), :);
@@ -9,14 +17,6 @@ function polygon = generatePolygonFor3DCurve(self, curve)
     currentBegin = tempEdges(1, 2);
     keepRunning = true;
     
-    toBeRemove = zeros(size(tempEdges, 1), 1);
-    for i = 1:size(tempEdges, 1)
-        if tempEdges(i, 1) == tempEdges(i, 2)
-            toBeRemove(i, 1) = 1;
-        end
-    end
-    tempEdges(toBeRemove==1, :) = [];
-    tempEdges = unique(tempEdges, 'rows');
     if ~isempty(tempEdges)
         while keepRunning
             nextOne = tempEdges(tempEdges(:, 1) == currentBegin, 2);

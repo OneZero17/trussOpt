@@ -31,10 +31,38 @@ function curvePaths = generateToolPathForCuttingCurve(self, curve, surface, vert
     end
     
     curves = splitFV(curve.faces, curve.vertices);
+    polygons = cell(size(curves, 1), 2);
+    for curveNum = 1:size(curves, 1)
+            polygons{curveNum, 1} = self.generatePolygonFor3DCurve(curves(curveNum));
+            polygons{curveNum, 2} = polyarea(polygons{curveNum, 1}(:, 1), polygons{curveNum, 1}(:, 2));
+            polygons{curveNum, 3} = curves(curveNum);
+    end
+    polygons = sortrows(polygons, 2, 'descend');
+    holes = cell(size(curves, 1), 1);
+    if size(curves, 1) > 1
+        for i = 1:size(curves, 1)
+            if isempty(polygons{i, 1})
+                continue;
+            end
+            for j = i+1:size(curves, 1)
+                if isempty(polygons{j, 1})
+                    continue;
+                end
+                if polyInPoly(polygons{i, 1}, polygons{j, 1})
+                    currentholeNum = size(holes{i, 1}, 1);
+                    holes{i, 1}{currentholeNum+1, 1} = polygons{j, 1};
+                    polygons{j, 1} = [];
+                end
+            end
+        end
+    end
     
     curvePaths = [];
     for curveNum = 1:size(curves, 1)
-        [toolPaths, polygonPath] = self.infillPolygonWithToolPaths(curves(curveNum), toolPathes);
+        if isempty(polygons{curveNum, 1})
+            continue;
+        end
+        [toolPaths, polygonPath, holePaths] = self.infillPolygonWithToolPaths(polygons{curveNum, 3}, toolPathes, holes{curveNum, 1});
         threeDToolPaths = cell(size(toolPaths, 1), 1);
 
         for i = 1:size(toolPaths, 1)
@@ -44,7 +72,7 @@ function curvePaths = generateToolPathForCuttingCurve(self, curve, surface, vert
         end
         
         threeDToolPaths = threeDToolPaths(~cellfun('isempty',threeDToolPaths));
-        curvePaths = [curvePaths; threeDToolPaths; polygonPath];
+        curvePaths = [curvePaths; threeDToolPaths; polygonPath; holePaths];
     end
     
 

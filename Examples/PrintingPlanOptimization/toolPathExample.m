@@ -132,14 +132,14 @@ for supportNum = 1:totalSupportNum
 %         end
     end
 end
-%%
+%
 tempStructure = [structure, (1:size(structure, 1))'];
 membersInEachFloor = splitSector3DInZ(tempStructure, floorLineZ);
 printSpacing = 1.5;
 levelSpacing = 5.0;
 maximumOverhangAngle = 0.262;
-totalPieces = cell(1, 1);
-addedPieceNum = 1;
+% totalPieces = cell(1, 1);
+% addedPieceNum = 1;
 maximumOverhang = 0;
 maximumB = 43;
 for floorNum = 2

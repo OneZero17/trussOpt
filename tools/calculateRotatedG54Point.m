@@ -1,5 +1,5 @@
 function rotatedPoint = calculateRotatedG54Point(point, angleB, angleC)
-   rotationBAxis = [0; 0; 193.24]; 
+   rotationBAxis = [0; 0; 193.24+16.75-8]; 
    
    rotatedPointAroundAxisC = rotate_3D(point, 'any', angleC, [0; 0; 1]);
    relativePointPosition =  rotatedPointAroundAxisC - rotationBAxis;
