@@ -1,12 +1,12 @@
 clear
-structure = [[0,0,0, 0,0,40,5;
-              0,0,40, 60, 0, 100, 5
-              120, 0, 0, 120, 0, 40, 5
-              120, 0, 40,60, 0, 100, 5
-              60, -60, 0, 60, -60, 40, 5
-              60, -60, 40, 60, 0, 100, 5
-              60, 60, 0, 60, 60, 40, 5
-              60, 60, 40, 60, 0, 100, 5]];
+structure = [0,0,0, 0,0,40,5;
+             0,0,40, 60, 0, 100, 5
+             120, 0, 0, 120, 0, 40, 5
+             120, 0, 40,60, 0, 100, 5
+             60, -60, 0, 60, -60, 40, 5
+             60, -60, 40, 60, 0, 100, 5
+             60, 60, 0, 60, 60, 40, 5
+             60, 60, 40, 60, 0, 100, 5];
 
 plotStructure3D(structure, 10, [0.3, 0.3, 0.3], true);
 structureTools = OptStructureTools;
@@ -43,6 +43,7 @@ levelSpacing = 4.0;
 maximumOverhangAngle = 0.262; % Maximum allowed overhang angle, in radians
 maximumB = 42; % Maximum allowed overhang angle, in degree
 shrinkLength = 2.0; % End shrink length for infill tool paths
+modelPath = 'stage5\\level%i\\'; % Path for the .stl files
 
 [totalPieces, maximumOverhang] = slicing(membersInEachFloor, zGrids, anglesForEachFloor, maximumOverhangAngle, maximumB, splintLineX, splintLineY, floorLineZ, levelSpacing, printSpacing, toolPathSpacing, shrinkLength, false, true);
 
