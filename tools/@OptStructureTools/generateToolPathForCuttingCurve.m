@@ -1,4 +1,4 @@
-function curvePaths = generateToolPathForCuttingCurve(self, curve, surface, verticalShift, toolPathSpacing)
+function curvePaths = generateToolPathForCuttingCurve(self, curve, surface, verticalShift, toolPathSpacing, shrinkLength, addInfill)
     
     xGridNum = size(surface, 1);
     yGridNum = size(surface, 2);
@@ -56,13 +56,18 @@ function curvePaths = generateToolPathForCuttingCurve(self, curve, surface, vert
             end
         end
     end
-    
+    tool = OptStructureTools();
     curvePaths = [];
     for curveNum = 1:size(curves, 1)
         if isempty(polygons{curveNum, 1})
             continue;
         end
-        [toolPaths, polygonPath, holePaths] = self.infillPolygonWithToolPaths(polygons{curveNum, 3}, toolPathes, holes{curveNum, 1});
+        [toolPaths, polygonPath, holePaths] = self.infillPolygonWithToolPaths(polygons{curveNum, 3}, toolPathes, holes{curveNum, 1}, shrinkLength);
+        polygonPath = tool.deleteShortSegments(polygonPath, 0.1);
+        if ~addInfill
+            curvePaths = [curvePaths; {polygonPath}];
+            return
+        end
         threeDToolPaths = cell(size(toolPaths, 1), 1);
 
         for i = 1:size(toolPaths, 1)
@@ -72,6 +77,8 @@ function curvePaths = generateToolPathForCuttingCurve(self, curve, surface, vert
         end
         
         threeDToolPaths = threeDToolPaths(~cellfun('isempty',threeDToolPaths));
+        threeDToolPaths = tool.mergeCollinearPath(threeDToolPaths);
+        %polygonPath = tool.mergeCollinearPath({polygonPath});
         curvePaths = [curvePaths; threeDToolPaths; polygonPath; holePaths];
     end
     

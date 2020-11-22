@@ -4,6 +4,12 @@ function [newMemberList, toBeDeletedMemberList] = deleteMembersViolatePrintingPl
     angles(angles<0) = angles(angles<0) + pi;
     memberList = [(1:size(memberList, 1))', memberList, angles];
     zoneNum = size(zoneAngles, 1);
+    
+    if size(memberList, 1) == 0
+        newMemberList = [];
+        toBeDeletedMemberList = [];
+        return
+    end
     toBeDeletedMemberList(size(memberList, 1), 1) = 0;
     addedDeletedMember = 1;
     for i = 1:zoneNum

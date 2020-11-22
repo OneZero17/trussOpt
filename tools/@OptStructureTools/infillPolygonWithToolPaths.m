@@ -1,5 +1,7 @@
-function [connectedToolPaths, polygonPath, holePaths] = infillPolygonWithToolPaths(self, curves, toolPathLines, holes)
-    shrinkLength = 1.1;
+function [connectedToolPaths, polygonPath, holePaths] = infillPolygonWithToolPaths(self, curves, toolPathLines, holes, shrinkLength)
+    if nargin < 5
+        shrinkLength = 1.1;
+    end
 %     figure(4)
 %     clf
 %     axis equal
@@ -9,6 +11,7 @@ function [connectedToolPaths, polygonPath, holePaths] = infillPolygonWithToolPat
     toolpaths = [];
     toolPathLines = cell2mat(toolPathLines);
     toolPathLines = toolPathLines(:, [1 2 4 5]);
+    
     if ~isempty(polygon)
         [insideToolPathes, outsideToolPathes] = splitToolPaths(polygon, toolPathLines);
     end
@@ -17,7 +20,7 @@ function [connectedToolPaths, polygonPath, holePaths] = infillPolygonWithToolPat
 %         plot([insideToolPathes(i, 1), insideToolPathes(i, 3)], [insideToolPathes(i, 2), insideToolPathes(i, 4)], '-g');
 %     end
     
-%     for i = 1:size(insideToolPathes, 1)
+%     for i = 1:size(outsideToolPathes, 1)
 %         plot([outsideToolPathes(i, 1), outsideToolPathes(i, 3)], [outsideToolPathes(i, 2), outsideToolPathes(i, 4)], '-r');
 %     end
     

@@ -1,5 +1,7 @@
-function existList = plotBeamStructure(structure, areaAndForceList, figNum, xLimit, yLimit, plotLimit, scaleFactor, filename)
-    
+function existList = plotBeamStructure(structure, areaAndForceList, figNum, xLimit, yLimit, plotLimit, scaleFactor, filename, plotMoment)
+    if nargin < 9
+        plotMoment = false;
+    end
     fig = figure(figNum);
     hold on
     axis equal
@@ -27,10 +29,14 @@ function existList = plotBeamStructure(structure, areaAndForceList, figNum, xLim
             else
                 fill (coordinates(1,:), coordinates(2,:), 'b', 'EdgeColor', 'none');
             end
+            
+            if plotMoment
+                text(structure(i, 3), structure(i, 4), sprintf("%.2e", areaAndForceList(i, 5)));
+            end
         end
     end
     
-    if nargin > 7
+    if nargin > 7 && filename~=""
         saveas(fig, ['BeamResults/', filename])
         close(figNum)
     end

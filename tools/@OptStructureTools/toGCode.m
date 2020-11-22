@@ -19,7 +19,6 @@ function toGCode(self, toolPaths, Shifting)
     zmin = 10000;
     
     for pieceNum = 1:size(toolPaths, 1)
-    %for pieceNum = 3
         currentPiece = toolPaths{pieceNum, 1};
         printedNumInCurrentPiece = 0;
         fprintf(fid, '; Piece number %i\n', pieceNum);

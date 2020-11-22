@@ -1,4 +1,4 @@
-function plotStructure3D(structure, figNum, color)
+function plotStructure3D(structure, figNum, color, showText)
     figure(figNum);
     hold on
     axis equal
@@ -6,8 +6,13 @@ function plotStructure3D(structure, figNum, color)
     if nargin < 3
        color = [0.3, 0.3, 0.3];
     end
+    if nargin < 4
+       showText = false;
+    end
     for i = 1:size(structure, 1)
-%        text((structure(i, 1) + structure(i, 4))/2, (structure(i, 2) + structure(i, 5))/2, (structure(i, 3) + structure(i, 6))/2, int2str(i));
+        if showText
+            text((structure(i, 1) + structure(i, 4))/2, (structure(i, 2) + structure(i, 5))/2, (structure(i, 3) + structure(i, 6))/2, int2str(i));
+        end
         coefficient = (abs(structure(i, end)) / maximumArea)^0.2; 
 %         if (structure(i, end) > 0)
 %         color = [1, 1, 1] - coefficient^0.3 * [1, 1, 0];

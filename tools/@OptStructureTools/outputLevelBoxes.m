@@ -18,9 +18,14 @@ for memberNum = 1:size(structure, 1)
         point2 = currentMember(1:3);
     end
     
-    for i = 1:size(zSplitLine, 2) - 1
-        currentStartZ = zSplitLine(i);
-        currentEndZ = zSplitLine(i+1);
+    tempZSplitLine = zSplitLine;
+    if memberNum==19 ||memberNum ==22
+        tempZSplitLine(end-1) = tempZSplitLine(end-1)-20;
+    end
+    for i = 1:size(tempZSplitLine, 2) - 1
+        currentStartZ = tempZSplitLine(i);
+        currentEndZ = tempZSplitLine(i+1);
+        
         
         if ~(currentStartZ < point2(3) && currentEndZ > point1(3))
             continue;
@@ -29,11 +34,11 @@ for memberNum = 1:size(structure, 1)
             box1EndPoint = [EndPoint(1) EndPoint(2) currentEndZ];
             
             if abs(currentStartZ - point1(3)) <= 1e-3
-                box1StartPoint(3) = box1StartPoint(3) - radius(memberNum, 1) * 1.5;
+                box1StartPoint(3) = box1StartPoint(3) - radius(memberNum, 1) * 2.5;
             end
             
             if abs(currentEndZ - point2(3)) <= 1e-3
-                box1EndPoint(3) = box1EndPoint(3) + radius(memberNum, 1) * 1.5;
+                box1EndPoint(3) = box1EndPoint(3) + radius(memberNum, 1) * 2.5;
             end
                  
             if abs(box1EndPoint(3)-box1StartPoint(3)) >1e-3

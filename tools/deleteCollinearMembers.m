@@ -22,7 +22,7 @@ function newMemberList = deleteCollinearMembers(nodes, memberList)
                 sameVectorMembers = localMemberList(normalizedMemberVectors(:, 1)==uniqueVectors(j, 1) & normalizedMemberVectors(:, 2)==uniqueVectors(j, 2) & normalizedMemberVectors(:, 3)==uniqueVectors(j, 3));
                 sameVectorMembersLengths = zeros(size(sameVectorMembers, 1), 1);
                 for k = 1:size(sameVectorMembers, 1)
-                    sameVectorMembersLengths(k, 1) = norm(sameVectorMembers(k, :));
+                    sameVectorMembersLengths(k, 1) = norm(memberVectors(sameVectorMembers(k, 1), :));
                 end
                 %sameVectorMembersLengths = vecnorm(memberVectors(sameVectorMembers, :)')';
                 

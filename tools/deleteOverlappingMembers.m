@@ -1,4 +1,4 @@
-function deleteOverlappingMembers(groundStructure, mesh, meshSpacing)
+function oldNodeList = deleteOverlappingMembers(groundStructure, mesh, meshSpacing)
     if (nargin <= 2)
         meshSpacing = 1;
     end
@@ -6,6 +6,7 @@ function deleteOverlappingMembers(groundStructure, mesh, meshSpacing)
     elementNum = size(mesh.Elements, 2);
     
     if (elementNum == 0)
+        oldNodeList = [];
         return;
     end
     

@@ -1,4 +1,11 @@
 function  [z0, dzdan, dzdam]= calculateBeamAlphas(an, am, section)
+
+    if an < 0
+        an = 0;
+    end
+    if am < 0
+        am = 0;
+    end
     switch section
         case 'hollowSquare'
             b = 0.9;
