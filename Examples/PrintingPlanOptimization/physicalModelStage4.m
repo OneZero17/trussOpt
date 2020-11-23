@@ -47,7 +47,7 @@ save('toolPaths.mat', 'totalPieces');
 
 %% output2GCode
 structureTools = OptStructureTools;
-structureTools.toGCode(totalPieces, [-50, -50, 0]);
+structureTools.toGCode(totalPieces, [-60, 0, 0]);
 
 %%
 function floorLineZ = outputBoxForEachFloor(startCoordinates, endCoordinates, structure, outputFlag)

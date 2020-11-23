@@ -135,12 +135,6 @@ plotStructure3D(structure, 10);
 %
 shrinkLength = 0;
 structureTools = OptStructureTools;
-outputPath = '..\vtkPython\polydatas\';
-%%
-structureTools.outputStructureFiles(structure, outputPath)
-%%
-structureTools.outputConnectivity(structure, outputPath);
-%structure = structureTools.shrinkTwoEnds(structure, repmat(shrinkLength, size(structure, 1), 1));
 %% Building sectors
 checkingMaxAngle = 0.977;
 floorSpacing = z/10;
@@ -156,10 +150,7 @@ floorLineZ = outputBoxForEachFloor(startCoordinates, endCoordinates, structure, 
 splintLineX = startCoordinates(1):splineSpacing:endCoordinates(1);
 splintLineY = startCoordinates(2):splineSpacing:endCoordinates(2);
 [cuttingSurfaces, splitedStructureEachFloor, anglesForEachFloor, printable, zGrids] = findPrintingPlan(structure, splintLineX, splintLineY, floorLineZ, checkingMaxAngle, false, [], floorSpacing, 0.5);
-%%
-outputPath = '..\vtkPython\polydatas\';
-structureTools.outputSurfaces(cuttingSurfaces, outputPath);
-%% Delete violating members in potential member list
+%% Reoptimization
 [newStructure, newGroundStructure] = reoptimization(groundStructure.nodes, potentialMemberList, loadcases, supports, solverOptions, splintLineX, splintLineY, floorLineZ, anglesForEachFloor, initialVolume, checkingMaxAngle);
 
 %% 
