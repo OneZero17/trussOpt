@@ -1,5 +1,6 @@
 clear
-caseNo = 3;
+close all
+caseNo = 1;
 solverOptions = OptOptions();
 switch caseNo
     case 1
@@ -142,127 +143,25 @@ structureTools.outputConnectivity(structure, outputPath);
 %structure = structureTools.shrinkTwoEnds(structure, repmat(shrinkLength, size(structure, 1), 1));
 %% Building sectors
 checkingMaxAngle = 0.977;
-floorSpacing = 6.25;
+floorSpacing = z/10;
 splineSpacing = 10;
-floorLineZ = 0:floorSpacing:z;
 boxStart = startCoordinates;
 boxStart(1) = boxStart(1) - 5;
 boxStart(2) = boxStart(2) - 5;
 boxEnd = endCoordinates;
 boxEnd(1) = boxEnd(1) + 5;
 boxEnd(2) = boxEnd(2) + 5;
-structureTools.outputLevelBoxes(structure, floorLineZ, boxStart, boxEnd, '..\vtkPython\levelBoxes\');
+floorLineZ = outputBoxForEachFloor(startCoordinates, endCoordinates, structure, false); % splitted floors in Z direction
 %%
 splintLineX = startCoordinates(1):splineSpacing:endCoordinates(1);
 splintLineY = startCoordinates(2):splineSpacing:endCoordinates(2);
-[cuttingSurfaces, splitedStructureEachFloor, anglesForEachFloor, printable, zGrids] = findPrintingPlan(structure, splintLineX, splintLineY, floorLineZ, checkingMaxAngle, false, [], floorSpacing);
+[cuttingSurfaces, splitedStructureEachFloor, anglesForEachFloor, printable, zGrids] = findPrintingPlan(structure, splintLineX, splintLineY, floorLineZ, checkingMaxAngle, false, [], floorSpacing, 0.5);
 %%
 outputPath = '..\vtkPython\polydatas\';
 structureTools.outputSurfaces(cuttingSurfaces, outputPath);
 %% Delete violating members in potential member list
-
-checkingMaxAngle = 0.977;
 [newStructure, newGroundStructure] = reoptimization(groundStructure.nodes, potentialMemberList, loadcases, supports, solverOptions, splintLineX, splintLineY, floorLineZ, anglesForEachFloor, initialVolume, checkingMaxAngle);
 
-%%
-[~, ~, newAnglesForEachFloor, printable] = findPrintingPlan(newStructure, splintLineX, splintLineY, floorLineZ, checkingMaxAngle, false, []);
-% step = 1;
-% while ~printable
-%     close all
-%     if step==1
-%         [newStructure, newGroundStructure] = reoptimization(groundStructure.nodes, potentialMemberList, loadcases, supports, solverOptions, splintLineX, splintLineY, floorLineZ, anglesForEachFloor, initialVolume, checkingMaxAngle);
-%     else
-%         [newStructure, newGroundStructure] = reoptimization(newGroundStructure.nodes, newGroundStructure.members, loadcases, supports, solverOptions, splintLineX, splintLineY, floorLineZ, newAnglesForEachFloor, initialVolume, checkingMaxAngle);
-%     end
-%     [~, ~, newAnglesForEachFloor, printable] = findPrintingPlan(newStructure, splintLineX, splintLineY, floorLineZ, checkingMaxAngle, false, anglesForEachFloor);
-%     step = step + 1;
-% end
-
-%%
-%for floorNum = 1 : size(membersInEachFloor, 1)
-tempStructure = [structure, (1:size(structure, 1))'];
-membersInEachFloor = splitSector3DInZ(tempStructure, floorLineZ);
-
-for floorNum = 1 : size(membersInEachFloor, 1)
-    %surfaceCurrent = cuttingSurfaces{floorNum, 1};
-    stlFileFolder = sprintf('..\\vtkPython\\booleanResults\\level%i\\', floorNum);
-    printSpacing = 0.5;
-    figure(1)
-    view([ 1 1 1]);
-    axis equal
-    hold on
-
-    %trisurf(surfaceCurrent);    
-%     structureSurfaceMin = min(testSurface.Points(:, 3));
-%     structureSurfaceMax = max(testSurface.Points(:, 3));
-    currentStructure = membersInEachFloor{floorNum, 1};
-    currentZGrid = zGrids{floorNum, 1};
-    
-    for i = 1:size(currentStructure, 1)
-        memberFileName = [stlFileFolder, sprintf('cutCylinder%i.stl', currentStructure(i, end)-1)];
-        [F,V] = stlread(memberFileName);
-        if ~isempty(V)
-            memberBoundingBox = boundingBox3d(V);
-            %testSurface = triangulation(F, V);
-            %trisurf(testSurface, 'EdgeColor', 'none', 'FaceAlpha',0.2);
-            currentMember = currentStructure(i, :);
-            memberZmin = min(currentMember(3), currentMember(6))-2;
-            memberZmax = max(currentMember(3), currentMember(6))+4;
-    %         hold on
-    %         axis equal
-    %         plotStructure3D(currentMember, 10);
-            surfaceCurrent = getSurfaceForMember(memberBoundingBox, currentZGrid, splintLineX, splintLineY);
-    %         trisurf(surfaceCurrent, 'EdgeColor', 'none', 'FaceAlpha',0.2);
-            %cuttingSurfaceMin = min(surfaceCurrent.Points(:, 3));
-            %cuttingSurfaceMax = max(surfaceCurrent.Points(:, 3));
-            [cuttingSurfaceMin, cuttingSurfaceMax] = getHeightBoundPointsInSurface(currentMember, currentZGrid, splintLineX, splintLineY);
-            cuttingSurfaceGap = abs(cuttingSurfaceMax - cuttingSurfaceMin);
-            divideSpacing = memberZmax - memberZmin+ cuttingSurfaceGap;
-
-            hold on
-            axis equal
-            view([ 1 1 1]);
-            surface1.vertices = V;
-            surface1.faces = F;
-            memberVector = currentMember([4, 5, 6]) - currentMember([1, 2, 3]);
-            memberLength = norm(memberVector);
-            increasedSpacingNumber = floor(memberLength/printSpacing);
-            tempDivideSpacing = divideSpacing / increasedSpacingNumber;
-
-            for printNum = 1:increasedSpacingNumber
-                surface2.vertices = surfaceCurrent.Points;
-                surface2.vertices(:, 3) = surface2.vertices(:, 3) - (max(cuttingSurfaceMin, cuttingSurfaceMax) - memberZmin) + tempDivideSpacing * (printNum-1);
-                surface2.faces = surfaceCurrent.ConnectivityList;
-                [intersect12, Surf12] = SurfaceIntersection(surface1, surface2);
-                S=Surf12; 
-                if isempty(S.faces)
-                    continue;
-                end
-                trisurf(S.faces, S.vertices(:,1),S.vertices(:,2),S.vertices(:,3),'EdgeColor', 'r', 'FaceColor', 'r');
-            end
-        end
-    end
-    
-%     figure(2)
-%     hold on
-%     axis equal
-%     axis off
-%     surface1.vertices = V;
-%     surface1.faces = F;
-%     for i = 1:divideNum+2
-%         surface2.vertices = surfaceCurrent.Points;
-%         surface2.vertices(:, 3) = surface2.vertices(:, 3) - (cuttingSurfaceMax - structureSurfaceMin) + divideSpacing * (i-1);
-%         surface2.faces = surfaceCurrent.ConnectivityList;
-%         [intersect12, Surf12] = SurfaceIntersection(surface1, surface2);
-%         %test = splitFV(Surf12.faces, Surf12.vertices);
-%         S=Surf12; 
-%         if isempty(S.faces)
-%             continue;
-%         end
-%         trisurf(S.faces, S.vertices(:,1),S.vertices(:,2),S.vertices(:,3),'EdgeColor', 'r', 'FaceColor', 'r');
-%     end
-%     view([ 1 1 1]);
-end
 %% 
 function [newStructure, newGroundStructure] = reoptimization(nodes, members, loadcases, supports, solverOptions, splintLineX, splintLineY, floorLineZ, anglesForEachFloor, initialVolume, checkingMaxAngle)
     newGroundStructure = GeoGroundStructure3D;
@@ -296,4 +195,20 @@ function [newStructure, newGroundStructure] = reoptimization(nodes, members, loa
     plotStructure3D(newStructure, size(floorLineZ, 2)+1);
     view([1 1 1])
     fprintf("Volume Increase is %.2f%% \n", 100*(finalVolume - initialVolume) / initialVolume);
+end
+
+function floorLineZ = outputBoxForEachFloor(startCoordinates, endCoordinates, structure, outputFlag)
+    structureTools = OptStructureTools;
+    floorLineZ = unique([structure(:, 3); structure(:, 6)])';
+    boxStart = startCoordinates;
+    boxStart(1) = boxStart(1) - 40;
+    boxStart(2) = boxStart(2) - 40;
+    boxEnd = endCoordinates;
+    boxEnd(1) = boxEnd(1) + 40;
+    boxEnd(2) = boxEnd(2) + 40;
+    tempStructure = structure;
+    tempStructure(:, end) = abs(tempStructure(:, end) * 50);
+    if outputFlag
+        structureTools.outputLevelBoxes(tempStructure, floorLineZ, boxStart, boxEnd, '..\vtkPython\levelBoxes\');
+    end
 end
