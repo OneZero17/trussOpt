@@ -1,20 +1,19 @@
 clear
-structure = [0,0,0, 0,0,40,5;
-             0,0,40, 60, 0, 100, 5
-             120, 0, 0, 120, 0, 40, 5
-             120, 0, 40,60, 0, 100, 5
-             60, -60, 0, 60, -60, 40, 5
-             60, -60, 40, 60, 0, 100, 5
-             60, 60, 0, 60, 60, 40, 5
-             60, 60, 40, 60, 0, 100, 5];
+structure = [0,0,0, 0,0,40,80;
+             0,0,40, 60, 0, 100, 80
+             120, 0, 0, 120, 0, 40, 80
+             120, 0, 40,60, 0, 100, 80
+             60, -60, 0, 60, -60, 40, 80
+             60, -60, 40, 60, 0, 100, 80
+             60, 60, 0, 60, 60, 40, 80
+             60, 60, 40, 60, 0, 100, 80];
 
 plotStructure3D(structure, 10, [0.3, 0.3, 0.3], true);
 structureTools = OptStructureTools;
 volume = calcStructureVolume(structure);
-outputPath = '..\vtkPython\polydatas\';
+outputPath = '.\';
 outputStructure = structure;
-outputStructure(:, end) = abs(structure(:, end) * 50);
-maximumAreaList = structureTools.getMaximumAreaList(outputStructure);
+structureTools.writeStructureToRhinoScript(outputStructure, outputPath)
 %% Building sectors
 close all
 xMax=120; yMax=0; zMax=100;
@@ -37,15 +36,15 @@ maximumTurnAngle = 0.6;
 close all
 tempStructure = [outputStructure, (1:size(outputStructure, 1))'];
 membersInEachFloor = splitSector3DInZ(tempStructure, floorLineZ);
-printSpacing = 0.375; % Vertical spacing betwen layers
+printSpacing = 0.8; % Vertical spacing betwen layers
 toolPathSpacing = 0.92; % Horizontal spacing betwen layers
 levelSpacing = 4.0;
 maximumOverhangAngle = 0.262; % Maximum allowed overhang angle, in radians
 maximumB = 42; % Maximum allowed overhang angle, in degree
 shrinkLength = 2.0; % End shrink length for infill tool paths
-modelPath = 'stage5\\level%i\\'; % Path for the .stl files
+modelPath = 'stage5\\'; % Path for the .stl files
 
-[totalPieces, maximumOverhang] = slicing(membersInEachFloor, zGrids, anglesForEachFloor, maximumOverhangAngle, maximumB, splintLineX, splintLineY, floorLineZ, levelSpacing, printSpacing, toolPathSpacing, shrinkLength, false, true);
+[totalPieces, maximumOverhang] = slicing(modelPath, membersInEachFloor, zGrids, anglesForEachFloor, maximumOverhangAngle, maximumB, splintLineX, splintLineY, floorLineZ, levelSpacing, printSpacing, toolPathSpacing, shrinkLength, false, true);
 
 maximumOverhang = 180*(maximumOverhang/pi);
 finalCuttings = figure(1);

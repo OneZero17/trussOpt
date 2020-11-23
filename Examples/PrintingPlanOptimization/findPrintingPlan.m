@@ -1,6 +1,4 @@
-function [cuttingSurfaces,  splitedStructureEachFloor, anglesForEachFloor, printable, zGrids] = findPrintingPlan(structure, splintLineX, splintLineY, floorLineZ, checkingMaxAngle, reRunTurnedOn, knownAngleValue,floorSpacing)
-    clf
-    maximumTurnAngle = 0.6;
+function [cuttingSurfaces,  splitedStructureEachFloor, anglesForEachFloor, printable, zGrids] = findPrintingPlan(structure, splintLineX, splintLineY, floorLineZ, checkingMaxAngle, reRunTurnedOn, knownAngleValue,floorSpacing, maximumTurnAngle)
     nozzleMaxAngle = 0.809;
     symmetryInX = true;
     solverOptions.useCosAngleValue = false;
@@ -15,9 +13,8 @@ function [cuttingSurfaces,  splitedStructureEachFloor, anglesForEachFloor, print
     floorGap = 0; 
     figure(1)
     hold on
-    %tiledlayout(2,2);
     figure(2)
-    t = tiledlayout(2, 3, 'TileSpacing','compact');
+    t = tiledlayout('flow');
     cuttingSurfaces = cell(size(membersInEachFloor, 1), 1);
     splitedStructureEachFloor = cell(size(membersInEachFloor, 1), 1);
     zGrids = cell(size(membersInEachFloor, 1), 1);

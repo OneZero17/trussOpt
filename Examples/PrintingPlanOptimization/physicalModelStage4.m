@@ -1,24 +1,22 @@
 clear
-structure = [0,0,0, 0,0,40,5;
-             0,0,40, 60, 0, 100, 5
-             120, 0, 0, 120, 0, 40, 5
-             120, 0, 40,60, 0, 100, 5];
+%The values for each row are [point1x, point1y, point1z, poin2x, point2y, point3z, area]
+structure = [0,0,0, 0,0,40, 80;
+             0,0,40, 60, 0, 100, 80
+             120, 0, 0, 120, 0, 40, 80
+             120, 0, 40,60, 0, 100, 80];
 
 plotStructure3D(structure, 10, [0.3, 0.3, 0.3], true);
 structureTools = OptStructureTools;
 volume = calcStructureVolume(structure);
-outputPath = '..\vtkPython\polydatas\';
+outputPath = '.\';
 outputStructure = structure;
-outputStructure(:, end) = abs(structure(:, end) * 50);
-maximumAreaList = structureTools.getMaximumAreaList(outputStructure);
-%% Building sectors
+structureTools.writeStructureToRhinoScript(outputStructure, outputPath)
+%% Printing plan optimization
 close all
 xMax=120; yMax=0; zMax=100;
 startCoordinates = [0, 0, 0];
 endCoordinates = [xMax, yMax, zMax + 15];
 floorLineZ = outputBoxForEachFloor(startCoordinates, endCoordinates, outputStructure, false); % splitted floors in Z direction
-
-%% Printing plan optimization
 checkingMaxAngle = 0.977;
 floorSpacing = 6.25;
 splineSpacing = 1;
@@ -33,13 +31,13 @@ maximumTurnAngle = 0.6;
 close all
 tempStructure = [outputStructure, (1:size(outputStructure, 1))'];
 membersInEachFloor = splitSector3DInZ(tempStructure, floorLineZ);
-printSpacing = 0.375; % Vertical spacing betwen layers
+printSpacing = 0.8; % Vertical spacing betwen layers
 toolPathSpacing = 0.92; % Horizontal spacing betwen layers
 levelSpacing = 4.0;
 maximumOverhangAngle = 0.262; % Maximum allowed overhang angle, in radians
 maximumB = 42; % Maximum allowed overhang angle, in degree
 shrinkLength = 2.0; % End shrink length for infill tool paths
-modelPath = 'stage4\\level%i\\'; % Path for the .stl files
+modelPath = 'stage4\\'; % Path for the .stl files
 [totalPieces, maximumOverhang] = slicing(modelPath, membersInEachFloor, zGrids, anglesForEachFloor, maximumOverhangAngle, maximumB, splintLineX, splintLineY, floorLineZ, levelSpacing, printSpacing, toolPathSpacing, shrinkLength, false, true);
 
 maximumOverhang = 180*(maximumOverhang/pi);
@@ -67,7 +65,3 @@ function floorLineZ = outputBoxForEachFloor(startCoordinates, endCoordinates, st
         structureTools.outputLevelBoxes(tempStructure, floorLineZ, boxStart, boxEnd, '..\vtkPython\levelBoxes\');
     end
 end
-
-
-
-
