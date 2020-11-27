@@ -63,7 +63,7 @@ maximumB = 42; % Maximum allowed overhang angle, in degree
 shrinkLength = 2.0; % End shrink length for infill tool paths
 modelPath = 'optimizedCantilever\\level%i\\'; % Path for the .stl files
 
-[totalPieces, maximumOverhang] = slicing(modelPath, membersInEachFloor, zGrids, anglesForEachFloor, maximumOverhangAngle, maximumB, splintLineX, splintLineY, floorLineZ, levelSpacing, printSpacing, toolPathSpacing, shrinkLength, false, true);
+[totalPieces, maximumOverhang] = optimizedCantileverSlicing(modelPath, membersInEachFloor, zGrids, anglesForEachFloor, maximumOverhangAngle, maximumB, splintLineX, splintLineY, floorLineZ, levelSpacing, printSpacing, toolPathSpacing, shrinkLength, false, true);
 
 maximumOverhang = 180*(maximumOverhang/pi);
 finalCuttings = figure(1);
@@ -91,7 +91,7 @@ function floorLineZ = outputBoxForEachFloor(startCoordinates, endCoordinates, st
     end
 end
 
-function [totalPieces, maximumOverhang] = slicing(modelpath, membersInEachFloor, zGrids, anglesForEachFloor, maximumOverhangAngle, maximumB, splintLineX, splintLineY, floorLineZ, levelSpacing, printSpacing, toolPathSpacing, shrinkLength, addInfill, showToolPath)
+function [totalPieces, maximumOverhang] = optimizedCantileverSlicing(modelpath, membersInEachFloor, zGrids, anglesForEachFloor, maximumOverhangAngle, maximumB, splintLineX, splintLineY, floorLineZ, levelSpacing, printSpacing, toolPathSpacing, shrinkLength, addInfill, showToolPath)
     structureTools = OptStructureTools;
     totalPieces = cell(1, 1);
     maximumOverhang = 0;
