@@ -1,4 +1,4 @@
-function toGCode(self, toolPaths, Shifting)
+function toTapFile(self, toolPaths, Shifting)
     fileName = "testTapFile.tap";
     fid = fopen( fileName, 'wt' );
     boundingBox = [];
